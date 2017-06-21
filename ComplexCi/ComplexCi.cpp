@@ -198,22 +198,25 @@ int main(int argc, char* argv[])
 			deleteNode(adjListGraph, i.second);
 		}
 
-		std::cout << "maxCi: " << pq.rbegin()->first << " node: " << pq.rbegin()->second << endl;
+		
 
 		for (auto rit = pq.rbegin(); rit != pq.rend(); rit++)
 		{
 			allVex.erase(rit->second);  //remove key
 
 			finalOutput.push_back(rit->second);
-			std::cout << "ci: " << rit->first << " node: " << rit->second << endl;
-			
+			std::cout << "ci: " << rit->first << " node: " << rit->second << endl;	
 
 			if (rit->first <= 0)
 			{
+				std::cout << "maxCi: " << pq.rbegin()->first << " node: " << pq.rbegin()->second << endl;
+
 				// ci algorithm ends
 				goto CIEND;
 			}
 		}
+
+		std::cout << "maxCi: " << pq.rbegin()->first << " node: " << pq.rbegin()->second << endl; //show again
 
 		
 
