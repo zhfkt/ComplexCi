@@ -46,21 +46,21 @@ long basicCi(const unordered_map<int, vector<int> > &adjListGraph, int ballRadiu
 	}
 
 
-	set<int> currentSet; 
+	unordered_set<int> currentSet;
 	currentSet.insert(currentNode);
 
-	set<int> alreadyAccess;
+	unordered_set<int> alreadyAccess;
 	alreadyAccess.insert(currentNode);
 
 	for (int i = 0; i < ballRadius; i++)
 	{
-		set<int> nextSet;
-		for (auto node : currentSet)
+		unordered_set<int> nextSet;
+		for (const auto& node : currentSet)
 		{
 
-			set<int> neighbourNodeList(adjListGraph.at(node).begin(), adjListGraph.at(node).end());
+			const vector<int>& neighbourNodeList = adjListGraph.at(node);
 
-			for (auto eachNeighbour : neighbourNodeList)
+			for (const auto& eachNeighbour : neighbourNodeList)
 			{
 				if (alreadyAccess.find(eachNeighbour) == alreadyAccess.end())
 				{
@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
 	else
 	{
 		cout << "at least 3 parameters for csv path" <<endl;
-		cout << "e.g. 'C:/Users/zhfkt/Documents/Visual Studio 2013/Projects/ComplexCi/Release/karate.txt' 2 500 500";
+		cout << "e.g. 'C:/Users/zhfkt/Documents/Visual Studio 2013/Projects/ComplexCi/Release/karate.txt' 2 500 500" <<endl;
 		return 0;
 	}
 
