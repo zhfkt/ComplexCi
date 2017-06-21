@@ -40,7 +40,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
 
 long basicCi(const unordered_map<int, vector<int> > &adjListGraph, int ballRadius, int currentNode)
 {
-	if (!(currentNode == 6 || currentNode == 3))
+	if (currentNode != 3)
 	{
 		return 1;
 	}
@@ -65,7 +65,7 @@ long basicCi(const unordered_map<int, vector<int> > &adjListGraph, int ballRadiu
 
 			const vector<int>& neighbourNodeList = adjListGraph.at(node);
 
-			cout << "currentNode:" << currentNode << "node:" << node << " neighbourNodeList:" << neighbourNodeList.size() << endl;
+			
 
 			for (const auto& eachNeighbour : neighbourNodeList)
 			{
@@ -84,12 +84,17 @@ long basicCi(const unordered_map<int, vector<int> > &adjListGraph, int ballRadiu
 
 	long ci = 0;
 
+	cout << "currentNode:" << currentNode << endl;
 	for (auto node : currentSet)
 	{
+		cout << node << " ";
+
 		ci += (adjListGraph.at(node).size() - 1);
 	}
 
 	ci *= (adjListGraph.at(currentNode).size() - 1);
+
+	cout << endl;
 
 	return ci;
 }
