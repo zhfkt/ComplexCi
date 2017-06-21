@@ -94,7 +94,7 @@ long basicCi(const unordered_map<int, vector<int> > &adjListGraph, int ballRadiu
 
 	ci *= (adjListGraph.at(currentNode).size() - 1);
 
-	cout << endl;
+	cout <<"zhfkt"<< ci << endl;
 
 	return ci;
 }
