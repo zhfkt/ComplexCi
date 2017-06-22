@@ -38,13 +38,8 @@ std::vector<std::string> split(const std::string &s, char delim) {
 }
 
 
-long basicCi(const unordered_map<int, vector<int> > &adjListGraph, int ballRadius, int currentNode)
+long long basicCi(const unordered_map<int, vector<int> > &adjListGraph, int ballRadius, int currentNode)
 {
-	if (currentNode != 3)
-	{
-		return 1;
-	}
-
 	if (adjListGraph.at(currentNode).size() == 0)
 	{
 		return -1;
@@ -82,29 +77,14 @@ long basicCi(const unordered_map<int, vector<int> > &adjListGraph, int ballRadiu
 		currentSet = nextSet;
 	}
 
-	long ci = 0;
+	long long ci = 0;
 
 	for (auto node : currentSet)
 	{
 		ci += (adjListGraph.at(node).size() - 1);
-
-		
-
-		if (ci < 0)
-		{
-			throw;
-		} 
 	}
 
-	cout << "not normal ci 1: " << ci << " ";
-
 	ci *= (adjListGraph.at(currentNode).size() - 1);
-
-	cout << "not normal ci 2: " << adjListGraph.at(currentNode).size() - 1 << " ";
-	cout << "not normal ci 3: " << ci << " ";
-
-
-	cout <<"zhfkt"<< ci << endl;
 
 	return ci;
 }
@@ -128,15 +108,6 @@ void deleteNode(unordered_map<int, vector<int> > &adjListGraph, int node)
 
 int main(int argc, char* argv[])
 {
-	long test_1 = 631094;
-	int test_2 = 4107;
-
-	test_1 = test_1 * test_2;
-
-	cout << test_1 << endl;
-
-	return 0;
-
 	unsigned int ballRadius = 1;
 	unsigned int updateBatch = 1;
 	unsigned int outputNumBatch = 1;
@@ -209,13 +180,13 @@ int main(int argc, char* argv[])
 		cout << "loopCount: " << loopCount << " totalSize: " << totalSize << endl;
 		loopCount += updateBatch;
 
-		set<pair<long,int> > pq; //ci/currentNode
+		set<pair<long long,int> > pq; //ci/currentNode --- long is 32 bit on the win and long long is 64 bit
 
 		for (const auto& i : adjListGraph)
 		{
 			int currentNode = i.first;
 			// core_ci
-			long ci =basicCi(adjListGraph, ballRadius, currentNode);
+			long long ci = basicCi(adjListGraph, ballRadius, currentNode);
 
 			pq.insert(make_pair(ci, currentNode));
 			if (pq.size() > updateBatch)
