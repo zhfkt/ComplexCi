@@ -84,15 +84,25 @@ long basicCi(const unordered_map<int, vector<int> > &adjListGraph, int ballRadiu
 
 	long ci = 0;
 
-	cout << "currentNode:" << currentNode << endl;
 	for (auto node : currentSet)
 	{
-		cout << node << " ";
-
 		ci += (adjListGraph.at(node).size() - 1);
+
+		
+
+		if (ci < 0)
+		{
+			throw;
+		} 
 	}
 
+	cout << "not normal ci 1: " << ci << " ";
+
 	ci *= (adjListGraph.at(currentNode).size() - 1);
+
+	cout << "not normal ci 2: " << adjListGraph.at(currentNode).size() - 1 << " ";
+	cout << "not normal ci 3: " << ci << " ";
+
 
 	cout <<"zhfkt"<< ci << endl;
 
@@ -118,6 +128,15 @@ void deleteNode(unordered_map<int, vector<int> > &adjListGraph, int node)
 
 int main(int argc, char* argv[])
 {
+	long test_1 = 631094;
+	int test_2 = 4107;
+
+	test_1 = test_1 * test_2;
+
+	cout << test_1 << endl;
+
+	return 0;
+
 	unsigned int ballRadius = 1;
 	unsigned int updateBatch = 1;
 	unsigned int outputNumBatch = 1;
@@ -217,7 +236,6 @@ int main(int argc, char* argv[])
 			allVex.erase(rit->second);  //remove key
 
 			finalOutput.push_back(rit->second);
-			std::cout << "ci: " << rit->first << " node: " << rit->second << endl;	
 
 			if (rit->first <= 0)
 			{
