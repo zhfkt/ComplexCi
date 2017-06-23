@@ -208,7 +208,7 @@ int main(int argc, char* argv[])
 			finalOutput.push_back(rit->second);
 			allVex.erase(rit->second);  //remove key
 
-			if (rit ->second <= 0)
+			if (rit ->first <= 0)
 			{
 				// ci algorithm ends
 				goto CIEND;
