@@ -73,7 +73,9 @@ long long basicCi(const unordered_map<int, vector<int> > &adjListGraph, int ball
 	}
 
 	unordered_set<int> currentFrontier;	
-	getNeighbourFrontierAndScope(adjListGraph, ballRadius, currentNode, currentFrontier, unordered_set<int>());
+	unordered_set<int> dummyValue;
+
+	getNeighbourFrontierAndScope(adjListGraph, ballRadius, currentNode, currentFrontier, dummyValue);
 
 	long long ci = 0;
 
@@ -217,7 +219,8 @@ int main(int argc, char* argv[])
 		for (int i : batchList)
 		{
 			unordered_set<int> allScopeInBallRadiusPlusOne;
-			getNeighbourFrontierAndScope(adjListGraph, ballRadius + 1, i, unordered_set<int>(), allScopeInBallRadiusPlusOne);
+			unordered_set<int> dummyValue;
+			getNeighbourFrontierAndScope(adjListGraph, ballRadius + 1, i, dummyValue, allScopeInBallRadiusPlusOne);
 			candidateUpdateNodes.insert(allScopeInBallRadiusPlusOne.begin(), allScopeInBallRadiusPlusOne.end());
 		}
 
