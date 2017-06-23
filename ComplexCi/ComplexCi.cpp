@@ -202,7 +202,7 @@ int main(int argc, char* argv[])
 
 		vector<int> batchList;
 		unsigned int batchLimiti = 0;
-		for (auto rit = allPQ.rbegin(); (rit != allPQ.rend()) || batchLimiti < updateBatch; rit++, batchLimiti++)
+		for (auto rit = allPQ.rbegin(); batchLimiti < updateBatch && (rit != allPQ.rend()); rit++, batchLimiti++)
 		{
 			batchList.push_back(rit->second);
 			finalOutput.push_back(rit->second);
@@ -215,6 +215,10 @@ int main(int argc, char* argv[])
 			}
 		}
 
+		//cout << "monitor 1" << endl;
+
+		int debugCount = 0;
+
 		unordered_set<int> candidateUpdateNodes;
 		for (int i : batchList)
 		{
@@ -222,7 +226,13 @@ int main(int argc, char* argv[])
 			unordered_set<int> dummyValue;
 			getNeighbourFrontierAndScope(adjListGraph, ballRadius + 1, i, dummyValue, allScopeInBallRadiusPlusOne);
 			candidateUpdateNodes.insert(allScopeInBallRadiusPlusOne.begin(), allScopeInBallRadiusPlusOne.end());
+
+
+			//cout << "monitor 1_2: " << debugCount++ << " " << batchList.size() << " " << candidateUpdateNodes.size() << endl;
+
 		}
+
+		//cout << "monitor 2" << endl;
 
 		for (int i : batchList)
 		{
@@ -230,10 +240,12 @@ int main(int argc, char* argv[])
 			//candidateUpdateNodesWithCi.insert(make_pair(i, -1));// no need to because self will be included in the candidateUpdateNodes and updated in the below
 		}
 
+		//cout << "monitor 3" << endl;
+		debugCount = 0;
 
 		for (int i : candidateUpdateNodes)
 		{
-			long long updatedCi = basicCi(adjListGraph, ballRadius + 1, i);
+			long long updatedCi = basicCi(adjListGraph, ballRadius, i);
 
 			long long olderCi = revereseLoopUpAllPQ[i];
 
@@ -241,7 +253,11 @@ int main(int argc, char* argv[])
 			allPQ.insert(make_pair(updatedCi, i));
 
 			revereseLoopUpAllPQ[i] = updatedCi;
+
+
+			//cout << "monitor 3_4: " << debugCount++ << " " << candidateUpdateNodes.size() << endl;
 		}
+		//cout << "monitor 4" << endl;
 
 	}
 
@@ -249,12 +265,12 @@ CIEND:
 
 	//add left random
 
-	cout << "leftVex:" <<endl;
+	cout << "Before Random adding the left CI==0 equals zero: " << finalOutput.size() << endl;
 	for (auto leftVex : allVex)
 	{
 		finalOutput.push_back(leftVex);
-		cout << " " << leftVex ;
 	}
+	cout << "After Random adding the left CI equals zero: " << finalOutput.size() << endl;
 
 	while (true)
 	{
@@ -271,6 +287,8 @@ CIEND:
 
 
 	//--------------
+
+	std::cout << "Outputing Start.." << endl;
 
 	ofstream os(output);
 	
@@ -296,7 +314,7 @@ CIEND:
 		if (i % outputNumBatch == (outputNumBatch - 1) || i == (finalOutput.size() - 1))
 		{
 			os << output500 << endl;
-			std::cout << "output500: " << output500 << endl;
+			//std::cout << "output500: " << output500 << endl;
 			output500.clear();
 		}
 
@@ -304,6 +322,8 @@ CIEND:
 
 
 	os.close();
+
+	std::cout << "Outputing End.." << endl;
 
 	system("pause");
 	return 0;
