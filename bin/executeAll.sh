@@ -1,4 +1,4 @@
-if (( $# > 3 ))
+if (( $# >= 3 ))
 then
     ballRadius=$1
     batch=$2
@@ -8,7 +8,10 @@ else
     exit;
 fi
 
-serID=$(date "+%F-%T")_$ballRadius_$batch_$outputBatch
+serID=$(date "+%y_%m_%d_%H_%M_%S")_"$ballRadius"_"$batch"_"$outputBatch"
+
+echo "serID: " $serID
+
 exec > $serID.log
 
 date
@@ -28,7 +31,7 @@ wait
 resultFolder=../data/networks/results/$serID/ 
 
 mkdir  $resultFolder
-mv $csvFiles_out  $resultFolder
+mv ${csvFiles}_out  $resultFolder
 cd $resultFolder
 
 /scratch/fengkzhu/develop/owndev/ComplexCi/bin/mergeResult.sh 
