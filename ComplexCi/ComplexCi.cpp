@@ -217,7 +217,7 @@ int main(int argc, char* argv[])
 
 		//cout << "monitor 1" << endl;
 
-		int debugCount = 0;
+		//int debugCount = 0;
 
 		unordered_set<int> candidateUpdateNodes;
 		for (int i : batchList)
@@ -241,7 +241,7 @@ int main(int argc, char* argv[])
 		}
 
 		//cout << "monitor 3" << endl;
-		debugCount = 0;
+		//debugCount = 0;
 
 		for (int i : candidateUpdateNodes)
 		{
@@ -265,7 +265,7 @@ CIEND:
 
 	//add left random
 
-	cout << "Before Random adding the left CI==0 equals zero: " << finalOutput.size() << endl;
+	cout << "Before Random adding the left CI equals zero: " << finalOutput.size() << endl;
 	for (auto leftVex : allVex)
 	{
 		finalOutput.push_back(leftVex);
