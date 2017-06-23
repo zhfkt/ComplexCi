@@ -177,7 +177,8 @@ int main(int argc, char* argv[])
 
 	
 	
-	set<pair<long long, int> > allPQ; //ci/currentNode --- long is 32 bit on the win and long long is 64 bit
+	set<pair<long long, int> > allPQ; //ci/currentNode --- long is 32 bit on the win and long long is 64 bit / and long long can be multiple
+	unordered_map<int, long long> revereseLoopUpAllPQ;
 	cout << "modelID: " << modelID << " First Cal CI" << endl;
 
 	for (const auto& i : adjListGraph)
@@ -187,6 +188,7 @@ int main(int argc, char* argv[])
 		long long ci = basicCi(adjListGraph, ballRadius, currentNode);
 
 		allPQ.insert(make_pair(ci, currentNode));
+		revereseLoopUpAllPQ[currentNode] = ci;
 	}
 
 	vector<int> finalOutput;
@@ -197,7 +199,7 @@ int main(int argc, char* argv[])
 		loopCount += updateBatch;
 
 		vector<int> batchList;
-		int batchLimiti = 0;
+		unsigned int batchLimiti = 0;
 		for (auto rit = allPQ.rbegin(); (rit != allPQ.rend()) || batchLimiti < updateBatch; rit++, batchLimiti++)
 		{
 			batchList.push_back(rit->second);
@@ -219,23 +221,23 @@ int main(int argc, char* argv[])
 			candidateUpdateNodes.insert(allScopeInBallRadiusPlusOne.begin(), allScopeInBallRadiusPlusOne.end());
 		}
 
-		unordered_set<pair<int, long long> > candidateUpdateNodesWithCi;
-
 		for (int i : batchList)
 		{
 			deleteNode(adjListGraph, i);
-			candidateUpdateNodesWithCi.insert(make_pair(i, -1));
+			//candidateUpdateNodesWithCi.insert(make_pair(i, -1));// no need to because self will be included in the candidateUpdateNodes and updated in the below
 		}
+
 
 		for (int i : candidateUpdateNodes)
 		{
 			long long updatedCi = basicCi(adjListGraph, ballRadius + 1, i);
-			candidateUpdateNodesWithCi.insert(make_pair(i, updatedCi));
-		}
 
-		for (auto rit = pq.rbegin(); rit != pq.rend(); rit++)
-		{
+			long long olderCi = revereseLoopUpAllPQ[i];
 
+			allPQ.erase(make_pair(olderCi, i));
+			allPQ.insert(make_pair(updatedCi, i));
+
+			revereseLoopUpAllPQ[i] = updatedCi;
 		}
 
 	}
