@@ -37,30 +37,17 @@ std::vector<std::string> split(const std::string &s, char delim) {
 	return elems;
 }
 
-
-long long basicCi(const unordered_map<int, vector<int> > &adjListGraph, int ballRadius, int currentNode)
+void getNeighbourFrontierAndScope(const unordered_map<int, vector<int> > &adjListGraph, int scope, int currentNode, unordered_set<int> &currentSet, unordered_set<int>& alreadyAccess)
 {
-	if (adjListGraph.at(currentNode).size() == 0)
-	{
-		return -1;
-	}
-
-
-	unordered_set<int> currentSet;
 	currentSet.insert(currentNode);
-
-	unordered_set<int> alreadyAccess;
 	alreadyAccess.insert(currentNode);
 
-	for (int i = 0; i < ballRadius; i++)
+	for (int i = 0; i < scope; i++)
 	{
 		unordered_set<int> nextSet;
 		for (const auto& node : currentSet)
 		{
-
 			const vector<int>& neighbourNodeList = adjListGraph.at(node);
-
-			
 
 			for (const auto& eachNeighbour : neighbourNodeList)
 			{
@@ -71,15 +58,26 @@ long long basicCi(const unordered_map<int, vector<int> > &adjListGraph, int ball
 				}
 			}
 
-
 		}
 
 		currentSet = nextSet;
 	}
+}
+
+
+long long basicCi(const unordered_map<int, vector<int> > &adjListGraph, int ballRadius, int currentNode)
+{
+	if (adjListGraph.at(currentNode).size() == 0)
+	{
+		return -1;
+	}
+
+	unordered_set<int> currentFrontier;	
+	getNeighbourFrontierAndScope(adjListGraph, ballRadius, currentNode, currentFrontier, unordered_set<int>());
 
 	long long ci = 0;
 
-	for (auto node : currentSet)
+	for (auto node : currentFrontier)
 	{
 		ci += (adjListGraph.at(node).size() - 1);
 	}
@@ -88,6 +86,10 @@ long long basicCi(const unordered_map<int, vector<int> > &adjListGraph, int ball
 
 	return ci;
 }
+
+
+
+
 
 
 void deleteNode(unordered_map<int, vector<int> > &adjListGraph, int node)
@@ -201,7 +203,6 @@ int main(int argc, char* argv[])
 		}
 
 		
-
 		for (auto rit = pq.rbegin(); rit != pq.rend(); rit++)
 		{
 			allVex.erase(rit->second);  //remove key
@@ -234,6 +235,20 @@ CIEND:
 		cout << " " << leftVex ;
 	}
 
+	while (true)
+	{
+		if (finalOutput.size() % outputNumBatch == 0)
+		{
+			break;
+		}
+		else
+		{
+			finalOutput.push_back(-1);
+		}
+	}
+
+
+
 	//--------------
 
 	ofstream os(output);
@@ -248,8 +263,14 @@ CIEND:
 		}
 
 
-		output500 += (',' + std::to_string(finalOutput[i]));
-
+		if (finalOutput[i] != -1)
+		{
+			output500 += (',' + std::to_string(finalOutput[i]));
+		}
+		else
+		{
+			output500 += ',';
+		}
 
 		if (i % outputNumBatch == (outputNumBatch - 1) || i == (finalOutput.size() - 1))
 		{
