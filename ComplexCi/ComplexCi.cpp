@@ -175,54 +175,70 @@ int main(int argc, char* argv[])
 	//--------------
 
 
+	
+	
+	set<pair<long long, int> > allPQ; //ci/currentNode --- long is 32 bit on the win and long long is 64 bit
+	cout << "modelID: " << modelID << " First Cal CI" << endl;
+
+	for (const auto& i : adjListGraph)
+	{
+		int currentNode = i.first;
+		// core_ci
+		long long ci = basicCi(adjListGraph, ballRadius, currentNode);
+
+		allPQ.insert(make_pair(ci, currentNode));
+	}
+
 	vector<int> finalOutput;
 	int loopCount = 0;
-	do
+	while (true)
 	{
-		std::cout << "modelID: " << modelID << " start loopCount: " << loopCount << " totalSize: " << totalSize << endl;
+		cout << "modelID: " << modelID << " loopCount: " << loopCount << " totalSize: " << totalSize << " maxCi: " << allPQ.rbegin()->first << " node: " << allPQ.rbegin()->second << endl;
 		loopCount += updateBatch;
 
-		set<pair<long long,int> > pq; //ci/currentNode --- long is 32 bit on the win and long long is 64 bit
-
-		for (const auto& i : adjListGraph)
+		vector<int> batchList;
+		int batchLimiti = 0;
+		for (auto rit = allPQ.rbegin(); (rit != allPQ.rend()) || batchLimiti < updateBatch; rit++, batchLimiti++)
 		{
-			int currentNode = i.first;
-			// core_ci
-			long long ci = basicCi(adjListGraph, ballRadius, currentNode);
-
-			pq.insert(make_pair(ci, currentNode));
-			if (pq.size() > updateBatch)
-			{
-				pq.erase(pq.begin());
-			}
-		}
-
-		for (const auto& i : pq)
-		{
-			deleteNode(adjListGraph, i.second);
-		}
-
-		
-		for (auto rit = pq.rbegin(); rit != pq.rend(); rit++)
-		{
+			batchList.push_back(rit->second);
+			finalOutput.push_back(rit->second);
 			allVex.erase(rit->second);  //remove key
 
-			finalOutput.push_back(rit->second);
-
-			if (rit->first <= 0)
+			if (rit ->second <= 0)
 			{
-				std::cout << "modelID: " << modelID << " maxCi: " << pq.rbegin()->first << " node: " << pq.rbegin()->second << endl; //show again
-
 				// ci algorithm ends
 				goto CIEND;
 			}
 		}
 
-		std::cout << "endLoop modelID: " << modelID << " maxCi: " << pq.rbegin()->first << " node: " << pq.rbegin()->second << endl; //show again
+		unordered_set<int> candidateUpdateNodes;
+		for (int i : batchList)
+		{
+			unordered_set<int> allScopeInBallRadiusPlusOne;
+			getNeighbourFrontierAndScope(adjListGraph, ballRadius + 1, i, unordered_set<int>(), allScopeInBallRadiusPlusOne);
+			candidateUpdateNodes.insert(allScopeInBallRadiusPlusOne.begin(), allScopeInBallRadiusPlusOne.end());
+		}
 
-		
+		unordered_set<pair<int, long long> > candidateUpdateNodesWithCi;
 
-	} while (true);
+		for (int i : batchList)
+		{
+			deleteNode(adjListGraph, i);
+			candidateUpdateNodesWithCi.insert(make_pair(i, -1));
+		}
+
+		for (int i : candidateUpdateNodes)
+		{
+			long long updatedCi = basicCi(adjListGraph, ballRadius + 1, i);
+			candidateUpdateNodesWithCi.insert(make_pair(i, updatedCi));
+		}
+
+		for (auto rit = pq.rbegin(); rit != pq.rend(); rit++)
+		{
+
+		}
+
+	}
 
 CIEND:
 
