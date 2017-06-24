@@ -96,12 +96,12 @@ long long basicCi(const vector<vector<int> > &adjListGraph, int ballRadius, int 
 
 void deleteNode(vector<vector<int> > &adjListGraph, int node)
 {
-	
+	/*
 		if (adjListGraph[node].size() == 0)
 		{
 			return;
 		} // not must here
-	
+	*/ 
 
 	for (auto neighbour: adjListGraph[node])
 	{
