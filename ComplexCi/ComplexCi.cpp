@@ -72,7 +72,7 @@ long long basicCi(const vector<vector<int> > &adjListGraph, int ballRadius, int 
 		return -1;
 	}
 
-	unordered_set<int> currentFrontier;	
+	unordered_set<int> currentFrontier;
 	unordered_set<int> dummyValue;
 
 	getNeighbourFrontierAndScope(adjListGraph, ballRadius, currentNode, currentFrontier, dummyValue);
@@ -81,7 +81,7 @@ long long basicCi(const vector<vector<int> > &adjListGraph, int ballRadius, int 
 
 	for (auto node : currentFrontier)
 	{
-		ci += (adjListGraph[currentNode].size() - 1);
+		ci += (adjListGraph[node].size() - 1);
 	}
 
 	ci *= (adjListGraph[currentNode].size() - 1);
@@ -97,13 +97,13 @@ long long basicCi(const vector<vector<int> > &adjListGraph, int ballRadius, int 
 void deleteNode(vector<vector<int> > &adjListGraph, int node)
 {
 	/*
-		if (adjListGraph[node].size() == 0)
-		{
-			return;
-		} // not must here
-	*/ 
+	if (adjListGraph[node].size() == 0)
+	{
+	return;
+	} // not must here
+	*/
 
-	for (auto neighbour: adjListGraph[node])
+	for (auto neighbour : adjListGraph[node])
 	{
 		adjListGraph[neighbour].erase(remove(adjListGraph[neighbour].begin(), adjListGraph[neighbour].end(), node), adjListGraph[neighbour].end());
 	}
@@ -134,13 +134,13 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
-		cout << "at least 3 parameters for csv path" <<endl;
-		cout << "e.g. 'C:/Users/zhfkt/Documents/Visual Studio 2013/Projects/ComplexCi/Release/karate.txt' 2 500 500" <<endl;
+		cout << "at least 3 parameters for csv path" << endl;
+		cout << "e.g. 'C:/Users/zhfkt/Documents/Visual Studio 2013/Projects/ComplexCi/Release/karate.txt' 2 500 500" << endl;
 		return 0;
 	}
 
 	string modelID = "";
-		
+
 	{
 		vector<string> fileName = split(path, '/');
 		modelID = split(fileName[fileName.size() - 1], '.')[0];
@@ -193,8 +193,8 @@ int main(int argc, char* argv[])
 	//--------------
 
 
-	
-	
+
+
 	set<pair<long long, int> > allPQ; //ci/currentNode --- long is 32 bit on the win and long long is 64 bit / and long long can be multiple
 	unordered_map<int, long long> revereseLoopUpAllPQ;
 	cout << "modelID: " << modelID << " First Cal CI" << endl;
@@ -224,7 +224,7 @@ int main(int argc, char* argv[])
 			finalOutput.push_back(rit->second);
 			allVex.erase(rit->second);  //remove key
 
-			if (rit ->first <= 0)
+			if (rit->first <= 0)
 			{
 				// ci algorithm ends
 				goto CIEND;
@@ -307,7 +307,7 @@ CIEND:
 	std::cout << "Outputing Start.." << endl;
 
 	ofstream os(output);
-	
+
 
 	string output500 = "";
 	for (unsigned int i = 0; i < finalOutput.size(); i++)
@@ -344,6 +344,4 @@ CIEND:
 	system("pause");
 	return 0;
 }
-
-
 
