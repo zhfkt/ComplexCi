@@ -196,7 +196,7 @@ int main(int argc, char* argv[])
 
 
 	set<pair<long long, int> > allPQ; //ci/currentNode --- long is 32 bit on the win and long long is 64 bit / and long long can be multiple
-	unordered_map<int, long long> revereseLoopUpAllPQ;
+	vector<long long> revereseLoopUpAllPQ(totalSize);
 	cout << "modelID: " << modelID << " First Cal CI" << endl;
 
 	for (int i = 0; i < adjListGraph.size(); i++)
