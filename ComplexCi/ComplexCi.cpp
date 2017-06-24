@@ -60,7 +60,7 @@ void getNeighbourFrontierAndScope(const unordered_map<int, vector<int> > &adjLis
 
 		}
 
-		currentSet = nextSet;
+		currentSet = move(nextSet);
 	}
 }
 
