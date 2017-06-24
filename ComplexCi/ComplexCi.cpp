@@ -37,7 +37,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
 	return elems;
 }
 
-void getNeighbourFrontierAndScope(const unordered_map<int, vector<int> > &adjListGraph, int scope, int currentNode, unordered_set<int> &currentSet, unordered_set<int>& alreadyAccess)
+void getNeighbourFrontierAndScope(const vector<vector<int> > &adjListGraph, int scope, int currentNode, unordered_set<int> &currentSet, unordered_set<int>& alreadyAccess)
 {
 	currentSet.insert(currentNode);
 	alreadyAccess.insert(currentNode);
@@ -47,7 +47,7 @@ void getNeighbourFrontierAndScope(const unordered_map<int, vector<int> > &adjLis
 		unordered_set<int> nextSet;
 		for (const auto& node : currentSet)
 		{
-			const vector<int>& neighbourNodeList = adjListGraph.at(node);
+			const vector<int>& neighbourNodeList = adjListGraph[node];
 
 			for (const auto& eachNeighbour : neighbourNodeList)
 			{
@@ -65,9 +65,9 @@ void getNeighbourFrontierAndScope(const unordered_map<int, vector<int> > &adjLis
 }
 
 
-long long basicCi(const unordered_map<int, vector<int> > &adjListGraph, int ballRadius, int currentNode)
+long long basicCi(const vector<vector<int> > &adjListGraph, int ballRadius, int currentNode)
 {
-	if (adjListGraph.at(currentNode).size() == 0)
+	if (adjListGraph[currentNode].size() == 0)
 	{
 		return -1;
 	}
@@ -81,10 +81,10 @@ long long basicCi(const unordered_map<int, vector<int> > &adjListGraph, int ball
 
 	for (auto node : currentFrontier)
 	{
-		ci += (adjListGraph.at(node).size() - 1);
+		ci += (adjListGraph[currentNode].size() - 1);
 	}
 
-	ci *= (adjListGraph.at(currentNode).size() - 1);
+	ci *= (adjListGraph[currentNode].size() - 1);
 
 	return ci;
 }
@@ -94,12 +94,14 @@ long long basicCi(const unordered_map<int, vector<int> > &adjListGraph, int ball
 
 
 
-void deleteNode(unordered_map<int, vector<int> > &adjListGraph, int node)
+void deleteNode(vector<vector<int> > &adjListGraph, int node)
 {
-	if (adjListGraph[node].size() == 0)
-	{
-		return;
-	}
+	
+		if (adjListGraph[node].size() == 0)
+		{
+			return;
+		} // not must here
+	
 
 	for (auto neighbour: adjListGraph[node])
 	{
@@ -153,26 +155,40 @@ int main(int argc, char* argv[])
 	std::cout << "outputNumBatch: " << outputNumBatch << endl;
 
 
-	unordered_map<int, vector<int> > adjListGraph;
-	unordered_set<int> allVex;
+	std::cout << "First Read Start" << endl;
 
-	ifstream is(path);
+	unordered_set<int> allVex;
 	string eachLine;
+	ifstream is;
+	is.open(path);
+
+	while (is >> eachLine)
+	{
+		vector<string> csvEachLine = split(eachLine, ',');
+
+		allVex.insert(stoi(csvEachLine[0]));
+		allVex.insert(stoi(csvEachLine[1]));
+
+	}
+	is.close();
+	int totalSize = allVex.size();
+
+	std::cout << "First Read End/Second Read Start" << endl;
+
+
+	vector<vector<int> > adjListGraph(totalSize);
+	is.open(path);
 	while (is >> eachLine)
 	{
 		vector<string> csvEachLine = split(eachLine, ',');
 
 		adjListGraph[stoi(csvEachLine[0])].push_back(stoi(csvEachLine[1]));
 		adjListGraph[stoi(csvEachLine[1])].push_back(stoi(csvEachLine[0]));
-
-		allVex.insert(stoi(csvEachLine[0]));
-		allVex.insert(stoi(csvEachLine[1]));
-
 	}
 
-	is.close();
+	std::cout << "Second Read End" << endl;
 
-	int totalSize = adjListGraph.size();
+
 
 	//--------------
 
@@ -183,9 +199,9 @@ int main(int argc, char* argv[])
 	unordered_map<int, long long> revereseLoopUpAllPQ;
 	cout << "modelID: " << modelID << " First Cal CI" << endl;
 
-	for (const auto& i : adjListGraph)
+	for (int i = 0; i < adjListGraph.size(); i++)
 	{
-		int currentNode = i.first;
+		int currentNode = i;
 		// core_ci
 		long long ci = basicCi(adjListGraph, ballRadius, currentNode);
 
