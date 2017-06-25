@@ -39,12 +39,16 @@ std::vector<std::string> split(const std::string &s, char delim) {
 
 void getNeighbourFrontierAndScope(const vector<vector<int> > &adjListGraph, int scope, int currentNode, unordered_set<int> &currentSet, unordered_set<int>& alreadyAccess)
 {
+	//alreadyAccess.reserve(100000);
+
 	currentSet.insert(currentNode);
 	alreadyAccess.insert(currentNode);
 
 	for (int i = 0; i < scope; i++)
 	{
 		unordered_set<int> nextSet;
+		//nextSet.reserve(30000);
+
 		for (const auto& node : currentSet)
 		{
 			const vector<int>& neighbourNodeList = adjListGraph[node];
@@ -85,6 +89,14 @@ long long basicCi(const vector<vector<int> > &adjListGraph, int ballRadius, int 
 	}
 
 	ci *= (adjListGraph[currentNode].size() - 1);
+
+
+	/*
+	if (currentNode % 500 == 0)
+	{
+		cout << currentNode << " currentFrontier size :" << currentFrontier.size() << endl;
+	}
+	*/
 
 	return ci;
 }
