@@ -98,6 +98,46 @@ long long basicCi(const vector<vector<int> > &adjListGraph, int ballRadius, int 
 	}
 	*/
 
+	/*
+	if (currentNode == 1715132 && (ci == 0 || ci == 2))
+	{
+		cout << "currentNode: " << currentNode << " adjListGraph[currentNode].size(): " << adjListGraph[currentNode].size() << "/ ";
+
+
+		for (auto node : adjListGraph[currentNode])
+		{
+			cout << node << " " ;
+		}
+
+		cout << endl;
+
+
+		cout << "ci: " << ci << endl;
+		
+		cout << "currentFrontier: " << endl;
+
+		for (auto node : currentFrontier)
+		{
+			cout << node << " " << adjListGraph[node].size() << endl;
+		}
+
+		cout << "dummyValue: " << endl;
+
+		for (auto node : dummyValue)
+		{
+			cout << node << " node1: ";
+
+			for (auto node1 : adjListGraph[node])
+			{
+				cout <<  node1 << " ";
+			}
+			cout << endl;
+		}
+		cout << endl;
+
+	}
+	*/
+
 	return ci;
 }
 
@@ -230,6 +270,9 @@ int main(int argc, char* argv[])
 
 		vector<int> batchList;
 		unsigned int batchLimiti = 0;
+
+		pair<long long, int> debugPreviousMax = *(allPQ.rbegin());
+
 		for (auto rit = allPQ.rbegin(); batchLimiti < updateBatch && (rit != allPQ.rend()); rit++, batchLimiti++)
 		{
 			batchList.push_back(rit->second);
@@ -242,6 +285,14 @@ int main(int argc, char* argv[])
 				goto CIEND;
 			}
 		}
+
+		/*
+		if (loopCount == 600000)
+		{
+			cout << " revereseLoopUpAllPQ[1715132] " << revereseLoopUpAllPQ[1715132] << endl;
+		}
+		*/
+
 
 		//cout << "monitor 1" << endl;
 
@@ -282,10 +333,16 @@ int main(int argc, char* argv[])
 
 			revereseLoopUpAllPQ[i] = updatedCi;
 
-
 			//cout << "monitor 3_4: " << debugCount++ << " " << candidateUpdateNodes.size() << endl;
 		}
 		//cout << "monitor 4" << endl;
+
+		/*if ((debugPreviousMax.first) < (allPQ.rbegin()->first))
+		{
+			cout << "monitor 5: " << debugPreviousMax.first << " " << allPQ.rbegin()->first << endl;;
+		}
+		*/
+
 
 	}
 
