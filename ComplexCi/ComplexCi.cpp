@@ -68,6 +68,56 @@ void getNeighbourFrontierAndScope(const vector<vector<int> > &adjListGraph, int 
 	}
 }
 
+/*
+void getNeighbourFrontierAndScope(const vector<vector<int> > &adjListGraph, int scope, int currentNode, unordered_set<int> &currentUnorderedSet, unordered_set<int>& alreadyUnorderedAccess)
+{
+	vector<bool> currentSetVector(adjListGraph.size());
+	vector<bool> alreadyAccessVector(adjListGraph.size());
+
+	currentSetVector[currentNode] = true;
+	alreadyAccessVector[currentNode] = true;
+
+	for (int i = 0; i < scope; i++)
+	{
+		vector<bool> nextSetVector(adjListGraph.size());
+
+		for (int j = 0; j < currentSetVector.size(); j++)
+		{
+			if (currentSetVector[j])
+			{
+				const vector<int>& neighbourNodeList = adjListGraph[j];
+
+				for (const auto& eachNeighbour : neighbourNodeList)
+				{
+
+					if (!alreadyAccessVector[eachNeighbour])
+					{
+						nextSetVector[eachNeighbour] = true;
+						alreadyAccessVector[eachNeighbour] = true;
+					}
+				}
+			}
+		}
+
+		currentSetVector = move(nextSetVector);
+	}
+
+
+	for (int i = 0; i < adjListGraph.size(); i++)
+	{
+		if (currentSetVector[i])
+		{
+			currentUnorderedSet.insert(i);
+		}
+		if (alreadyAccessVector[i])
+		{
+			alreadyUnorderedAccess.insert(i);
+		}
+
+	}
+}*/
+
+
 
 long long basicCi(const vector<vector<int> > &adjListGraph, int ballRadius, int currentNode)
 {
