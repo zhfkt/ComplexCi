@@ -22,6 +22,7 @@ using namespace std;
 using namespace std::chrono;
 
 
+
 template<typename Out>
 void split(const std::string &s, char delim, Out result) {
 	std::stringstream ss;
@@ -39,48 +40,17 @@ std::vector<std::string> split(const std::string &s, char delim) {
 	return elems;
 }
 
-/*void getNeighbourFrontierAndScope(const vector<vector<int> > &adjListGraph, int scope, int currentNode, unordered_set<int> &currentSet, unordered_set<int>& alreadyAccess)
+void getNeighbourFrontierAndScope(const vector<vector<int> > &adjListGraph, int scope, int currentNode, unordered_set<int> &currentSet, unordered_set<int>& alreadyAccess)
 {
-//alreadyAccess.reserve(100000);
+	//alreadyAccess.reserve(100000);
 
-currentSet.insert(currentNode);
-alreadyAccess.insert(currentNode);
-
-for (int i = 0; i < scope; i++)
-{
-unordered_set<int> nextSet;
-//nextSet.reserve(30000);
-
-for (const auto& node : currentSet)
-{
-const vector<int>& neighbourNodeList = adjListGraph[node];
-
-for (const auto& eachNeighbour : neighbourNodeList)
-{
-if (alreadyAccess.find(eachNeighbour) == alreadyAccess.end())
-{
-nextSet.insert(eachNeighbour);
-alreadyAccess.insert(eachNeighbour);
-}
-}
-
-}
-
-currentSet = move(nextSet);
-}
-}*/
-
-void getNeighbourFrontierAndScope(const vector<vector<int> > &adjListGraph, int scope, int currentNode, vector<int> &currentSet, vector<int>& alreadyAccess)
-{
-	vector<int> alreadyAccessBool(adjListGraph.size(), 0);
-
-	currentSet.push_back(currentNode);
-	alreadyAccess.push_back(currentNode);
-	alreadyAccessBool[currentNode] = 1;
+	currentSet.insert(currentNode);
+	alreadyAccess.insert(currentNode);
 
 	for (int i = 0; i < scope; i++)
 	{
-		vector<int> nextSet;
+		unordered_set<int> nextSet;
+		//nextSet.reserve(30000);
 
 		for (const auto& node : currentSet)
 		{
@@ -88,12 +58,10 @@ void getNeighbourFrontierAndScope(const vector<vector<int> > &adjListGraph, int 
 
 			for (const auto& eachNeighbour : neighbourNodeList)
 			{
-				if (alreadyAccessBool[eachNeighbour]==0)
+				if (alreadyAccess.find(eachNeighbour) == alreadyAccess.end())
 				{
-					nextSet.push_back(eachNeighbour);
-					alreadyAccess.push_back(eachNeighbour);
-
-					alreadyAccessBool[eachNeighbour] = 1;
+					nextSet.insert(eachNeighbour);
+					alreadyAccess.insert(eachNeighbour);
 				}
 			}
 
@@ -104,7 +72,6 @@ void getNeighbourFrontierAndScope(const vector<vector<int> > &adjListGraph, int 
 }
 
 
-
 long long basicCi(const vector<vector<int> > &adjListGraph, int ballRadius, int currentNode)
 {
 	if (adjListGraph[currentNode].size() == 0)
@@ -112,8 +79,8 @@ long long basicCi(const vector<vector<int> > &adjListGraph, int ballRadius, int 
 		return -1;
 	}
 
-	vector<int> currentFrontier;
-	vector<int> dummyValue;
+	unordered_set<int> currentFrontier;
+	unordered_set<int> dummyValue;
 
 	getNeighbourFrontierAndScope(adjListGraph, ballRadius, currentNode, currentFrontier, dummyValue);
 
@@ -130,46 +97,46 @@ long long basicCi(const vector<vector<int> > &adjListGraph, int ballRadius, int 
 	/*
 	if (currentNode % 500 == 0)
 	{
-	cout << currentNode << " currentFrontier size :" << currentFrontier.size() << endl;
+		cout << currentNode << " currentFrontier size :" << currentFrontier.size() << endl;
 	}
 	*/
 
 	/*
 	if (currentNode == 1715132 && (ci == 0 || ci == 2))
 	{
-	cout << "currentNode: " << currentNode << " adjListGraph[currentNode].size(): " << adjListGraph[currentNode].size() << "/ ";
+		cout << "currentNode: " << currentNode << " adjListGraph[currentNode].size(): " << adjListGraph[currentNode].size() << "/ ";
 
 
-	for (auto node : adjListGraph[currentNode])
-	{
-	cout << node << " " ;
-	}
+		for (auto node : adjListGraph[currentNode])
+		{
+			cout << node << " " ;
+		}
 
-	cout << endl;
+		cout << endl;
 
 
-	cout << "ci: " << ci << endl;
+		cout << "ci: " << ci << endl;
+		
+		cout << "currentFrontier: " << endl;
 
-	cout << "currentFrontier: " << endl;
+		for (auto node : currentFrontier)
+		{
+			cout << node << " " << adjListGraph[node].size() << endl;
+		}
 
-	for (auto node : currentFrontier)
-	{
-	cout << node << " " << adjListGraph[node].size() << endl;
-	}
+		cout << "dummyValue: " << endl;
 
-	cout << "dummyValue: " << endl;
+		for (auto node : dummyValue)
+		{
+			cout << node << " node1: ";
 
-	for (auto node : dummyValue)
-	{
-	cout << node << " node1: ";
-
-	for (auto node1 : adjListGraph[node])
-	{
-	cout <<  node1 << " ";
-	}
-	cout << endl;
-	}
-	cout << endl;
+			for (auto node1 : adjListGraph[node])
+			{
+				cout <<  node1 << " ";
+			}
+			cout << endl;
+		}
+		cout << endl;
 
 	}
 	*/
@@ -228,6 +195,7 @@ int main(int argc, char* argv[])
 	}
 
 	high_resolution_clock::time_point t1 = high_resolution_clock::now();
+
 
 	string modelID = "";
 
@@ -327,7 +295,7 @@ int main(int argc, char* argv[])
 		/*
 		if (loopCount == 600000)
 		{
-		cout << " revereseLoopUpAllPQ[1715132] " << revereseLoopUpAllPQ[1715132] << endl;
+			cout << " revereseLoopUpAllPQ[1715132] " << revereseLoopUpAllPQ[1715132] << endl;
 		}
 		*/
 
@@ -339,10 +307,11 @@ int main(int argc, char* argv[])
 		unordered_set<int> candidateUpdateNodes;
 		for (int i : batchList)
 		{
-			vector<int> allScopeInBallRadiusPlusOne;
-			vector<int> dummyValue;
+			unordered_set<int> allScopeInBallRadiusPlusOne;
+			unordered_set<int> dummyValue;
 			getNeighbourFrontierAndScope(adjListGraph, ballRadius + 1, i, dummyValue, allScopeInBallRadiusPlusOne);
 			candidateUpdateNodes.insert(allScopeInBallRadiusPlusOne.begin(), allScopeInBallRadiusPlusOne.end());
+
 
 			//cout << "monitor 1_2: " << debugCount++ << " " << batchList.size() << " " << candidateUpdateNodes.size() << endl;
 
@@ -376,7 +345,7 @@ int main(int argc, char* argv[])
 
 		/*if ((debugPreviousMax.first) < (allPQ.rbegin()->first))
 		{
-		cout << "monitor 5: " << debugPreviousMax.first << " " << allPQ.rbegin()->first << endl;;
+			cout << "monitor 5: " << debugPreviousMax.first << " " << allPQ.rbegin()->first << endl;;
 		}
 		*/
 
