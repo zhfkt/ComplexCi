@@ -96,7 +96,7 @@ void getNeighbourFrontierAndScope(const vector<vector<int> > &adjListGraph, int 
 
 			for (const auto& eachNeighbour : neighbourNodeList)
 			{
-				if (alreadyAccessBool[eachNeighbour] == 0)
+				if (!alreadyAccessBool.test(eachNeighbour))
 				{
 					bfsQueue[endIt++] = eachNeighbour;
 					alreadyAccessBool[eachNeighbour] = 1;
