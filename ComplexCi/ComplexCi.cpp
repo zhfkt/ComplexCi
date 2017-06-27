@@ -71,44 +71,46 @@ currentSet = move(nextSet);
 }*/
 
 bitset<2000000> alreadyAccessBool;
+vector<int> bfsQueue;
+int startIt = 0;
+int endIt = 1;
 
-
-void getNeighbourFrontierAndScope(const vector<vector<int> > &adjListGraph, int scope, int currentNode, vector<int> &currentSet, vector<int>& alreadyAccess)
+void getNeighbourFrontierAndScope(const vector<vector<int> > &adjListGraph, int scope, int currentNode)
 {
-	//alreadyAccessBool.reset();
+	startIt = 0;
+	endIt = 1;
 
-	currentSet.push_back(currentNode);
-	alreadyAccess.push_back(currentNode);
+	//startIt and endIt will never execeed bfsQueue.size();
+	//alreadyAccess is between 0 and endIt
+	//fontier is between startIt and endIt
+
+	bfsQueue[0] = currentNode;
 	alreadyAccessBool[currentNode] = 1;
 
 	for (int i = 0; i < scope; i++)
 	{
-		vector<int> nextSet;
-
-		for (const auto& node : currentSet)
+		int lastEndIt = endIt;
+		while (startIt != lastEndIt)
 		{
-			const vector<int>& neighbourNodeList = adjListGraph[node];
+			const vector<int>& neighbourNodeList = adjListGraph[bfsQueue[startIt++]];
 
 			for (const auto& eachNeighbour : neighbourNodeList)
 			{
 				if (alreadyAccessBool[eachNeighbour] == 0)
 				{
-					nextSet.push_back(eachNeighbour);
-					alreadyAccess.push_back(eachNeighbour);
-
+					bfsQueue[endIt++] = eachNeighbour;
 					alreadyAccessBool[eachNeighbour] = 1;
 				}
 			}
-
 		}
-
-		currentSet = move(nextSet);
 	}
-
-	for (int node: alreadyAccess)
+	
+	for (int i = 0; i < endIt; i++)
 	{
-		alreadyAccessBool.reset(node);
+		alreadyAccessBool.reset(bfsQueue[i]);
 	}
+
+
 
 }
 
@@ -121,16 +123,13 @@ long long basicCi(const vector<vector<int> > &adjListGraph, int ballRadius, int 
 		return -1;
 	}
 
-	vector<int> currentFrontier;
-	vector<int> dummyValue;
-
-	getNeighbourFrontierAndScope(adjListGraph, ballRadius, currentNode, currentFrontier, dummyValue);
+	getNeighbourFrontierAndScope(adjListGraph, ballRadius, currentNode);
 
 	long long ci = 0;
 
-	for (auto node : currentFrontier)
+	for (int i = startIt; i < endIt; i++)
 	{
-		ci += (adjListGraph[node].size() - 1);
+		ci += (adjListGraph[bfsQueue[i]].size() - 1);
 	}
 
 	ci *= (adjListGraph[currentNode].size() - 1);
@@ -287,6 +286,8 @@ int main(int argc, char* argv[])
 
 	std::cout << "Second Read End" << endl;
 
+	bfsQueue.resize(totalSize, -1);
+
 	//--------------
 
 
@@ -346,10 +347,8 @@ int main(int argc, char* argv[])
 		unordered_set<int> candidateUpdateNodes;
 		for (int i : batchList)
 		{
-			vector<int> allScopeInBallRadiusPlusOne;
-			vector<int> dummyValue;
-			getNeighbourFrontierAndScope(adjListGraph, ballRadius + 1, i, dummyValue, allScopeInBallRadiusPlusOne);
-			candidateUpdateNodes.insert(allScopeInBallRadiusPlusOne.begin(), allScopeInBallRadiusPlusOne.end());
+			getNeighbourFrontierAndScope(adjListGraph, ballRadius + 1, i);
+			candidateUpdateNodes.insert(bfsQueue.begin(), bfsQueue.begin() + endIt);
 
 			//cout << "monitor 1_2: " << debugCount++ << " " << batchList.size() << " " << candidateUpdateNodes.size() << endl;
 
