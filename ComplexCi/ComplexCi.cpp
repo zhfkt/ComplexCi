@@ -307,12 +307,19 @@ int main(int argc, char* argv[])
 		revereseLoopUpAllPQ[currentNode] = ci;
 	}
 
+	bitset<2000000> candidateUpdateNodesBool;
+	vector<int> candidateUpdateNodesVector(totalSize, -1);
+	
+	int candidateEnd = 0;
+
 	vector<int> finalOutput;
 	int loopCount = 0;
 	while (true)
 	{
 		cout << "modelID: " << modelID << " loopCount: " << loopCount << " totalSize: " << totalSize << " maxCi: " << allPQ.rbegin()->first << " node: " << allPQ.rbegin()->second << endl;
 		loopCount += updateBatch;
+
+		candidateEnd = 0;
 
 		vector<int> batchList;
 		unsigned int batchLimiti = 0;
@@ -344,15 +351,26 @@ int main(int argc, char* argv[])
 
 		//int debugCount = 0;
 
-		unordered_set<int> candidateUpdateNodes;
+		
 		for (int i : batchList)
 		{
 			getNeighbourFrontierAndScope(adjListGraph, ballRadius + 1, i);
-			candidateUpdateNodes.insert(bfsQueue.begin(), bfsQueue.begin() + endIt);
 
+			for (auto bfsIt = bfsQueue.begin(); bfsIt != bfsQueue.begin() + endIt; bfsIt++)
+			{
+				if (!candidateUpdateNodesBool.test(*bfsIt))
+				{
+					candidateUpdateNodesVector[candidateEnd++] = (*bfsIt);
+					candidateUpdateNodesBool[*bfsIt] = 1;
+				}
+			}
 			//cout << "monitor 1_2: " << debugCount++ << " " << batchList.size() << " " << candidateUpdateNodes.size() << endl;
 
 		}
+
+
+
+
 
 		//cout << "monitor 2" << endl;
 
@@ -365,16 +383,18 @@ int main(int argc, char* argv[])
 		//cout << "monitor 3" << endl;
 		//debugCount = 0;
 
-		for (int i : candidateUpdateNodes)
+		for (auto canIt = candidateUpdateNodesVector.begin(); canIt != (candidateUpdateNodesVector.begin() + candidateEnd); canIt++)
 		{
-			long long updatedCi = basicCi(adjListGraph, ballRadius, i);
+			long long updatedCi = basicCi(adjListGraph, ballRadius, *canIt);
 
-			long long olderCi = revereseLoopUpAllPQ[i];
+			long long olderCi = revereseLoopUpAllPQ[*canIt];
 
-			allPQ.erase(make_pair(olderCi, i));
-			allPQ.insert(make_pair(updatedCi, i));
+			allPQ.erase(make_pair(olderCi, *canIt));
+			allPQ.insert(make_pair(updatedCi, *canIt));
 
-			revereseLoopUpAllPQ[i] = updatedCi;
+			revereseLoopUpAllPQ[*canIt] = updatedCi;
+
+			candidateUpdateNodesBool[*canIt] = 0; //recover candidateUpdateNodesBool to zero
 
 			//cout << "monitor 3_4: " << debugCount++ << " " << candidateUpdateNodes.size() << endl;
 		}
