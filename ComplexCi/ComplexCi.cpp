@@ -325,7 +325,7 @@ int main(int argc, char* argv[])
 		vector<int> batchList;
 		unsigned int batchLimiti = 0;
 
-		pair<long long, int> debugPreviousMax = *(allPQ.rbegin());
+		//pair<long long, int> debugPreviousMax = *(allPQ.rbegin());
 
 		for (auto rit = allPQ.rbegin(); batchLimiti < updateBatch && (rit != allPQ.rend()); rit++, batchLimiti++)
 		{
