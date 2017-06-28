@@ -70,7 +70,7 @@ currentSet = move(nextSet);
 }
 }*/
 
-bitset<2000000> alreadyAccessBool;
+bool *alreadyAccessBool;
 vector<int> bfsQueue;
 int startIt = 0;
 int endIt = 1;
@@ -96,7 +96,7 @@ void getNeighbourFrontierAndScope(const vector<vector<int> > &adjListGraph, int 
 
 			for (const auto& eachNeighbour : neighbourNodeList)
 			{
-				if (!alreadyAccessBool.test(eachNeighbour))
+				if (!alreadyAccessBool[eachNeighbour])
 				{
 					bfsQueue[endIt++] = eachNeighbour;
 					alreadyAccessBool[eachNeighbour] = 1;
@@ -107,7 +107,7 @@ void getNeighbourFrontierAndScope(const vector<vector<int> > &adjListGraph, int 
 	
 	for (int i = 0; i < endIt; i++)
 	{
-		alreadyAccessBool.reset(bfsQueue[i]);
+		alreadyAccessBool[bfsQueue[i]] = 0;
 	}
 
 
@@ -287,6 +287,7 @@ int main(int argc, char* argv[])
 	std::cout << "Second Read End" << endl;
 
 	bfsQueue.resize(totalSize, -1);
+	alreadyAccessBool = new bool[totalSize];
 
 	//--------------
 
@@ -307,7 +308,7 @@ int main(int argc, char* argv[])
 		revereseLoopUpAllPQ[currentNode] = ci;
 	}
 
-	bitset<2000000> candidateUpdateNodesBool;
+	bool *candidateUpdateNodesBool = new bool[totalSize];
 	vector<int> candidateUpdateNodesVector(totalSize, -1);
 	
 	int candidateEnd = 0;
@@ -358,7 +359,7 @@ int main(int argc, char* argv[])
 
 			for (auto bfsIt = bfsQueue.begin(); bfsIt != bfsQueue.begin() + endIt; bfsIt++)
 			{
-				if (!candidateUpdateNodesBool.test(*bfsIt))
+				if (!candidateUpdateNodesBool[*bfsIt])
 				{
 					candidateUpdateNodesVector[candidateEnd++] = (*bfsIt);
 					candidateUpdateNodesBool[*bfsIt] = 1;
@@ -432,7 +433,8 @@ CIEND:
 		}
 	}
 
-
+	delete[] alreadyAccessBool;
+	delete[] candidateUpdateNodesBool;
 
 	//--------------
 
