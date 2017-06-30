@@ -70,7 +70,7 @@ currentSet = move(nextSet);
 }
 }*/
 
-bool *alreadyAccessBool;
+vector<bool> alreadyAccessBool;
 vector<int> bfsQueue;
 int startIt = 0;
 int endIt = 1;
@@ -287,7 +287,7 @@ int main(int argc, char* argv[])
 	std::cout << "Second Read End" << endl;
 
 	bfsQueue.resize(totalSize, -1);
-	alreadyAccessBool = new bool[totalSize];
+	alreadyAccessBool.resize(totalSize, 0);
 
 	//--------------
 
@@ -308,7 +308,7 @@ int main(int argc, char* argv[])
 		revereseLoopUpAllPQ[currentNode] = ci;
 	}
 
-	bool *candidateUpdateNodesBool = new bool[totalSize];
+	vector<bool> candidateUpdateNodesBool(totalSize, 0);
 	vector<int> candidateUpdateNodesVector(totalSize, -1);
 	
 	int candidateEnd = 0;
@@ -433,8 +433,8 @@ CIEND:
 		}
 	}
 
-	delete[] alreadyAccessBool;
-	delete[] candidateUpdateNodesBool;
+	//delete[] alreadyAccessBool;
+	//delete[] candidateUpdateNodesBool;
 
 	//--------------
 
