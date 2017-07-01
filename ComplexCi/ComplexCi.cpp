@@ -329,15 +329,15 @@ int main(int argc, char* argv[])
 
 		for (auto rit = allPQ.rbegin(); batchLimiti < updateBatch && (rit != allPQ.rend()); rit++, batchLimiti++)
 		{
-			batchList.push_back(rit->second);
-			finalOutput.push_back(rit->second);
-			allVex.erase(rit->second);  //remove key
-
-			if (rit->first <= 0)
+			if (rit->first < 0)//try -1 and batchList is the min point causing Zero Component
 			{
 				// ci algorithm ends
 				goto CIEND;
 			}
+
+			batchList.push_back(rit->second);
+			finalOutput.push_back(rit->second);
+			allVex.erase(rit->second);  //remove key
 		}
 
 		/*
