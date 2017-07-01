@@ -317,7 +317,12 @@ int main(int argc, char* argv[])
 	int loopCount = 0;
 	while (true)
 	{
-		cout << "modelID: " << modelID << " loopCount: " << loopCount << " totalSize: " << totalSize << " maxCi: " << allPQ.rbegin()->first << " node: " << allPQ.rbegin()->second << endl;
+		if ((updateBatch != 1) || ((loopCount%outputNumBatch == 0) && (updateBatch == 1)))
+		{
+			//restrict flood output when updateBatch == 1
+			cout << "modelID: " << modelID << " loopCount: " << loopCount << " totalSize: " << totalSize << " maxCi: " << allPQ.rbegin()->first << " node: " << allPQ.rbegin()->second << endl;
+		}
+		
 		loopCount += updateBatch;
 
 		candidateEnd = 0;
