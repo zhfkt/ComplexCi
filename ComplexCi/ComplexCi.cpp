@@ -123,6 +123,11 @@ long long basicCi(const vector<vector<int> > &adjListGraph, int ballRadius, int 
 		return -1;
 	}
 
+	if (ballRadius == 0)
+	{
+		return adjListGraph[currentNode].size();
+	}
+
 	getNeighbourFrontierAndScope(adjListGraph, ballRadius, currentNode);
 
 	long long ci = 0;
