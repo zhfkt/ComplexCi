@@ -162,7 +162,245 @@ public:
 };
 
 
+class basicCiAlgo
+{
 
+private:
+
+	unsigned int ballRadius;
+	unsigned int updateBatch;
+	unsigned int outputNumBatch;
+	
+	const string& path;
+	const string& modelID;
+	
+	unordered_set<int> allVex;
+	vector<vector<int> > adjListGraph;
+	int totalSize;
+
+public:
+
+	basicCiAlgo(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch ,const string& _path, const string& _modelID) :
+		ballRadius(_ballRadius), updateBatch(_updateBatch), outputNumBatch(_outputNumBatch), path(_path), modelID(_modelID)
+	{	
+		cout << "First Read Start" << endl;
+
+		
+		string eachLine;
+		ifstream is;
+		is.open(path);
+
+		while (is >> eachLine)
+		{
+			vector<string> csvEachLine = util::split(eachLine, ',');
+
+			allVex.insert(stoi(csvEachLine[0]));
+			allVex.insert(stoi(csvEachLine[1]));
+
+		}
+		is.close();
+		
+		totalSize = allVex.size();
+		adjListGraph.resize(totalSize);
+
+		cout << "First Read End/Second Read Start" << endl;
+
+
+		
+		is.open(path);
+		while (is >> eachLine)
+		{
+			vector<string> csvEachLine = util::split(eachLine, ',');
+
+			adjListGraph[stoi(csvEachLine[0])].push_back(stoi(csvEachLine[1]));
+			adjListGraph[stoi(csvEachLine[1])].push_back(stoi(csvEachLine[0]));
+		}
+
+		cout << "Second Read End" << endl;
+	}
+
+	vector<int> go()
+	{
+		set<pair<long long, int> > allPQ; //ci/currentNode --- long is 32 bit on the win and long long is 64 bit / and long long can be multiple
+		vector<long long> revereseLoopUpAllPQ(totalSize);
+
+		graphUtil gu(totalSize);
+
+		cout << "modelID: " << modelID << " First Cal CI" << endl;
+
+		for (int i = 0; i < adjListGraph.size(); i++)
+		{
+			int currentNode = i;
+			// core_ci
+			long long ci = gu.basicCi(adjListGraph, ballRadius, currentNode);
+
+			allPQ.insert(make_pair(ci, currentNode));
+			revereseLoopUpAllPQ[currentNode] = ci;
+		}
+
+		vector<bool> candidateUpdateNodesBool(totalSize, 0);
+		vector<int> candidateUpdateNodesVector(totalSize, -1);
+
+		int candidateEnd = 0;
+
+		vector<int> finalOutput;
+		int loopCount = 0;
+		while (true)
+		{
+			if ((updateBatch != 1) || ((loopCount%outputNumBatch == 0) && (updateBatch == 1)))
+			{
+				//restrict flood output when updateBatch == 1
+				cout << "modelID: " << modelID << " loopCount: " << loopCount << " totalSize: " << totalSize << " maxCi: " << allPQ.rbegin()->first << " node: " << allPQ.rbegin()->second << endl;
+			}
+
+			loopCount += updateBatch;
+
+			candidateEnd = 0;
+
+			vector<int> batchList;
+			unsigned int batchLimiti = 0;
+
+			//pair<long long, int> debugPreviousMax = *(allPQ.rbegin());
+
+			for (auto rit = allPQ.rbegin(); batchLimiti < updateBatch && (rit != allPQ.rend()); rit++, batchLimiti++)
+			{
+				if (rit->first < 0)//try -1 and batchList is the min point causing Zero Component
+				{
+					// ci algorithm ends
+					goto CIEND;
+				}
+
+				batchList.push_back(rit->second);
+				finalOutput.push_back(rit->second);
+				allVex.erase(rit->second);  //remove key
+			}
+
+			for (int i : batchList)
+			{
+				gu.getNeighbourFrontierAndScope(adjListGraph, ballRadius + 1, i);
+				const vector<int>& bfsQueue = gu.getBfsQueue();
+				int endIt = gu.getEndIt();
+
+				for (auto bfsIt = bfsQueue.begin(); bfsIt != bfsQueue.begin() + endIt; bfsIt++)
+				{
+					if (!candidateUpdateNodesBool[*bfsIt])
+					{
+						candidateUpdateNodesVector[candidateEnd++] = (*bfsIt);
+						candidateUpdateNodesBool[*bfsIt] = 1;
+					}
+				}
+			}
+
+
+			for (int i : batchList)
+			{
+				gu.deleteNode(adjListGraph, i);
+				//candidateUpdateNodesWithCi.insert(make_pair(i, -1));// no need to because self will be included in the candidateUpdateNodes and updated in the below
+			}
+
+			for (auto canIt = candidateUpdateNodesVector.begin(); canIt != (candidateUpdateNodesVector.begin() + candidateEnd); canIt++)
+			{
+				long long updatedCi = gu.basicCi(adjListGraph, ballRadius, *canIt);
+
+				long long olderCi = revereseLoopUpAllPQ[*canIt];
+
+				allPQ.erase(make_pair(olderCi, *canIt));
+				allPQ.insert(make_pair(updatedCi, *canIt));
+
+				revereseLoopUpAllPQ[*canIt] = updatedCi;
+
+				candidateUpdateNodesBool[*canIt] = 0; //recover candidateUpdateNodesBool to zero
+
+			}
+
+		}
+
+	CIEND:
+
+		//add left random
+
+		cout << "Before Random adding the left CI equals zero: " << finalOutput.size() << endl;
+		for (auto leftVex : allVex)
+		{
+			finalOutput.push_back(leftVex);
+		}
+		cout << "After Random adding the left CI equals zero: " << finalOutput.size() << endl;
+
+		while (true)
+		{
+			if (finalOutput.size() % outputNumBatch == 0)
+			{
+				break;
+			}
+			else
+			{
+				finalOutput.push_back(-1);
+			}
+		}
+
+		return finalOutput;
+	}
+};
+
+
+class outputFinalOutput
+{
+private:
+
+	const string& output;
+	const string& modelID;
+	const vector<int>& finalOutput;
+	const int outputNumBatch;
+	
+public:
+
+	outputFinalOutput(const string& _output, const string& _modelID, const vector<int>& _finalOutput, const int _outputNumBatch) :
+		output(_output), modelID(_modelID), finalOutput(_finalOutput), outputNumBatch(_outputNumBatch)
+	{}
+
+	void outputToFile()
+	{
+		cout << "Outputing Start.." << endl;
+
+		ofstream os(output);
+
+
+		string output500 = "";
+		for (unsigned int i = 0; i < finalOutput.size(); i++)
+		{
+			if (i % outputNumBatch == 0)
+			{
+				output500 = modelID;
+			}
+
+
+			if (finalOutput[i] != -1)
+			{
+				output500 += (',' + to_string(finalOutput[i]));
+			}
+			else
+			{
+				output500 += ',';
+			}
+
+			if (i % outputNumBatch == (outputNumBatch - 1) || i == (finalOutput.size() - 1))
+			{
+				os << output500 << endl;
+				output500.clear();
+			}
+
+		}
+
+
+		os.close();
+
+		cout << "Outputing End.." << endl;
+
+
+	}
+
+
+};
 
 
 
@@ -193,14 +431,8 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-	high_resolution_clock::time_point t1 = high_resolution_clock::now();
-
-	string modelID = "";
-
-	{
-		vector<string> fileName = util::split(path, '/');
-		modelID = util::split(fileName[fileName.size() - 1], '.')[0];
-	}
+	vector<string> fileName = util::split(path, '/');
+	string modelID = util::split(fileName[fileName.size() - 1], '.')[0];
 
 	cout << "path: " << path << endl;
 	cout << "output: " << output << endl;
@@ -211,196 +443,17 @@ int main(int argc, char* argv[])
 	cout << "outputNumBatch: " << outputNumBatch << endl;
 
 
-	cout << "First Read Start" << endl;
+	//--------------
 
-	unordered_set<int> allVex;
-	string eachLine;
-	ifstream is;
-	is.open(path);
+	high_resolution_clock::time_point t1 = high_resolution_clock::now();
 
-	while (is >> eachLine)
-	{
-		vector<string> csvEachLine = util::split(eachLine, ',');
-
-		allVex.insert(stoi(csvEachLine[0]));
-		allVex.insert(stoi(csvEachLine[1]));
-
-	}
-	is.close();
-	int totalSize = allVex.size();
-
-	cout << "First Read End/Second Read Start" << endl;
-
-
-	vector<vector<int> > adjListGraph(totalSize);
-	is.open(path);
-	while (is >> eachLine)
-	{
-		vector<string> csvEachLine = util::split(eachLine, ',');
-
-		adjListGraph[stoi(csvEachLine[0])].push_back(stoi(csvEachLine[1]));
-		adjListGraph[stoi(csvEachLine[1])].push_back(stoi(csvEachLine[0]));
-	}
-
-	cout << "Second Read End" << endl;
+	basicCiAlgo bca(ballRadius, updateBatch, outputNumBatch, path, modelID);
+	const vector<int>& finalOutput = bca.go();
 
 	//--------------
 
-
-	set<pair<long long, int> > allPQ; //ci/currentNode --- long is 32 bit on the win and long long is 64 bit / and long long can be multiple
-	vector<long long> revereseLoopUpAllPQ(totalSize);
-
-	graphUtil gu(totalSize);
-
-	cout << "modelID: " << modelID << " First Cal CI" << endl;
-
-	for (int i = 0; i < adjListGraph.size(); i++)
-	{
-		int currentNode = i;
-		// core_ci
-		long long ci = gu.basicCi(adjListGraph, ballRadius, currentNode);
-
-		allPQ.insert(make_pair(ci, currentNode));
-		revereseLoopUpAllPQ[currentNode] = ci;
-	}
-
-	vector<bool> candidateUpdateNodesBool(totalSize, 0);
-	vector<int> candidateUpdateNodesVector(totalSize, -1);
-	
-	int candidateEnd = 0;
-
-	vector<int> finalOutput;
-	int loopCount = 0;
-	while (true)
-	{
-		if ((updateBatch != 1) || ((loopCount%outputNumBatch == 0) && (updateBatch == 1)))
-		{
-			//restrict flood output when updateBatch == 1
-			cout << "modelID: " << modelID << " loopCount: " << loopCount << " totalSize: " << totalSize << " maxCi: " << allPQ.rbegin()->first << " node: " << allPQ.rbegin()->second << endl;
-		}
-		
-		loopCount += updateBatch;
-
-		candidateEnd = 0;
-
-		vector<int> batchList;
-		unsigned int batchLimiti = 0;
-
-		//pair<long long, int> debugPreviousMax = *(allPQ.rbegin());
-
-		for (auto rit = allPQ.rbegin(); batchLimiti < updateBatch && (rit != allPQ.rend()); rit++, batchLimiti++)
-		{
-			if (rit->first < 0)//try -1 and batchList is the min point causing Zero Component
-			{
-				// ci algorithm ends
-				goto CIEND;
-			}
-
-			batchList.push_back(rit->second);
-			finalOutput.push_back(rit->second);
-			allVex.erase(rit->second);  //remove key
-		}
-		
-		for (int i : batchList)
-		{
-			gu.getNeighbourFrontierAndScope(adjListGraph, ballRadius + 1, i);
-			const vector<int>& bfsQueue = gu.getBfsQueue();
-			int endIt = gu.getEndIt();
-
-			for (auto bfsIt = bfsQueue.begin(); bfsIt != bfsQueue.begin() + endIt; bfsIt++)
-			{
-				if (!candidateUpdateNodesBool[*bfsIt])
-				{
-					candidateUpdateNodesVector[candidateEnd++] = (*bfsIt);
-					candidateUpdateNodesBool[*bfsIt] = 1;
-				}
-			}
-		}
-
-
-		for (int i : batchList)
-		{
-			gu.deleteNode(adjListGraph, i);
-			//candidateUpdateNodesWithCi.insert(make_pair(i, -1));// no need to because self will be included in the candidateUpdateNodes and updated in the below
-		}
-
-		for (auto canIt = candidateUpdateNodesVector.begin(); canIt != (candidateUpdateNodesVector.begin() + candidateEnd); canIt++)
-		{
-			long long updatedCi = gu.basicCi(adjListGraph, ballRadius, *canIt);
-
-			long long olderCi = revereseLoopUpAllPQ[*canIt];
-
-			allPQ.erase(make_pair(olderCi, *canIt));
-			allPQ.insert(make_pair(updatedCi, *canIt));
-
-			revereseLoopUpAllPQ[*canIt] = updatedCi;
-
-			candidateUpdateNodesBool[*canIt] = 0; //recover candidateUpdateNodesBool to zero
-
-		}
-
-	}
-
-CIEND:
-
-	//add left random
-
-	cout << "Before Random adding the left CI equals zero: " << finalOutput.size() << endl;
-	for (auto leftVex : allVex)
-	{
-		finalOutput.push_back(leftVex);
-	}
-	cout << "After Random adding the left CI equals zero: " << finalOutput.size() << endl;
-
-	while (true)
-	{
-		if (finalOutput.size() % outputNumBatch == 0)
-		{
-			break;
-		}
-		else
-		{
-			finalOutput.push_back(-1);
-		}
-	}
-
-	//--------------
-
-	cout << "Outputing Start.." << endl;
-
-	ofstream os(output);
-
-
-	string output500 = "";
-	for (unsigned int i = 0; i < finalOutput.size(); i++)
-	{
-		if (i % outputNumBatch == 0)
-		{
-			output500 = modelID;
-		}
-
-
-		if (finalOutput[i] != -1)
-		{
-			output500 += (',' + to_string(finalOutput[i]));
-		}
-		else
-		{
-			output500 += ',';
-		}
-
-		if (i % outputNumBatch == (outputNumBatch - 1) || i == (finalOutput.size() - 1))
-		{
-			os << output500 << endl;
-			output500.clear();
-		}
-
-	}
-
-
-	os.close();
-
-	cout << "Outputing End.." << endl;
+	outputFinalOutput ofo(output,modelID,finalOutput,outputNumBatch);
+	ofo.outputToFile();
 
 	high_resolution_clock::time_point t2 = high_resolution_clock::now();
 	auto duration = duration_cast<seconds>(t2 - t1).count();
