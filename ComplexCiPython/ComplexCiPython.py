@@ -14,48 +14,50 @@ def chunks(l, n, modelID):
 
         yield genL
 
-start_time = time.time()
+if __name__ == '__main__':
 
-G=nx.Graph();
-batchNum = 500;
-outputNum = 500;
-#sourcePath = r'C:\Users\冯贶天\Source\Repos\ComplexCi\data\524038a.csv'
-sourcePath = r'C:\Users\冯贶天\Source\Repos\ComplexCi\data\networks\real2.csv'
-modelID = sourcePath.split('\\')[-1].split('.')[0]
-outputPath = sourcePath + '_output'
+    start_time = time.time()
 
-with open(sourcePath) as f:
-    f_csv = csv.reader(f);
-    for row in f_csv:
-        G.add_edge(row[0],row[1]);
+    G=nx.Graph();
+    batchNum = 2500;
+    outputNum = 500;
+    #sourcePath = r'C:\Users\冯贶天\Source\Repos\ComplexCi\data\524038a.csv'
+    sourcePath = r'C:\Users\冯贶天\Source\Repos\ComplexCi\data\networks\real2.csv'
+    modelID = sourcePath.split('\\')[-1].split('.')[0]
+    outputPath = sourcePath + '_output'
 
-totalNode = G.number_of_nodes()
-print("%s nodes are Loaded: " % totalNode)
+    with open(sourcePath) as f:
+        f_csv = csv.reader(f);
+        for row in f_csv:
+            G.add_edge(row[0],row[1]);
 
-print("--- %s seconds ---" % (time.time() - start_time))
+    totalNode = G.number_of_nodes()
+    print("%s nodes are Loaded: " % totalNode)
 
-finalResult = [];
+    print("--- %s seconds ---" % (time.time() - start_time))
 
-
-while True:
-    ciMap = collective_influence(G)
-
-    maxCiNodeIt = heapq.nlargest(batchNum, ciMap, key=ciMap.get)
-    G.remove_nodes_from(maxCiNodeIt);
-    finalResult.extend(maxCiNodeIt);
+    finalResult = [];
 
 
-    #print(maxCiNodeIt);
-    print("modelID: %s, Left nodes: %s, Total nodes: %s, MaxCiNode: %s" % (modelID, G.number_of_nodes(), totalNode, maxCiNodeIt[0]))
+    while True:
+        ciMap = collective_influence(G)
+
+        maxCiNodeIt = heapq.nlargest(batchNum, ciMap, key=ciMap.get)
+        G.remove_nodes_from(maxCiNodeIt);
+        finalResult.extend(maxCiNodeIt);
 
 
-    if G.number_of_nodes()==0:
-        break;
-
-with open(outputPath, "w") as csv_file:
-    writer = csv.writer(csv_file, delimiter=',')
-    for line in chunks(finalResult,outputNum, modelID):
-        writer.writerow(line)
+        #print(maxCiNodeIt);
+        print("modelID: %s, Left nodes: %s, Total nodes: %s, MaxCiNode: %s" % (modelID, G.number_of_nodes(), totalNode, maxCiNodeIt[0]))
 
 
-print("--- %s seconds ---" % (time.time() - start_time))
+        if G.number_of_nodes()==0:
+            break;
+
+    with open(outputPath, "w") as csv_file:
+        writer = csv.writer(csv_file, delimiter=',')
+        for line in chunks(finalResult,outputNum, modelID):
+            writer.writerow(line)
+
+
+    print("--- %s seconds ---" % (time.time() - start_time))
