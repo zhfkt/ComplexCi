@@ -22,7 +22,7 @@ for i in `ls $csvFiles`
 do
    echo $i
    date
-        python3 ComplexCiPython.py $i $pythonOut $ballRadius $batch 500 &
+        python3 ComplexCiPython.py $i $pythonOut $ballRadius $batch 500
    date
 done
 
