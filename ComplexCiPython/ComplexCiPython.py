@@ -130,6 +130,9 @@ if __name__ == '__main__':
             finalResult.extend(G.nodes());
             break;
 
+        if G.number_of_nodes()==0:
+            break;
+
     with open(outputPath, "w", newline='') as csv_file:
         writer = csv.writer(csv_file, delimiter=',')
         for line in chunks(finalResult,outputNum, modelID):
