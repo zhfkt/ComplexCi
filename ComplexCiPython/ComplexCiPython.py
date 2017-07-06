@@ -29,7 +29,7 @@ if __name__ == '__main__':
     outputNum = int(sys.argv[5]);
     sourcePath = sys.argv[1]
     modelID = os.path.basename(sourcePath).split('.')[0]
-    outputPath = os.path.join(sys.argv[2] , modelID + '_output')
+    outputPath = os.path.join(sys.argv[2] , modelID + '.csv_out')
 
     print("sourcePath: %s outputPath: %s ballRadius: %s batchNum: %s outputNum: %s" % (sourcePath,outputPath,ballRadius,batchNum,outputNum))
     
