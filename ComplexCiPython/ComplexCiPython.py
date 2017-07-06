@@ -30,9 +30,9 @@ if __name__ == '__main__':
     methodCentrality = int(sys.argv[6]);
     sourcePath = sys.argv[1]
     modelID = os.path.basename(sourcePath).split('.')[0]
-    outputPath = os.path.join(sys.argv[2] , modelID + '.csv_out')
+    outputPath = os.path.join(sys.argv[2] , modelID +"_method_" + str(methodCentrality) + '.csv_out')
 
-    print("sourcePath: %s outputPath: %s ballRadius: %s batchNum: %s outputNum: %s" % (sourcePath,outputPath,ballRadius,batchNum,outputNum))
+    print("sourcePath: %s outputPath: %s ballRadius: %s batchNum: %s outputNum: %s methodCentrality: %s" % (sourcePath,outputPath,ballRadius,batchNum,outputNum, methodCentrality))
     
     start_time = time.time()
 
@@ -105,6 +105,17 @@ if __name__ == '__main__':
             ciMap = nx.local_reaching_centrality(G)
         elif methodCentrality == 25:
             ciMap = nx.global_reaching_centrality(G)
+        elif methodCentrality == 26:
+            ciMap = nx.pagerank(G)
+        elif methodCentrality == 27:
+            ciMap = nx.pagerank_numpy(G)
+        elif methodCentrality == 28:
+            ciMap = nx.pagerank_scipy(G)
+        else:
+            print("methodCentrality %s is not valid" % methodCentrality)
+            input()
+            sys.exit(0);
+            
 
         maxCiNodeIt = heapq.nlargest(batchNum, ciMap, key=ciMap.get)
         G.remove_nodes_from(maxCiNodeIt);
