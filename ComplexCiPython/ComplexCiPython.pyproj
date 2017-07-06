@@ -12,6 +12,9 @@
     <OutputPath>.</OutputPath>
     <Name>ComplexCiPython</Name>
     <RootNamespace>ComplexCiPython</RootNamespace>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <CommandLineArguments>"D:/develop/ComplexCI/karate/karate.txt" "D:/develop/ComplexCI/pythonOutput/"  3 1 1</CommandLineArguments>
+    <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
