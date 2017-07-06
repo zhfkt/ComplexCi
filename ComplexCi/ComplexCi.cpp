@@ -217,6 +217,30 @@ public:
 		}
 
 		cout << "Second Read End" << endl;
+
+		testTransform();
+
+	}
+
+
+	void testTransform()
+	{
+		ofstream os("temp.txt");
+
+		for (int i = 0; i < adjListGraph.size(); i++)
+		{
+			os << (i + 1) << " ";
+
+			for (int j = 0; j < adjListGraph[i].size(); j++)
+			{
+				
+				os << adjListGraph[i][j] + 1 << " ";;
+				
+			}
+			os << endl;
+		}
+
+		os.close();
 	}
 
 	vector<int> go()
@@ -448,12 +472,17 @@ int main(int argc, char* argv[])
 	high_resolution_clock::time_point t1 = high_resolution_clock::now();
 
 	basicCiAlgo bca(ballRadius, updateBatch, outputNumBatch, path, modelID);
+	
+	/*
+
 	const vector<int>& finalOutput = bca.go();
 
 	//--------------
 
 	outputFinalOutput ofo(output,modelID,finalOutput,outputNumBatch);
 	ofo.outputToFile();
+
+	*/
 
 	high_resolution_clock::time_point t2 = high_resolution_clock::now();
 	auto duration = duration_cast<seconds>(t2 - t1).count();
