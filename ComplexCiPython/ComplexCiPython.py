@@ -20,7 +20,7 @@ if __name__ == '__main__':
 
     if len(sys.argv) < 7:
 
-        print("%s %s %s %s %s %s %s %s" % ("ComplexCiPython.py","[input file]","[output folder]","[ballRadius]","[batchNum]","[outputNum]","[methodCentrality]"))
+        print("%s %s %s %s %s %s %s" % ("ComplexCiPython.py","[input file]","[output folder]","[ballRadius]","[batchNum]","[outputNum]","[methodCentrality]"))
         input()
         sys.exit(0);
 
