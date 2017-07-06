@@ -18,15 +18,16 @@ def chunks(l, n, modelID):
 
 if __name__ == '__main__':
 
-    if len(sys.argv) < 6:
+    if len(sys.argv) < 7:
 
-        print("%s %s %s %s %s %s" % ("ComplexCiPython.py","[input file]","[output folder]","[ballRadius]","[batchNum]","[outputNum]"))
+        print("%s %s %s %s %s %s %s %s" % ("ComplexCiPython.py","[input file]","[output folder]","[ballRadius]","[batchNum]","[outputNum]","[methodCentrality]"))
         input()
         sys.exit(0);
 
     ballRadius = int(sys.argv[3]);
     batchNum = int(sys.argv[4]);
     outputNum = int(sys.argv[5]);
+    methodCentrality = int(sys.argv[6]);
     sourcePath = sys.argv[1]
     modelID = os.path.basename(sourcePath).split('.')[0]
     outputPath = os.path.join(sys.argv[2] , modelID + '.csv_out')
@@ -51,7 +52,59 @@ if __name__ == '__main__':
 
 
     while True:
-        ciMap = collective_influence(G,distance=ballRadius)
+
+        if methodCentrality == 0:
+            ciMap = collective_influence(G,distance=ballRadius)
+        elif methodCentrality == 1:
+            ciMap = nx.degree_centrality(G)
+        elif methodCentrality == 2:
+            ciMap = nx.eigenvector_centrality(G)
+        elif methodCentrality == 3:
+            ciMap = nx.eigenvector_centrality_numpy(G)
+        elif methodCentrality == 4:
+            ciMap = nx.katz_centrality(G)
+        elif methodCentrality == 5:
+            ciMap = nx.katz_centrality_numpy(G)
+        elif methodCentrality == 6:
+            ciMap = nx.closeness_centrality(G)
+        elif methodCentrality == 7:
+            ciMap = nx.current_flow_closeness_centrality(G)
+        elif methodCentrality == 8:
+            ciMap = nx.betweenness_centrality(G)
+        elif methodCentrality == 9:
+            ciMap = nx.edge_betweenness_centrality(G)
+        elif methodCentrality == 10:
+            ciMap = nx.betweenness_centrality_subset(G)
+        elif methodCentrality == 11:
+            ciMap = nx.edge_betweenness_centrality_subset(G)
+        elif methodCentrality == 12:
+            ciMap = nx.current_flow_betweenness_centrality(G)
+        elif methodCentrality == 13:
+            ciMap = nx.edge_current_flow_betweenness_centrality(G)
+        elif methodCentrality == 14:
+            ciMap = nx.approximate_current_flow_betweenness_centrality(G)
+        elif methodCentrality == 15:
+            ciMap = nx.current_flow_betweenness_centrality_subset(G)
+        elif methodCentrality == 16:
+            ciMap = nx.edge_current_flow_betweenness_centrality_subset(G)
+        elif methodCentrality == 17:
+            ciMap = nx.communicability_betweenness_centrality(G)
+        elif methodCentrality == 18:
+            ciMap = nx.load_centrality(G)
+        elif methodCentrality == 19:
+            ciMap = nx.edge_load_centrality(G)
+        elif methodCentrality == 20:
+            ciMap = nx.subgraph_centrality(G)
+        elif methodCentrality == 21:
+            ciMap = nx.subgraph_centrality_exp(G)
+        elif methodCentrality == 22:
+            ciMap = nx.estrada_index(G)
+        elif methodCentrality == 23:
+            ciMap = nx.harmonic_centrality(G)
+        elif methodCentrality == 24:
+            ciMap = nx.local_reaching_centrality(G)
+        elif methodCentrality == 25:
+            ciMap = nx.global_reaching_centrality(G)
 
         maxCiNodeIt = heapq.nlargest(batchNum, ciMap, key=ciMap.get)
         G.remove_nodes_from(maxCiNodeIt);
@@ -62,7 +115,8 @@ if __name__ == '__main__':
         print("modelID: %s, Left nodes: %s, Total nodes: %s, MaxCiValue: %s, MaxCiNode: %s" % (modelID, G.number_of_nodes(), totalNode, ciMap[maxCiNodeIt[0]], maxCiNodeIt[0]))
 
 
-        if G.number_of_nodes()==0:
+        if G.number_of_nodes()==1:
+            finalResult.extend(G.nodes());
             break;
 
     with open(outputPath, "w", newline='') as csv_file:
