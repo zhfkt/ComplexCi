@@ -245,6 +245,7 @@ public:
 
 	vector<int> go()
 	{
+		/*
 		set<pair<long long, int> > allPQ; //ci/currentNode --- long is 32 bit on the win and long long is 64 bit / and long long can be multiple
 		vector<long long> revereseLoopUpAllPQ(totalSize);
 
@@ -337,7 +338,19 @@ public:
 
 			}
 
+		}*/
+
+
+		vector<int> finalOutput;
+
+		string eachLine;
+		ifstream is("D:/develop/ComplexCI/CiHeadOutput/INFLUENCERS_0_lvl_1.txt");
+		while (is >> eachLine)
+		{
+			finalOutput.push_back(stoi(eachLine) - 1);
+			allVex.erase(stoi(eachLine) - 1);
 		}
+
 
 	CIEND:
 
@@ -473,8 +486,6 @@ int main(int argc, char* argv[])
 
 	basicCiAlgo bca(ballRadius, updateBatch, outputNumBatch, path, modelID);
 	
-	/*
-
 	const vector<int>& finalOutput = bca.go();
 
 	//--------------
@@ -482,7 +493,7 @@ int main(int argc, char* argv[])
 	outputFinalOutput ofo(output,modelID,finalOutput,outputNumBatch);
 	ofo.outputToFile();
 
-	*/
+	
 
 	high_resolution_clock::time_point t2 = high_resolution_clock::now();
 	auto duration = duration_cast<seconds>(t2 - t1).count();
