@@ -440,8 +440,8 @@ public:
 class openSourceCiAlgo : public basicCiAlgo
 {
 public:
-	openSourceCiAlgo(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch, const string& _path, const string& _modelID) :
-		basicCiAlgo(_ballRadius, _updateBatch, _outputNumBatch, _path, _modelID)
+	openSourceCiAlgo(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch, const string& _path, const string& _modelID, bool _isInserted) :
+		basicCiAlgo(_ballRadius, _updateBatch, _outputNumBatch, _path, _modelID) , isInserted(_isInserted)
 	{
 		tempFormatFile = "tempFormatFile_" + modelID + ".fmt";
 	}
@@ -466,7 +466,7 @@ public:
 		fflush(stdout);
 
 		//GET INFLUENCERS
-		listInfluencers = get_influencers(Node, N, Graph, L);
+		listInfluencers = get_influencers(Node, N, Graph, L, isInserted);
 
 		fprintf(stdout, "\t\t\t\t  ### NETWORK DONE ###\n\n");
 		fflush(stdout);
@@ -487,6 +487,7 @@ public:
 protected:
 
 	string tempFormatFile;
+	bool isInserted;
 	
 	void transformToFormat()
 	{
@@ -565,7 +566,11 @@ int main(int argc, char* argv[])
 	}
 	else if (method == 1)
 	{
-		bca.reset(new openSourceCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID));
+		bca.reset(new openSourceCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, true));
+	}
+	else if (method == 2)
+	{
+		bca.reset(new openSourceCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, false));
 	}
 	else
 	{

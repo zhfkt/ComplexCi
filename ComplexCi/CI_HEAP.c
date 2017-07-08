@@ -493,7 +493,7 @@ int_t *reinsert(varNode *Node, int_t NumRemoved, int_t *list_removed, int_t N, i
 }
 
 //get influencers
-int_t *get_influencers(varNode *Node, int_t N, int_t **Graph, int L) {
+int_t *get_influencers(varNode *Node, int_t N, int_t **Graph, int L, int isReinsert) {
 	int_t i, j, cnt, toBeRemoved, currentNode, pos_currentNode, NumNodesToUpdate, NumLink, CI_ave;
 	int_t *heap_pos, *queue, *check, *lenght, *lenght_plus1, *listNodeToUpdate, *listNodeRemoved;
 	int_t *listInfluencers;
@@ -589,18 +589,19 @@ int_t *get_influencers(varNode *Node, int_t N, int_t **Graph, int L) {
 	
 	fprintf(stdout, "\t\t\t\t### FINISHING ###\n\n"); 
 	
-	//with reinsertion
-	listInfluencers = reinsert(Node, cnt, listNodeRemoved, N, Graph);
-	
-	//without reinsertion
-	/*
-	listInfluencers = (int_t *)calloc(cnt+1, sizeof(int_t));
-	for(i = 1; i <= cnt; i++)
-		listInfluencers[i]  = listNodeRemoved[i-1];
-	listInfluencers[0] = cnt;
-	 */
-	///////////////
-	
+	if (isReinsert)
+	{
+		//with reinsertion
+		listInfluencers = reinsert(Node, cnt, listNodeRemoved, N, Graph);
+	}
+	else
+	{
+		//without reinsertion
+		listInfluencers = (int_t *)calloc(cnt + 1, sizeof(int_t));
+		for (i = 1; i <= cnt; i++)
+			listInfluencers[i] = listNodeRemoved[i - 1];
+		listInfluencers[0] = cnt;
+	}
 	
 	free(queue);
 	free(check);
