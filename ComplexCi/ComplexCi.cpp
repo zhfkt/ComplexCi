@@ -575,6 +575,7 @@ int main(int argc, char* argv[])
 	else
 	{
 		cout << "Method " << method << " is not defined" << endl;
+		return 0;
 	}
 
 	const vector<int>& finalOutput = bca->go();
