@@ -1,14 +1,15 @@
-if (( $# >= 3 ))
+if (( $# >= 4 ))
 then
     ballRadius=$1
     batch=$2
     outputBatch=$3
+	method=$4
 else
-    echo './executeAll.sh 2 500 500'
+    echo './executeAll.sh 2 500 500 0'
     exit;
 fi
 
-serID=$(date "+%y_%m_%d_%H_%M_%S")_"$ballRadius"_"$batch"_"$outputBatch"
+serID=$(date "+%y_%m_%d_%H_%M_%S")_"$ballRadius"_"$batch"_"$outputBatch"_"$method"
 
 echo "serID: " $serID
 
@@ -22,7 +23,7 @@ for i in `ls $csvFiles`
 do
    echo $i
    date
-    ./ComplexCi $i $ballRadius $batch $outputBatch  &
+    ./ComplexCi $i $ballRadius $batch $outputBatch $method  &
    date
 done
 

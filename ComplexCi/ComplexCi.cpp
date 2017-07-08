@@ -17,6 +17,9 @@
 #include <algorithm>
 #include <chrono>
 #include <bitset>
+#include <memory>
+
+#include "CI_HEAP.c"
 
 using namespace std;
 using namespace chrono;
@@ -165,7 +168,7 @@ public:
 class basicCiAlgo
 {
 
-private:
+protected:
 
 	unsigned int ballRadius;
 	unsigned int updateBatch;
@@ -178,14 +181,12 @@ private:
 	vector<vector<int> > adjListGraph;
 	int totalSize;
 
-public:
+private:
 
-	basicCiAlgo(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch ,const string& _path, const string& _modelID) :
-		ballRadius(_ballRadius), updateBatch(_updateBatch), outputNumBatch(_outputNumBatch), path(_path), modelID(_modelID)
-	{	
+	void load()
+	{
 		cout << "First Read Start" << endl;
 
-		
 		string eachLine;
 		ifstream is;
 		is.open(path);
@@ -199,14 +200,12 @@ public:
 
 		}
 		is.close();
-		
+
 		totalSize = allVex.size();
 		adjListGraph.resize(totalSize);
 
 		cout << "First Read End/Second Read Start" << endl;
 
-
-		
 		is.open(path);
 		while (is >> eachLine)
 		{
@@ -218,12 +217,22 @@ public:
 
 		cout << "Second Read End" << endl;
 
-		testTransform();
+	}
+
+
+public:
+
+	basicCiAlgo(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch ,const string& _path, const string& _modelID) :
+		ballRadius(_ballRadius), updateBatch(_updateBatch), outputNumBatch(_outputNumBatch), path(_path), modelID(_modelID)
+	{	
+		load();
+
+		//testTransform();
 
 	}
 
 
-	void testTransform()
+	/*void testTransform()
 	{
 		ofstream os("temp.txt");
 
@@ -241,11 +250,10 @@ public:
 		}
 
 		os.close();
-	}
+	}*/
 
-	vector<int> go()
+	virtual vector<int> go()
 	{
-		/*
 		set<pair<long long, int> > allPQ; //ci/currentNode --- long is 32 bit on the win and long long is 64 bit / and long long can be multiple
 		vector<long long> revereseLoopUpAllPQ(totalSize);
 
@@ -292,7 +300,7 @@ public:
 				if (rit->first < 0)//try -1 and batchList is the min point causing Zero Component
 				{
 					// ci algorithm ends
-					goto CIEND;
+					return postProcess(finalOutput);
 				}
 
 				batchList.push_back(rit->second);
@@ -338,22 +346,15 @@ public:
 
 			}
 
-		}*/
-
-
-		vector<int> finalOutput;
-
-		string eachLine;
-		ifstream is("D:/develop/ComplexCI/CiHeadOutput/INFLUENCERS_0_lvl_1.txt");
-		while (is >> eachLine)
-		{
-			finalOutput.push_back(stoi(eachLine) - 1);
-			allVex.erase(stoi(eachLine) - 1);
 		}
 
+	}
 
-	CIEND:
+protected:
 
+
+	vector<int>& postProcess(vector<int>& finalOutput)
+	{
 		//add left random
 
 		cout << "Before Random adding the left CI equals zero: " << finalOutput.size() << endl;
@@ -377,6 +378,7 @@ public:
 
 		return finalOutput;
 	}
+
 };
 
 
@@ -432,12 +434,82 @@ public:
 		os.close();
 
 		cout << "Outputing End.." << endl;
+	}
+};
 
-
+class openSourceCiAlgo : public basicCiAlgo
+{
+public:
+	openSourceCiAlgo(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch, const string& _path, const string& _modelID) :
+		basicCiAlgo(_ballRadius, _updateBatch, _outputNumBatch, _path, _modelID)
+	{
+		tempFormatFile = "tempFormatFile_" + modelID + ".fmt";
 	}
 
+	virtual vector<int> go()
+	{
+		transformToFormat();
 
+		int_t i, N, **Graph, *listInfluencers;
+		int L;
+		const char *network;
+
+		network = tempFormatFile.c_str();
+		L = ballRadius;
+
+		N = get_num_nodes(network);
+		varNode *Node;
+		Node = (varNode *)calloc(N + 1, sizeof(varNode));
+		Graph = makeRandomGraph(network, N);
+
+		fprintf(stdout, "\n\n\t\t\t\t### COMPUTING ###\n\n");
+		fflush(stdout);
+
+		//GET INFLUENCERS
+		listInfluencers = get_influencers(Node, N, Graph, L);
+
+		fprintf(stdout, "\t\t\t\t  ### NETWORK DONE ###\n\n");
+		fflush(stdout);
+
+		vector<int> finalOutput;
+
+		for (i = 1; i <= listInfluencers[0]; i++)
+		{
+			finalOutput.push_back(listInfluencers[i] - 1);
+			allVex.erase(listInfluencers[i] - 1);
+		}
+
+		free(listInfluencers);
+
+		return postProcess(finalOutput);
+	}
+
+protected:
+
+	string tempFormatFile;
+	
+	void transformToFormat()
+	{
+		ofstream os(tempFormatFile);
+
+		for (int i = 0; i < adjListGraph.size(); i++)
+		{
+			os << (i + 1) << " ";
+
+			for (int j = 0; j < adjListGraph[i].size(); j++)
+			{
+
+				os << adjListGraph[i][j] + 1 << " ";
+
+			}
+			os << endl;
+		}
+
+		os.close();
+	}
 };
+	
+
 
 
 
@@ -450,8 +522,9 @@ int main(int argc, char* argv[])
 
 	string path = "";
 	string output = "";
+	int method = 0;
 
-	if (argc > 4)
+	if (argc > 5)
 	{
 		path = argv[1];
 		output = path + "_out";
@@ -459,12 +532,12 @@ int main(int argc, char* argv[])
 		ballRadius = stoi(argv[2]);
 		updateBatch = stoi(argv[3]);
 		outputNumBatch = stoi(argv[4]);
-
+		method = stoi(argv[5]);
 	}
 	else
 	{
-		cout << "at least 3 parameters for csv path" << endl;
-		cout << "e.g. 'C:/Users/zhfkt/Documents/Visual Studio 2013/Projects/ComplexCi/Release/karate.txt' 2 500 500" << endl;
+		cout << "at least 4 parameters for csv path" << endl;
+		cout << "e.g. 'C:/Users/zhfkt/Documents/Visual Studio 2013/Projects/ComplexCi/Release/karate.txt' [ballRadius] [updateBatch] [outputNumBatch] [method]" << endl;
 		return 0;
 	}
 
@@ -478,15 +551,28 @@ int main(int argc, char* argv[])
 	cout << "ballRadius: " << ballRadius << endl;
 	cout << "updateBatch: " << updateBatch << endl;
 	cout << "outputNumBatch: " << outputNumBatch << endl;
-
-
+	cout << "method: " << method << endl;
+	
 	//--------------
 
 	high_resolution_clock::time_point t1 = high_resolution_clock::now();
 
-	basicCiAlgo bca(ballRadius, updateBatch, outputNumBatch, path, modelID);
-	
-	const vector<int>& finalOutput = bca.go();
+	shared_ptr<basicCiAlgo> bca;
+
+	if (method == 0)
+	{
+		bca.reset(new basicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID));
+	}
+	else if (method == 1)
+	{
+		bca.reset(new openSourceCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID));
+	}
+	else
+	{
+		cout << "Method " << method << " is not defined" << endl;
+	}
+
+	const vector<int>& finalOutput = bca->go();
 
 	//--------------
 
