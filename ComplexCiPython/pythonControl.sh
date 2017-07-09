@@ -1,3 +1,4 @@
+
 if (( $# >= 3 ))
 then
     ballRadius=$1
@@ -29,12 +30,12 @@ done
 
 wait
 
-resultFolder=$pythonOut/$serID/ 
+resultFolder=$pythonOut/$serID/
 
 mkdir  $resultFolder
 mv ${csvFiles}_out  $resultFolder
 cd $resultFolder
 
-/scratch/fengkzhu/develop/owndev/ComplexCi/bin/mergeResult.sh 
+../bin/mergeResult.sh
 
 date

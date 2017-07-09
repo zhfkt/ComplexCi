@@ -29,6 +29,7 @@
     <Compile Include="ci.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="NetworkXComplexCi.py" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
