@@ -31,7 +31,7 @@ wait
 
 resultFolder=../data/networks/results/$serID/ 
 
-mkdir  $resultFolder
+mkdir -p  $resultFolder
 mv ${csvFiles}_out  $resultFolder
 cd $resultFolder
 

@@ -32,7 +32,7 @@ wait
 
 resultFolder=$pythonOut/pythonResults/$serID/
 
-mkdir  $resultFolder
+mkdir -p  $resultFolder
 mv ${csvFiles}_out  $resultFolder
 cd $resultFolder
 
