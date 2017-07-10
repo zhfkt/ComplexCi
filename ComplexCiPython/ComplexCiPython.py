@@ -81,6 +81,8 @@ if __name__ == '__main__':
             cenMap = graph_tool.centrality.katz(G)
         elif methodCentrality == 2:
             cenMap = graph_tool.centrality.closeness(G)
+        elif methodCentrality == 3:
+            cenMap, ep = graph_tool.centrality.betweenness(G)
         else:
             print("methodCentrality %s is not valid" % methodCentrality)
             input()

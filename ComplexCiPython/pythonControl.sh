@@ -18,23 +18,23 @@ exec > $serID.log
 date
 
 csvFiles=../data/networks/*.csv
-pythonOut=../data/networks/
+pythonOut=../data/networks/pythonResults/
 
 for i in `ls $csvFiles`
 do
    echo $i
    date
-	#disable output buffer
+		#disable output buffer
         python3 -u ComplexCiPython.py $i $pythonOut $ballRadius $batch 500 $methodCentrality &
    date
 done
 
 wait
 
-resultFolder=$pythonOut/pythonResults/$serID/
+resultFolder=$pythonOut/$serID/
 
 mkdir -p  $resultFolder
-mv ${csvFiles}_out  $resultFolder
+mv ${pythonOut}*.csv_out  $resultFolder
 cd $resultFolder
 
 ../../../../bin/mergeResult.sh
