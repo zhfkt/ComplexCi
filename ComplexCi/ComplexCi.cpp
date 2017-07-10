@@ -19,7 +19,8 @@
 #include <bitset>
 #include <memory>
 
-#include "CI_HEAP.c"
+#include "CITM.cpp"
+#include "CI_HEAP.cpp"
 
 using namespace std;
 using namespace chrono;
@@ -227,30 +228,7 @@ public:
 	{	
 		load();
 
-		//testTransform();
-
 	}
-
-
-	/*void testTransform()
-	{
-		ofstream os("temp.txt");
-
-		for (int i = 0; i < adjListGraph.size(); i++)
-		{
-			os << (i + 1) << " ";
-
-			for (int j = 0; j < adjListGraph[i].size(); j++)
-			{
-				
-				os << adjListGraph[i][j] + 1 << " ";;
-				
-			}
-			os << endl;
-		}
-
-		os.close();
-	}*/
 
 	virtual vector<int> go()
 	{
@@ -444,29 +422,30 @@ public:
 		basicCiAlgo(_ballRadius, _updateBatch, _outputNumBatch, _path, _modelID) , isInserted(_isInserted)
 	{
 		tempFormatFile = "tempFormatFile_" + modelID + ".fmt";
+		transformToFormat();
+
 	}
 
 	virtual vector<int> go()
 	{
-		transformToFormat();
 
-		int_t i, N, **Graph, *listInfluencers;
+		ci::int_t i, N, **Graph, *listInfluencers;
 		int L;
 		const char *network;
 
 		network = tempFormatFile.c_str();
 		L = ballRadius;
 
-		N = get_num_nodes(network);
-		varNode *Node;
-		Node = (varNode *)calloc(N + 1, sizeof(varNode));
-		Graph = makeRandomGraph(network, N);
+		N = ci::get_num_nodes(network);
+		ci::varNode *Node;
+		Node = (ci::varNode *)calloc(N + 1, sizeof(ci::varNode));
+		Graph = ci::makeRandomGraph(network, N);
 
 		fprintf(stdout, "\n\n\t\t\t\t### COMPUTING ###\n\n");
 		fflush(stdout);
 
 		//GET INFLUENCERS
-		listInfluencers = get_influencers(Node, N, Graph, L, isInserted);
+		listInfluencers = ci::get_influencers(Node, N, Graph, L, isInserted);
 
 		fprintf(stdout, "\t\t\t\t  ### NETWORK DONE ###\n\n");
 		fflush(stdout);
@@ -489,6 +468,8 @@ protected:
 	string tempFormatFile;
 	bool isInserted;
 	
+private:
+
 	void transformToFormat()
 	{
 		ofstream os(tempFormatFile);
@@ -510,6 +491,48 @@ protected:
 	}
 };
 	
+
+
+
+
+class openSourceCiTMAlgo : public openSourceCiAlgo
+{
+public:
+	openSourceCiTMAlgo(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch, const string& _path, const string& _modelID) :
+		openSourceCiAlgo(_ballRadius, _updateBatch, _outputNumBatch, _path, _modelID,  true)
+	{}
+
+	virtual vector<int> go()
+	{
+		srand((unsigned int)time(NULL));
+
+		int L = ballRadius;
+		const char *network = tempFormatFile.c_str();;
+
+		int N = citm::get_num_nodes(network);
+		citm::int_t **Graph = citm::makeRandomGraph(network, N);
+
+		citm::varNode *Node;
+		int **listInfluencers;
+		int *threshold;
+		threshold = (int *)calloc(N + 1, sizeof(int));
+		for (int i = 1; i <= N; i++)
+			threshold[i] = 0.5;//the fractional threshold is 0.5
+		Node = (citm::varNode *)calloc(N + 1, sizeof(citm::varNode));
+		listInfluencers = get_influencers_CITM(Node, N, Graph, threshold, L);
+
+		vector<int> finalOutput;
+
+		for (int i = 1; i <= N; i++)
+		{
+			finalOutput.push_back(listInfluencers[i][1] - 1);
+			allVex.erase(listInfluencers[i][1] - 1);
+		}
+
+		return postProcess(finalOutput);
+	}
+
+};
 
 
 
@@ -571,6 +594,10 @@ int main(int argc, char* argv[])
 	else if (method == 2)
 	{
 		bca.reset(new openSourceCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, false));
+	}
+	else if (method == 3)
+	{
+		bca.reset(new openSourceCiTMAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID));
 	}
 	else
 	{
