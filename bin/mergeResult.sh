@@ -11,5 +11,5 @@ do
 done
 
 tar zcvf $folder.tar.gz $folder.csv
-echo $folder.csv
+readlink -f $folder.csv
 
