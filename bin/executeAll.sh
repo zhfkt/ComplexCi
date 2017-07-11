@@ -35,6 +35,6 @@ mkdir -p  $resultFolder
 mv ${csvFiles}_out  $resultFolder
 cd $resultFolder
 
-/scratch/fengkzhu/develop/owndev/ComplexCi/bin/mergeResult.sh 
+./mergeResult.sh 
 
 date
