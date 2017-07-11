@@ -96,8 +96,11 @@ if __name__ == '__main__':
         #print(resultPartial)
         resultVertexArray = [nodeIndiceAndValue[0] for nodeIndiceAndValue in resultPartialTop]
 
-        print("modelID: %s, Left nodes: %s, Total nodes: %s, resultValue: %s, resultVertex: %s" % (modelID, G.num_vertices(), totalNode, cenMap[resultVertexArray[0]], vertex_int[resultVertexArray[0]]) )
+        print("modelID: %s, Left Edges %s, Left nodes: %s, Total nodes: %s, resultValue: %s, resultVertex: %s" % (modelID,len(list(G.edges())) , G.num_vertices(), totalNode, cenMap[resultVertexArray[0]], vertex_int[resultVertexArray[0]]) )
         finalResult.extend([vertex_int[eachVertex] for eachVertex in resultVertexArray]);
+
+        for eachV in resultVertexArray:
+            G.clear_vertex(eachV)
 
         G.remove_vertex(resultVertexArray);
 
