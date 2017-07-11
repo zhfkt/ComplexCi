@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
     start_time = time.time()
 
-    G=Graph();
+    G=Graph(directed=False);
 
     int_vertex = {}
     vertex_int = G.new_vertex_property("int")
