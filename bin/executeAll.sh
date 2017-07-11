@@ -35,6 +35,7 @@ mkdir -p  $resultFolder
 mv ${csvFiles}_out  $resultFolder
 cd $resultFolder
 
+cd -
 ./mergeResult.sh 
 
 date
