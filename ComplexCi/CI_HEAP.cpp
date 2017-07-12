@@ -268,7 +268,7 @@ int_t get_CI(int_t i, varNode *Node,int_t N, int_t **Graph, int L, int_t *queue,
 		
 		CI = 0;
 		for(k = index; k < (index + lenght[L]); k++) {
-			CI += (Node[queue[k]].deg - 1.);
+			CI += (Node[queue[k]].deg - 1);
 		}
 		CI *= (Node[i].deg - 1);
 		for(k = 0; k < temp; k++)

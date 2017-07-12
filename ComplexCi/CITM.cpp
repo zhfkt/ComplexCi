@@ -23,7 +23,7 @@ namespace citm
 	typedef struct{
 		out_in n;//IN: remaining; OUT: removed
 		off_on v;//OFF: uninfected; ON: infected
-		int m;//threshold
+		double m;//threshold
 		int deg, compNum;//degree
 	}varNode;
 
@@ -85,8 +85,9 @@ namespace citm
 	/////////////////////////
 
 	//get CITM for node i
-	int get_CITM(int i, varNode *Node, int N, int_t **Graph, int L, int *queue, int *check, int *root) {
-		int r, e, k, neigh, deg, CITM, node, rnode, qlength;
+	double get_CITM(int i, varNode *Node, int N, int_t **Graph, int L, int *queue, int *check, int *root) {
+		int r, e, k, neigh, deg, node, rnode, qlength;
+		double CITM;
 		int s;
 		CITM = Node[i].deg;
 
@@ -145,7 +146,8 @@ namespace citm
 
 	//update Node after removal of i, inode records infected nodes
 	void updateNode_CITM(int i, varNode *Node, int N, int_t **Graph, int L, int *queue, int *check, int *root, int *inode) {
-		int r, e, k, neigh, deg, CITM, node, rnode, qlength, ilength;
+		int r, e, k, neigh, deg, node, rnode, qlength, ilength;
+		double CITM;
 		int s;
 		CITM = Node[i].deg;
 		Node[i].v = ON;
@@ -247,7 +249,7 @@ namespace citm
 	}
 
 	//get influencers and corresponding CITM values
-	int **get_influencers_CITM(varNode *Node, int N, int_t **Graph, int *threshold, int L) {
+	int **get_influencers_CITM(varNode *Node, int N, int_t **Graph, double *threshold, int L) {
 		int i, j, cnt, cnt1, toBeRemoved, currentNode, pos_currentNode, NumNodesToUpdate;
 		int *heap_pos, *queue, *check, *root, *inode, *listNodeToUpdate;
 		int **listInfluencers;

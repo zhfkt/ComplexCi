@@ -514,8 +514,8 @@ public:
 
 		citm::varNode *Node;
 		int **listInfluencers;
-		int *threshold;
-		threshold = (int *)calloc(N + 1, sizeof(int));
+		double *threshold;
+		threshold = (double *)calloc(N + 1, sizeof(int));
 		for (int i = 1; i <= N; i++)
 			threshold[i] = 0.5;//the fractional threshold is 0.5
 		Node = (citm::varNode *)calloc(N + 1, sizeof(citm::varNode));
