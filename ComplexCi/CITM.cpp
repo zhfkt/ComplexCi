@@ -1,15 +1,15 @@
 //Algorithm of CI-TM in [Sen Pei, Xian Teng, Jeffrey Shaman, Flaviano Morone, and Hernán A. Makse. "Efficient collective influence maximization in cascading processes with first-order transitions." Scientific Reports 7,45240 (2017).]
 
-namespace citm
-{
-
 	////////////////////////////////
 #include<stdio.h>
 #include<stdlib.h>
-#include<math.h>
+#include<cmath>
 #include<time.h>
 	//////////////////////////////////////
 
+
+namespace citm
+{
 
 #define MAX_DEGREE 1000000
 #define FILENAME_LENGHT 10000
