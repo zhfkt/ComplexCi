@@ -517,7 +517,11 @@ public:
 		double *threshold;
 		threshold = (double *)calloc(N + 1, sizeof(double));
 		for (int i = 1; i <= N; i++)
+		{
 			threshold[i] = 0.5;//the fractional threshold is 0.5
+			//threshold[i] = 1;
+		}
+			
 		Node = (citm::varNode *)calloc(N + 1, sizeof(citm::varNode));
 		listInfluencers = get_influencers_CITM(Node, N, Graph, threshold, L);
 

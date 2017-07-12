@@ -118,7 +118,7 @@ namespace citm
 					node = queue[r];
 					rnode = root[node];
 					deg = Graph[node][0];
-					if (Node[node].m == 1){
+					if (int(Node[node].m) == 1){
 						CITM += Node[node].deg - Node[node].m;
 						for (k = 1; k <= deg; k++){
 							neigh = Graph[node][k];
