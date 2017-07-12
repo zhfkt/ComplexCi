@@ -202,7 +202,7 @@ private:
 		}
 		is.close();
 
-		totalSize = allVex.size();
+		totalSize = (int)allVex.size();
 		adjListGraph.resize(totalSize);
 
 		cout << "First Read End/Second Read Start" << endl;
@@ -513,9 +513,9 @@ public:
 		citm::int_t **Graph = citm::makeRandomGraph(network, N);
 
 		citm::varNode *Node;
-		int **listInfluencers;
+		double **listInfluencers;
 		double *threshold;
-		threshold = (double *)calloc(N + 1, sizeof(int));
+		threshold = (double *)calloc(N + 1, sizeof(double));
 		for (int i = 1; i <= N; i++)
 			threshold[i] = 0.5;//the fractional threshold is 0.5
 		Node = (citm::varNode *)calloc(N + 1, sizeof(citm::varNode));
@@ -525,8 +525,8 @@ public:
 
 		for (int i = 1; i <= N; i++)
 		{
-			finalOutput.push_back(listInfluencers[i][1] - 1);
-			allVex.erase(listInfluencers[i][1] - 1);
+			finalOutput.push_back((int)round(listInfluencers[i][1]) - 1);
+			allVex.erase((int)round(listInfluencers[i][1]) - 1);
 		}
 
 		return postProcess(finalOutput);

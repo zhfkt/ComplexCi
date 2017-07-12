@@ -31,7 +31,7 @@ namespace citm
 
 	//Heap struct
 	typedef struct{
-		int VAL;
+		double VAL;
 		int id;
 	} vertex;
 	typedef struct{
@@ -249,10 +249,10 @@ namespace citm
 	}
 
 	//get influencers and corresponding CITM values
-	int **get_influencers_CITM(varNode *Node, int N, int_t **Graph, double *threshold, int L) {
+	double **get_influencers_CITM(varNode *Node, int N, int_t **Graph, double *threshold, int L) {
 		int i, j, cnt, cnt1, toBeRemoved, currentNode, pos_currentNode, NumNodesToUpdate;
 		int *heap_pos, *queue, *check, *root, *inode, *listNodeToUpdate;
-		int **listInfluencers;
+		double **listInfluencers;
 		Heap heap;
 
 		queue = (int *)calloc(N + 1, sizeof(int));
@@ -261,7 +261,7 @@ namespace citm
 		inode = (int *)calloc(N + 1, sizeof(int));
 		listNodeToUpdate = (int *)calloc(N + 1, sizeof(int));
 
-		listInfluencers = (int **)calloc(N + 1, sizeof(int *));
+		listInfluencers = (double **)calloc(N + 1, sizeof(double *));
 		heap.num_data = (N + 1);
 		heap.node = (vertex *)calloc(heap.num_data, sizeof(vertex));
 		heap_pos = (int *)calloc(heap.num_data, sizeof(int));
@@ -272,7 +272,7 @@ namespace citm
 			Node[i].v = OFF;
 			Node[i].deg = Graph[i][0];
 			Node[i].m = threshold[i];
-			listInfluencers[i] = (int *)calloc(3, sizeof(int));
+			listInfluencers[i] = (double *)calloc(3, sizeof(double));
 		}
 
 		for (i = 1; i <= N; i++) {
