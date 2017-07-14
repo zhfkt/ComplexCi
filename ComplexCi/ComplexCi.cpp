@@ -17,7 +17,10 @@
 #include <algorithm>
 #include <chrono>
 #include <bitset>
+#include <mutex>
 #include <memory>
+#include <thread>
+#include <future>
 
 #include "CITM.cpp"
 #include "CI_HEAP.cpp"
@@ -335,6 +338,221 @@ protected:
 	{
 		//add left random
 
+		cout << modelID << " Before Random adding the left CI equals zero: " << finalOutput.size() << endl;
+		for (auto leftVex : allVex)
+		{
+			finalOutput.push_back(leftVex);
+		}
+		cout << modelID << " After Random adding the left CI equals zero: " << finalOutput.size() << endl;
+
+		while (true)
+		{
+			if (finalOutput.size() % outputNumBatch == 0)
+			{
+				break;
+			}
+			else
+			{
+				finalOutput.push_back(-1);
+			}
+		}
+
+		return finalOutput;
+	}
+
+};
+
+
+class concurrentGraphUtil
+{
+private:
+	graphUtil gu;
+	static mutex loopMutex;
+
+public:
+	concurrentGraphUtil(int totalSize) : gu(totalSize){}
+
+
+	void concurrentCi(const vector<vector<int> > &adjListGraph, int ballRadius, int& currentNode, set<pair<long long, int> > &allPQ, vector<long long> &revereseLoopUpAllPQ)
+	{
+
+		loopMutex.lock();
+
+		{
+			currentNode = 0;
+		}
+
+
+		loopMutex.unlock();
+
+
+		while (true)
+		{
+			long long ci = gu.basicCi(adjListGraph, ballRadius, currentNode);
+
+			loopMutex.lock();
+
+			{
+				allPQ.insert(make_pair(ci, currentNode));
+				revereseLoopUpAllPQ[currentNode] = ci;
+
+				currentNode++;
+
+				if (currentNode >= adjListGraph.size())
+				{
+					loopMutex.unlock();
+					break;
+				}
+			}
+
+			loopMutex.unlock();
+		}
+
+	}
+
+};
+mutex concurrentGraphUtil::loopMutex;
+
+class concurrentBasicCiAlgo : public basicCiAlgo
+{
+protected:
+
+	unsigned int threadNum;
+
+public:
+	concurrentBasicCiAlgo(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch, const string& _path, const string& _modelID) :
+		basicCiAlgo(_ballRadius, _updateBatch, _outputNumBatch, _path, _modelID) 
+	{
+		threadNum = thread::hardware_concurrency();
+
+		if (threadNum == 0)
+		{
+			threadNum = 1;
+		}
+
+		cout << "auto detect hardware concurrency: " << threadNum << endl;
+	
+	}
+
+	virtual vector<int> go()
+	{
+
+		set<pair<long long, int> > allPQ; //ci/currentNode --- long is 32 bit on the win and long long is 64 bit / and long long can be multiple
+		vector<long long> revereseLoopUpAllPQ(totalSize);
+
+		graphUtil gu(totalSize);
+		vector<future<void> > threadPoolFuture;
+
+		cout << "modelID: " << modelID << " First Cal CI" << endl;
+
+		int currentNode = 0;
+		for (unsigned int i = 0; i < threadNum; i++)
+		{
+			 threadPoolFuture.push_back(move(async(&concurrentGraphUtil::concurrentCi, concurrentGraphUtil(totalSize), adjListGraph, ballRadius, currentNode, allPQ, revereseLoopUpAllPQ)));
+		}
+
+
+		for (unsigned int i = 0; i < threadNum; i++)
+		{
+			threadPoolFuture[i].get();
+		}
+
+		for (int i = 0; i < adjListGraph.size(); i++)
+		{
+			int currentNode = i;
+			// core_ci
+			long long ci = gu.basicCi(adjListGraph, ballRadius, currentNode);
+
+			allPQ.insert(make_pair(ci, currentNode));
+			revereseLoopUpAllPQ[currentNode] = ci;
+		}
+
+		vector<bool> candidateUpdateNodesBool(totalSize, 0);
+		vector<int> candidateUpdateNodesVector(totalSize, -1);
+
+		int candidateEnd = 0;
+
+		vector<int> finalOutput;
+		int loopCount = 0;
+		while (true)
+		{
+			if ((updateBatch != 1) || ((loopCount%outputNumBatch == 0) && (updateBatch == 1)))
+			{
+				//restrict flood output when updateBatch == 1
+				cout << "modelID: " << modelID << " loopCount: " << loopCount << " totalSize: " << totalSize << " maxCi: " << allPQ.rbegin()->first << " node: " << allPQ.rbegin()->second << endl;
+			}
+
+			loopCount += updateBatch;
+
+			candidateEnd = 0;
+
+			vector<int> batchList;
+			unsigned int batchLimiti = 0;
+
+			//pair<long long, int> debugPreviousMax = *(allPQ.rbegin());
+
+			for (auto rit = allPQ.rbegin(); batchLimiti < updateBatch && (rit != allPQ.rend()); rit++, batchLimiti++)
+			{
+				if (rit->first < 0)//try -1 and batchList is the min point causing Zero Component
+				{
+					// ci algorithm ends
+					return postProcess(finalOutput);
+				}
+
+				batchList.push_back(rit->second);
+				finalOutput.push_back(rit->second);
+				allVex.erase(rit->second);  //remove key
+			}
+
+			for (int i : batchList)
+			{
+				gu.getNeighbourFrontierAndScope(adjListGraph, ballRadius + 1, i);
+				const vector<int>& bfsQueue = gu.getBfsQueue();
+				int endIt = gu.getEndIt();
+
+				for (auto bfsIt = bfsQueue.begin(); bfsIt != bfsQueue.begin() + endIt; bfsIt++)
+				{
+					if (!candidateUpdateNodesBool[*bfsIt])
+					{
+						candidateUpdateNodesVector[candidateEnd++] = (*bfsIt);
+						candidateUpdateNodesBool[*bfsIt] = 1;
+					}
+				}
+			}
+
+
+			for (int i : batchList)
+			{
+				gu.deleteNode(adjListGraph, i);
+				//candidateUpdateNodesWithCi.insert(make_pair(i, -1));// no need to because self will be included in the candidateUpdateNodes and updated in the below
+			}
+
+			for (auto canIt = candidateUpdateNodesVector.begin(); canIt != (candidateUpdateNodesVector.begin() + candidateEnd); canIt++)
+			{
+				long long updatedCi = gu.basicCi(adjListGraph, ballRadius, *canIt);
+
+				long long olderCi = revereseLoopUpAllPQ[*canIt];
+
+				allPQ.erase(make_pair(olderCi, *canIt));
+				allPQ.insert(make_pair(updatedCi, *canIt));
+
+				revereseLoopUpAllPQ[*canIt] = updatedCi;
+
+				candidateUpdateNodesBool[*canIt] = 0; //recover candidateUpdateNodesBool to zero
+
+			}
+
+		}
+
+	}
+
+protected:
+
+
+	vector<int>& postProcess(vector<int>& finalOutput)
+	{
+		//add left random
+
 		cout << "Before Random adding the left CI equals zero: " << finalOutput.size() << endl;
 		for (auto leftVex : allVex)
 		{
@@ -358,6 +576,9 @@ protected:
 	}
 
 };
+
+
+
 
 
 class outputFinalOutput
@@ -603,6 +824,10 @@ int main(int argc, char* argv[])
 	{
 		bca.reset(new openSourceCiTMAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID));
 	}
+	else if (method == 4)
+	{
+		bca.reset(new concurrentBasicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID));
+	}
 	else
 	{
 		cout << "Method " << method << " is not defined" << endl;
@@ -621,7 +846,7 @@ int main(int argc, char* argv[])
 	high_resolution_clock::time_point t2 = high_resolution_clock::now();
 	auto duration = duration_cast<seconds>(t2 - t1).count();
 
-	cout << "duration: " << duration << "s" << endl;
+	cout << modelID << " duration: " << duration << "s" << endl;
 
 	system("pause");
 	return 0;
