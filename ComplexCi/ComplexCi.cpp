@@ -367,52 +367,182 @@ class concurrentGraphUtil
 {
 private:
 	graphUtil gu;
-	static mutex loopMutex;
+	static mutex sharedIndiceMutex;
+	static mutex putValueMutex;
+	static int sharedIndice;
+	static unordered_set<int>::iterator sharedUnorderedSetIterator;
+	static unordered_set<int>::iterator endSharedUnorderedSetIterator;
+
+protected:
+
+	void resetIterator(unordered_set<int>& candidateUpdateNodesSet)
+	{
+		sharedIndiceMutex.lock();
+
+		{
+			sharedUnorderedSetIterator = candidateUpdateNodesSet.begin();
+			endSharedUnorderedSetIterator = candidateUpdateNodesSet.end();
+		}
+
+		sharedIndiceMutex.unlock();
+	}
+
+	unordered_set<int>::iterator getNextSharedIterator()
+	{
+		unordered_set<int>::iterator currentSharedIndice;
+
+		sharedIndiceMutex.lock();
+
+		{
+			currentSharedIndice = sharedUnorderedSetIterator;
+
+			if (currentSharedIndice == endSharedUnorderedSetIterator)
+			{
+				sharedIndiceMutex.unlock();
+				return endSharedUnorderedSetIterator;
+			}
+
+			sharedUnorderedSetIterator++;
+		}
+
+		sharedIndiceMutex.unlock();
+
+		return currentSharedIndice;
+	}
+
+
+	void resetIndice()
+	{
+		sharedIndiceMutex.lock();
+
+		{
+			sharedIndice = -1;
+		}
+
+		sharedIndiceMutex.unlock();
+	}
+
+	int getNextSharedIndice()
+	{
+		int currentSharedIndice = -1;
+
+		sharedIndiceMutex.lock();
+
+		{
+			sharedIndice++;
+			currentSharedIndice = sharedIndice;
+		}
+
+		sharedIndiceMutex.unlock();
+
+		return currentSharedIndice;
+	}
 
 public:
 	concurrentGraphUtil(int totalSize) : gu(totalSize){}
 
 
-	void concurrentCi(const vector<vector<int> > &adjListGraph, int ballRadius, int& currentNode, set<pair<long long, int> > &allPQ, vector<long long> &revereseLoopUpAllPQ)
+	void concurrentCi(const vector<vector<int> > &adjListGraph, int ballRadius, set<pair<long long, int> > &allPQ, vector<long long> &revereseLoopUpAllPQ)
 	{
-
-		loopMutex.lock();
-
-		{
-			currentNode = 0;
-		}
-
-
-		loopMutex.unlock();
-
+		resetIndice();
 
 		while (true)
 		{
-			loopMutex.lock();
+			int currentSharedIndice = getNextSharedIndice();
+
+			if (currentSharedIndice >= (adjListGraph.size()))
+			{
+				break;
+			}
+			
+			long long ci = gu.basicCi(adjListGraph, ballRadius, currentSharedIndice);
+
+
+			putValueMutex.lock();
 
 			{
-				if (currentNode >= adjListGraph.size())
-				{
-					loopMutex.unlock();
-					break;
-				}
-
-				long long ci = gu.basicCi(adjListGraph, ballRadius, currentNode);
-
-				allPQ.insert(make_pair(ci, currentNode));
-				revereseLoopUpAllPQ[currentNode] = ci;
-
-				currentNode++;
-
+				allPQ.insert(make_pair(ci, currentSharedIndice));
+				revereseLoopUpAllPQ[currentSharedIndice] = ci;
 			}
 
-			loopMutex.unlock();
+			putValueMutex.unlock();
 		}
 
 	}
 
+	
+	void concurrentGetNeighbourFrontierAndScope(unordered_set<int> &candidateUpdateNodesSet, int ballRadius, const vector<int>& batchList, const vector<vector<int> > &adjListGraph)
+	{
+		resetIndice();
+
+		while (true)
+		{
+			int currentSharedIndice = getNextSharedIndice();
+
+			if (currentSharedIndice >= (batchList.size()))
+			{
+				break;
+			}
+
+			gu.getNeighbourFrontierAndScope(adjListGraph, ballRadius + 1, batchList[currentSharedIndice]);
+			const vector<int>& bfsQueue = gu.getBfsQueue();
+			int endIt = gu.getEndIt();
+
+
+			for (auto bfsIt = bfsQueue.begin(); bfsIt != bfsQueue.begin() + endIt; bfsIt++)
+			{
+				putValueMutex.lock();
+				{
+					candidateUpdateNodesSet.insert(*bfsIt);
+				}
+				putValueMutex.unlock();
+			}
+
+		}
+
+	}
+
+
+
+	
+	void concurrentUpdateCandidate(const vector<vector<int> > &adjListGraph, int ballRadius, set<pair<long long, int> > &allPQ, vector<long long> &revereseLoopUpAllPQ, unordered_set<int>& candidateUpdateNodesSet)
+	{
+		resetIterator(candidateUpdateNodesSet);
+
+		while (true)
+		{
+			auto currentSharedIndice = getNextSharedIterator();
+
+			if (currentSharedIndice == endSharedUnorderedSetIterator)
+			{
+				break;
+			}
+
+			long long updatedCi = gu.basicCi(adjListGraph, ballRadius, *currentSharedIndice);
+
+			putValueMutex.lock();
+
+			{
+				long long olderCi = revereseLoopUpAllPQ[*currentSharedIndice];
+
+				allPQ.erase(make_pair(olderCi, *currentSharedIndice));
+				allPQ.insert(make_pair(updatedCi, *currentSharedIndice));
+
+				revereseLoopUpAllPQ[*currentSharedIndice] = updatedCi;
+			}
+
+			putValueMutex.unlock();
+		}
+
+	}
 };
-mutex concurrentGraphUtil::loopMutex;
+
+mutex concurrentGraphUtil::sharedIndiceMutex;
+mutex concurrentGraphUtil::putValueMutex;
+int concurrentGraphUtil::sharedIndice = -1;
+unordered_set<int>::iterator concurrentGraphUtil::sharedUnorderedSetIterator;
+unordered_set<int>::iterator concurrentGraphUtil::endSharedUnorderedSetIterator;
+
 
 class concurrentBasicCiAlgo : public basicCiAlgo
 {
@@ -446,32 +576,22 @@ public:
 
 		cout << "modelID: " << modelID << " First Cal CI" << endl;
 
-		int currentNode = 0;
+		vector<concurrentGraphUtil> cgu(threadNum, concurrentGraphUtil(totalSize));
+
+		//thread start
+
 		for (unsigned int i = 0; i < threadNum; i++)
 		{
-			threadPoolFuture.push_back(move(async(&concurrentGraphUtil::concurrentCi, concurrentGraphUtil(totalSize), ref(adjListGraph), ballRadius, ref(currentNode), ref(allPQ), ref(revereseLoopUpAllPQ))));
+			threadPoolFuture.push_back(move(async(&concurrentGraphUtil::concurrentCi, cgu[i], ref(adjListGraph), ballRadius, ref(allPQ), ref(revereseLoopUpAllPQ))));
 		}
-
+		
+		//wait thread to end
 
 		for (unsigned int i = 0; i < threadNum; i++)
 		{
 			threadPoolFuture[i].get();
 		}
 
-		for (int i = 0; i < adjListGraph.size(); i++)
-		{
-			int currentNode = i;
-			// core_ci
-			long long ci = gu.basicCi(adjListGraph, ballRadius, currentNode);
-
-			allPQ.insert(make_pair(ci, currentNode));
-			revereseLoopUpAllPQ[currentNode] = ci;
-		}
-
-		vector<bool> candidateUpdateNodesBool(totalSize, 0);
-		vector<int> candidateUpdateNodesVector(totalSize, -1);
-
-		int candidateEnd = 0;
 
 		vector<int> finalOutput;
 		int loopCount = 0;
@@ -484,8 +604,6 @@ public:
 			}
 
 			loopCount += updateBatch;
-
-			candidateEnd = 0;
 
 			vector<int> batchList;
 			unsigned int batchLimiti = 0;
@@ -504,43 +622,44 @@ public:
 				finalOutput.push_back(rit->second);
 				allVex.erase(rit->second);  //remove key
 			}
+	
+			
 
-			for (int i : batchList)
+			unordered_set<int> candidateUpdateNodesSet;
+			threadPoolFuture.clear();
+
+			//thread start
+			for (unsigned int i = 0; i < threadNum; i++)
 			{
-				gu.getNeighbourFrontierAndScope(adjListGraph, ballRadius + 1, i);
-				const vector<int>& bfsQueue = gu.getBfsQueue();
-				int endIt = gu.getEndIt();
-
-				for (auto bfsIt = bfsQueue.begin(); bfsIt != bfsQueue.begin() + endIt; bfsIt++)
-				{
-					if (!candidateUpdateNodesBool[*bfsIt])
-					{
-						candidateUpdateNodesVector[candidateEnd++] = (*bfsIt);
-						candidateUpdateNodesBool[*bfsIt] = 1;
-					}
-				}
+				threadPoolFuture.push_back(move(async(&concurrentGraphUtil::concurrentGetNeighbourFrontierAndScope, cgu[i], ref(candidateUpdateNodesSet), ballRadius, ref(batchList), ref(adjListGraph))));
 			}
 
+			//wait thread to end
+
+			for (unsigned int i = 0; i < threadNum; i++)
+			{
+				threadPoolFuture[i].get();
+			}
 
 			for (int i : batchList)
 			{
 				gu.deleteNode(adjListGraph, i);
-				//candidateUpdateNodesWithCi.insert(make_pair(i, -1));// no need to because self will be included in the candidateUpdateNodes and updated in the below
 			}
 
-			for (auto canIt = candidateUpdateNodesVector.begin(); canIt != (candidateUpdateNodesVector.begin() + candidateEnd); canIt++)
+
+			threadPoolFuture.clear();
+
+			//thread start
+			for (unsigned int i = 0; i < threadNum; i++)
 			{
-				long long updatedCi = gu.basicCi(adjListGraph, ballRadius, *canIt);
+				threadPoolFuture.push_back(move(async(&concurrentGraphUtil::concurrentUpdateCandidate, cgu[i], ref(adjListGraph), ballRadius, ref(allPQ), ref(revereseLoopUpAllPQ), ref(candidateUpdateNodesSet))));
+			}
 
-				long long olderCi = revereseLoopUpAllPQ[*canIt];
+			//wait thread to end
 
-				allPQ.erase(make_pair(olderCi, *canIt));
-				allPQ.insert(make_pair(updatedCi, *canIt));
-
-				revereseLoopUpAllPQ[*canIt] = updatedCi;
-
-				candidateUpdateNodesBool[*canIt] = 0; //recover candidateUpdateNodesBool to zero
-
+			for (unsigned int i = 0; i < threadNum; i++)
+			{
+				threadPoolFuture[i].get();
 			}
 
 		}
