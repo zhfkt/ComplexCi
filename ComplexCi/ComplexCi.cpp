@@ -388,21 +388,22 @@ public:
 
 		while (true)
 		{
-			long long ci = gu.basicCi(adjListGraph, ballRadius, currentNode);
-
 			loopMutex.lock();
 
 			{
-				allPQ.insert(make_pair(ci, currentNode));
-				revereseLoopUpAllPQ[currentNode] = ci;
-
-				currentNode++;
-
 				if (currentNode >= adjListGraph.size())
 				{
 					loopMutex.unlock();
 					break;
 				}
+
+				long long ci = gu.basicCi(adjListGraph, ballRadius, currentNode);
+
+				allPQ.insert(make_pair(ci, currentNode));
+				revereseLoopUpAllPQ[currentNode] = ci;
+
+				currentNode++;
+
 			}
 
 			loopMutex.unlock();
