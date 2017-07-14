@@ -448,7 +448,7 @@ public:
 		int currentNode = 0;
 		for (unsigned int i = 0; i < threadNum; i++)
 		{
-			 threadPoolFuture.push_back(move(async(&concurrentGraphUtil::concurrentCi, concurrentGraphUtil(totalSize), adjListGraph, ballRadius, currentNode, allPQ, revereseLoopUpAllPQ)));
+			threadPoolFuture.push_back(move(async(&concurrentGraphUtil::concurrentCi, concurrentGraphUtil(totalSize), ref(adjListGraph), ballRadius, ref(currentNode), ref(allPQ), ref(revereseLoopUpAllPQ))));
 		}
 
 
