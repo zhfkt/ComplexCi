@@ -546,35 +546,6 @@ public:
 
 	}
 
-protected:
-
-
-	vector<int>& postProcess(vector<int>& finalOutput)
-	{
-		//add left random
-
-		cout << "Before Random adding the left CI equals zero: " << finalOutput.size() << endl;
-		for (auto leftVex : allVex)
-		{
-			finalOutput.push_back(leftVex);
-		}
-		cout << "After Random adding the left CI equals zero: " << finalOutput.size() << endl;
-
-		while (true)
-		{
-			if (finalOutput.size() % outputNumBatch == 0)
-			{
-				break;
-			}
-			else
-			{
-				finalOutput.push_back(-1);
-			}
-		}
-
-		return finalOutput;
-	}
-
 };
 
 
