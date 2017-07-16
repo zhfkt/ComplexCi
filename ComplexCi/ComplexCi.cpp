@@ -164,7 +164,7 @@ public:
 		{
 			int neighbourNode = backupCompletedAdjListGraph[node][i];
 
-			if (adjListGraph[neighbourNode].size() != 0)
+			//if (adjListGraph[neighbourNode].size() != 0)// need to be changed here
 			{
 				addEdge(adjListGraph, node, neighbourNode);
 			}
@@ -177,18 +177,13 @@ public:
 		adjListGraph[node2].push_back(node1);
 	}
 
-	static int decreaseComponentNumIfAddNode(const vector<vector<int> > &backupCompletedAdjListGraph, const vector<int> &unionSet, vector<vector<int> > &adjListGraph, int node)
+	static int decreaseComponentNumIfAddNode(const vector<int> &unionSet, vector<vector<int> > &adjListGraph, int node)
 	{
 		unordered_set<int> nodeNeighbourComponentSet;
 
-		for (int i = 0; i < backupCompletedAdjListGraph[node].size(); i++)
+		for (int i = 0; i < adjListGraph[node].size(); i++)
 		{
-			int nodeNeighbour = backupCompletedAdjListGraph[node][i];
-
-			if (adjListGraph[nodeNeighbour].size() != 0)
-			{
-				nodeNeighbourComponentSet.insert(findRoot(unionSet, nodeNeighbour));
-			}
+			nodeNeighbourComponentSet.insert(findRoot(unionSet, adjListGraph[node][i]));	
 		}
 
 		return nodeNeighbourComponentSet.size();
