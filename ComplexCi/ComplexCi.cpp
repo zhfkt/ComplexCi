@@ -148,23 +148,91 @@ public:
 		return ci;
 	}
 
-	void deleteNode(vector<vector<int> > &adjListGraph, int node)
+	static void deleteNode(vector<vector<int> > &adjListGraph, int node)
 	{
-		/*
-		if (adjListGraph[node].size() == 0)
-		{
-		return;
-		} // not must here
-		*/
-
 		for (auto neighbour : adjListGraph[node])
 		{
 			adjListGraph[neighbour].erase(remove(adjListGraph[neighbour].begin(), adjListGraph[neighbour].end(), node), adjListGraph[neighbour].end());
 		}
 
 		adjListGraph[node].clear();
-
 	}
+
+	static void addNode(const vector<vector<int> > &backupCompletedAdjListGraph, vector<vector<int> > &adjListGraph, int node)
+	{
+		for (int i = 0; i < backupCompletedAdjListGraph[node].size(); i++)
+		{
+			int neighbourNode = backupCompletedAdjListGraph[node][i];
+
+			if (adjListGraph[neighbourNode].size() != 0)
+			{
+				addEdge(adjListGraph, node, neighbourNode);
+			}
+		}
+	}
+
+	static void addEdge(vector<vector<int> > &adjListGraph, int node1, int node2)
+	{
+		adjListGraph[node1].push_back(node2);
+		adjListGraph[node2].push_back(node1);
+	}
+
+	static int decreaseComponentNumIfAddNode(const vector<vector<int> > &backupCompletedAdjListGraph, const vector<int> &unionSet, vector<vector<int> > &adjListGraph, int node)
+	{
+		unordered_set<int> nodeNeighbourComponentSet;
+
+		for (int i = 0; i < backupCompletedAdjListGraph[node].size(); i++)
+		{
+			int nodeNeighbour = backupCompletedAdjListGraph[node][i];
+
+			if (adjListGraph[nodeNeighbour].size() != 0)
+			{
+				nodeNeighbourComponentSet.insert(findRoot(unionSet, nodeNeighbour));
+			}
+		}
+
+		return nodeNeighbourComponentSet.size();
+	}
+
+	static int findRoot(const vector<int> &unionSet, int node)
+	{
+		while (node != unionSet[node])
+		{
+			node = unionSet[node];
+		}
+
+		return node;
+	}
+
+	static void merge(vector<int> &unionSet, int node1, int node2)
+	{
+		int node1Root = findRoot(unionSet, node1);
+		int node2Root = findRoot(unionSet, node2);
+
+		if (node1Root != node2Root)
+		{
+			unionSet[node1Root] = node2Root;
+		}
+	}
+
+	static void makeSet(const vector<vector<int> >& backupAdjListGraph, vector<int> &unionSet)
+	{
+		for (int i = 0; i < unionSet.size(); i++)
+		{
+			unionSet[i] = i;
+		}
+
+		for (int i = 0; i < backupAdjListGraph.size(); i++)
+		{
+			for (int j = 0; j < backupAdjListGraph[i].size(); j++)
+			{
+				merge(unionSet, i, j);
+			}
+		}
+	}
+
+
+
 
 };
 
@@ -183,7 +251,9 @@ protected:
 	
 	unordered_set<int> allVex;
 	vector<vector<int> > adjListGraph;
+	vector<vector<int> > backupCompletedAdjListGraph;
 	int totalSize;
+	bool isInserted;
 
 private:
 
@@ -214,23 +284,21 @@ private:
 		while (is >> eachLine)
 		{
 			vector<string> csvEachLine = util::split(eachLine, ',');
-
-			adjListGraph[stoi(csvEachLine[0])].push_back(stoi(csvEachLine[1]));
-			adjListGraph[stoi(csvEachLine[1])].push_back(stoi(csvEachLine[0]));
+			graphUtil::addEdge(adjListGraph, stoi(csvEachLine[0]), stoi(csvEachLine[1]));
 		}
 
 		cout << "Second Read End" << endl;
 
+		backupCompletedAdjListGraph = adjListGraph;
 	}
 
 
 public:
 
-	basicCiAlgo(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch ,const string& _path, const string& _modelID) :
-		ballRadius(_ballRadius), updateBatch(_updateBatch), outputNumBatch(_outputNumBatch), path(_path), modelID(_modelID)
+	basicCiAlgo(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch, const string& _path, const string& _modelID, bool _isInserted) :
+		ballRadius(_ballRadius), updateBatch(_updateBatch), outputNumBatch(_outputNumBatch), path(_path), modelID(_modelID), isInserted(_isInserted)
 	{	
 		load();
-
 	}
 
 	virtual vector<int> go()
@@ -278,6 +346,13 @@ public:
 
 			for (auto rit = allPQ.rbegin(); batchLimiti < updateBatch && (rit != allPQ.rend()); rit++, batchLimiti++)
 			{
+				if (isInserted && (rit->first == 0))
+				{
+					finalOutput = reInsert(finalOutput);
+					isInserted = false;
+				}
+
+
 				if (rit->first < 0)//try -1 and batchList is the min point causing Zero Component
 				{
 					// ci algorithm ends
@@ -308,7 +383,7 @@ public:
 
 			for (int i : batchList)
 			{
-				gu.deleteNode(adjListGraph, i);
+				graphUtil::deleteNode(adjListGraph, i);
 				//candidateUpdateNodesWithCi.insert(make_pair(i, -1));// no need to because self will be included in the candidateUpdateNodes and updated in the below
 			}
 
@@ -333,6 +408,47 @@ public:
 
 protected:
 
+	vector<int> reInsert(vector<int> beforeOutput)
+	{
+		vector<vector<int> > backupAdjListGraph = adjListGraph;
+		int originalOutPutSize = beforeOutput.size();
+		vector<int> finalOutput(originalOutPutSize);
+		int orginalGraphSize = backupCompletedAdjListGraph.size();
+
+		vector<int> unionSet(orginalGraphSize);
+		graphUtil::makeSet(backupAdjListGraph, unionSet);
+
+		for (int indiceToEnd = originalOutPutSize - 1; indiceToEnd >= 0; indiceToEnd--)
+		{
+			cout << "modelID: " << modelID << " reInsertCount: " << indiceToEnd << endl;
+
+			int minIndice = -1;
+			int minValue = orginalGraphSize;
+
+			for (int i = 0; i < beforeOutput.size(); i++)
+			{
+				int decreaseValue = graphUtil::decreaseComponentNumIfAddNode(backupCompletedAdjListGraph, unionSet, backupAdjListGraph, beforeOutput[i]);
+
+				if (decreaseValue < minValue)
+				{
+					minValue = decreaseValue;
+					minIndice = i;
+				}
+			}
+
+			graphUtil::addNode(backupCompletedAdjListGraph, backupAdjListGraph, beforeOutput[minIndice]);
+
+			for (int i = 0; i < backupAdjListGraph[beforeOutput[minIndice]].size(); i++)
+			{
+				graphUtil::merge(unionSet, beforeOutput[minIndice], backupAdjListGraph[beforeOutput[minIndice]][i]);
+			}
+
+			finalOutput[indiceToEnd] = beforeOutput[minIndice];
+			beforeOutput.erase(beforeOutput.begin() + minIndice);
+		}
+
+		return finalOutput;
+	}
 
 	vector<int>& postProcess(vector<int>& finalOutput)
 	{
@@ -439,8 +555,8 @@ protected:
 	unsigned int threadNum;
 
 public:
-	concurrentBasicCiAlgo(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch, const string& _path, const string& _modelID) :
-		basicCiAlgo(_ballRadius, _updateBatch, _outputNumBatch, _path, _modelID) 
+	concurrentBasicCiAlgo(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch, const string& _path, const string& _modelID, bool _isInserted) :
+		basicCiAlgo(_ballRadius, _updateBatch, _outputNumBatch, _path, _modelID, _isInserted)
 	{
 		threadNum = thread::hardware_concurrency();
 
@@ -537,7 +653,7 @@ public:
 
 			for (int i : batchList)
 			{
-				gu.deleteNode(adjListGraph, i);
+				graphUtil::deleteNode(adjListGraph, i);
 			}
 
 			vector<int> candidateUpdateNodesVector(candidateUpdateNodesSet.begin(), candidateUpdateNodesSet.end());
@@ -632,7 +748,7 @@ class openSourceCiAlgo : public basicCiAlgo
 {
 public:
 	openSourceCiAlgo(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch, const string& _path, const string& _modelID, bool _isInserted) :
-		basicCiAlgo(_ballRadius, _updateBatch, _outputNumBatch, _path, _modelID) , isInserted(_isInserted)
+		basicCiAlgo(_ballRadius, _updateBatch, _outputNumBatch, _path, _modelID, _isInserted)
 	{
 		tempFormatFile = "tempFormatFile_" + modelID + ".fmt";
 		transformToFormat();
@@ -679,7 +795,7 @@ public:
 protected:
 
 	string tempFormatFile;
-	bool isInserted;
+
 	
 private:
 
@@ -802,7 +918,7 @@ int main(int argc, char* argv[])
 
 	if (method == 0)
 	{
-		bca.reset(new basicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID));
+		bca.reset(new basicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, false));
 	}
 	else if (method == 1)
 	{
@@ -818,7 +934,11 @@ int main(int argc, char* argv[])
 	}
 	else if (method == 4)
 	{
-		bca.reset(new concurrentBasicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID));
+		bca.reset(new concurrentBasicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, false));
+	}
+	else if (method == 5)
+	{
+		bca.reset(new basicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, true));
 	}
 	else
 	{
