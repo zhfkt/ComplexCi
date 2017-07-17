@@ -158,17 +158,15 @@ public:
 		adjListGraph[node].clear();
 	}
 
-	static void recoverAddNode(const vector<vector<int> > &backupCompletedAdjListGraph, unordered_set<int>& backupAllVex, vector<vector<int> > &adjListGraph, int node, vector<int>& degreeForBackupAdjListGraph)
+	static void recoverAddNode(const vector<vector<int> > &backupCompletedAdjListGraph, unordered_set<int>& backupAllVex, vector<vector<int> > &adjListGraph, int node)
 	{
 		for (int i = 0; i < backupCompletedAdjListGraph[node].size(); i++)
 		{
 			int neighbourNode = backupCompletedAdjListGraph[node][i];
 
-			if (backupAllVex.find(neighbourNode) != backupAllVex.end())// need to be changed here
+			if (backupAllVex.find(neighbourNode) != backupAllVex.end())
 			{
 				addEdge(adjListGraph, node, neighbourNode);
-				degreeForBackupAdjListGraph[node]++;
-				degreeForBackupAdjListGraph[neighbourNode]++;
 			}
 		}
 
@@ -182,21 +180,21 @@ public:
 		adjListGraph[node2].push_back(node1);
 	}
 
-	static int decreaseComponentNumIfAddNode(vector<int> &unionSet, const vector<vector<int> > &adjListGraph, int node, vector<int>& nodeNeighbourComponentVector, const vector<int>&  degreeForBackupAdjListGraph)
+	static int decreaseComponentNumIfAddNode(const vector<vector<int> >& backupCompletedAdjListGraph, const unordered_set<int>& backupAllVex, vector<int> &unionSet, int node)
 	{
-		int neighbourNodeCount = degreeForBackupAdjListGraph[node];
+		unordered_set<int> componentSet;
 
-		for (int k = 0; k < neighbourNodeCount; k++)
+		for (int i = 0; i < backupCompletedAdjListGraph[node].size(); i++)
 		{
-			nodeNeighbourComponentVector[k] = graphUtil::findRoot(unionSet, adjListGraph[node][k]);
+			int neighbourNode = backupCompletedAdjListGraph[node][i];
+
+			if (backupAllVex.find(neighbourNode) != backupAllVex.end())
+			{
+				componentSet.insert(graphUtil::findRoot(unionSet, neighbourNode));
+			}
 		}
 
-		auto endIt = nodeNeighbourComponentVector.begin() + neighbourNodeCount;
-
-		std::sort(nodeNeighbourComponentVector.begin(), endIt);
-		int decreaseValue = std::unique(nodeNeighbourComponentVector.begin(), endIt) - nodeNeighbourComponentVector.begin();
-		
-		return decreaseValue;
+		return componentSet.size();
 	}
 
 	static int findRoot(vector<int> &unionSet, int node)
@@ -235,7 +233,7 @@ public:
 		{
 			for (int j = 0; j < backupAdjListGraph[i].size(); j++)
 			{
-				merge(unionSet, i, j);
+				merge(unionSet, i, backupAdjListGraph[i][j]);
 			}
 		}
 	}
@@ -429,14 +427,6 @@ protected:
 		vector<int> unionSet(orginalGraphSize);
 		graphUtil::makeSet(backupAdjListGraph, unionSet);
 
-		vector<int> nodeNeighbourComponentVector(orginalGraphSize);
-		vector<int> degreeForBackupAdjListGraph(backupAdjListGraph.size());
-
-		for (int i = 0; i < degreeForBackupAdjListGraph.size(); i++)
-		{
-			degreeForBackupAdjListGraph[i] = backupAdjListGraph[i].size();
-		}
-
 		for (int indiceToEnd = originalOutPutSize - 1; indiceToEnd >= 0; indiceToEnd--)
 		{
 			if (indiceToEnd%outputNumBatch == 0)
@@ -452,7 +442,7 @@ protected:
 
 			for (int i = 0; i < beforeOutput.size(); i++)
 			{
-				int decreaseValue = graphUtil::decreaseComponentNumIfAddNode(unionSet, backupAdjListGraph, beforeOutput[i], nodeNeighbourComponentVector, degreeForBackupAdjListGraph);
+				int decreaseValue = graphUtil::decreaseComponentNumIfAddNode(backupCompletedAdjListGraph, backupAllVex, unionSet, beforeOutput[i]);
 
 				if (decreaseValue < minValue)
 				{
@@ -461,10 +451,11 @@ protected:
 				}
 			}
 
-			graphUtil::recoverAddNode(backupCompletedAdjListGraph, backupAllVex, backupAdjListGraph, beforeOutput[minIndice], degreeForBackupAdjListGraph);
+			graphUtil::recoverAddNode(backupCompletedAdjListGraph, backupAllVex, backupAdjListGraph, beforeOutput[minIndice]);
 
 			for (int i = 0; i < backupAdjListGraph[beforeOutput[minIndice]].size(); i++)
 			{
+				// need to be changed here
 				graphUtil::merge(unionSet, beforeOutput[minIndice], backupAdjListGraph[beforeOutput[minIndice]][i]);
 			}
 
