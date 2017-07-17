@@ -21,6 +21,7 @@
 #include <memory>
 #include <thread>
 #include <future>
+#include <algorithm>
 
 #include "CITM.cpp"
 #include "CI_HEAP.cpp"
@@ -354,7 +355,7 @@ public:
 
 			for (auto rit = allPQ.rbegin(); batchLimiti < updateBatch && (rit != allPQ.rend()); rit++, batchLimiti++)
 			{
-				if (isInserted && (rit->first <= 100))
+				if (isInserted && (rit->first <= 0))
 				{
 					finalOutput = reInsert(finalOutput);
 					isInserted = false;
@@ -416,49 +417,62 @@ public:
 
 protected:
 
-	vector<int> reInsert(vector<int> beforeOutput)
+	vector<int> reInsert(const vector<int> &beforeOutput)
 	{
 		vector<vector<int> > backupAdjListGraph = adjListGraph;
 		unordered_set<int> backupAllVex = allVex;
+		int orginalGraphSize = backupCompletedAdjListGraph.size();
+		int eachStep = orginalGraphSize*0.001;
+		if (eachStep == 0)
+		{
+			eachStep = 1;
+		}
 
 		int originalOutPutSize = beforeOutput.size();
-		vector<int> finalOutput(originalOutPutSize);
-		int orginalGraphSize = backupCompletedAdjListGraph.size();
+		unordered_set<int> leftOutput(beforeOutput.begin(), beforeOutput.end());
+		vector<int> finalOutput;
+		
 
 		vector<int> unionSet(orginalGraphSize);
 		graphUtil::makeSet(backupAdjListGraph, unionSet);
 
-		for (int indiceToEnd = originalOutPutSize - 1; indiceToEnd >= 0; indiceToEnd--)
+		while (leftOutput.size() != 0)
 		{
-			if (indiceToEnd%outputNumBatch == 0)
-			{			
-				//restrict flood output when updateBatch == 1
-				cout << "modelID: " << modelID << " reInsertCount: " << indiceToEnd << endl;
+			cout << "modelID: " << modelID << " reInsertCount: " << leftOutput.size() << endl;
+			
+			vector<pair<int, int> >  batchList;
+
+			for (int eachNode : leftOutput)
+			{
+				//min is better
+				int decreaseValue = graphUtil::decreaseComponentNumIfAddNode(backupCompletedAdjListGraph, backupAllVex, unionSet, eachNode);
+				batchList.push_back(make_pair(decreaseValue, eachNode));
 			}
 
 			
-
-			int minIndice = -1;
-			int minValue = orginalGraphSize;
-
-			for (int i = 0; i < beforeOutput.size(); i++)
+			if (eachStep >= batchList.size())
 			{
-				int decreaseValue = graphUtil::decreaseComponentNumIfAddNode(backupCompletedAdjListGraph, backupAllVex, unionSet, beforeOutput[i]);
-
-				if (decreaseValue < minValue)
-				{
-					minValue = decreaseValue;
-					minIndice = i;
-				}
+				eachStep = batchList.size();
+			}
+			else
+			{
+				std::nth_element(batchList.begin(), batchList.begin() + eachStep, batchList.end());
 			}
 
-			graphUtil::recoverAddNode(backupCompletedAdjListGraph, backupAllVex, backupAdjListGraph, beforeOutput[minIndice], unionSet);
+			for (int i = 0; i < eachStep; i++)
+			{
+				finalOutput.push_back(batchList[i].second);
+				leftOutput.erase(batchList[i].second);
 
-			finalOutput[indiceToEnd] = beforeOutput[minIndice];
-			beforeOutput.erase(beforeOutput.begin() + minIndice);
+				graphUtil::recoverAddNode(backupCompletedAdjListGraph, backupAllVex, backupAdjListGraph, batchList[i].second, unionSet);
+			}
+			
 		}
 
+		std::reverse(finalOutput.begin(), finalOutput.end());
+
 		return finalOutput;
+
 	}
 
 	vector<int>& postProcess(vector<int>& finalOutput)
