@@ -158,17 +158,22 @@ public:
 		adjListGraph[node].clear();
 	}
 
-	static void addNode(const vector<vector<int> > &backupCompletedAdjListGraph, vector<vector<int> > &adjListGraph, int node)
+	static void recoverAddNode(const vector<vector<int> > &backupCompletedAdjListGraph, unordered_set<int>& backupAllVex, vector<vector<int> > &adjListGraph, int node, vector<int>& degreeForBackupAdjListGraph)
 	{
 		for (int i = 0; i < backupCompletedAdjListGraph[node].size(); i++)
 		{
 			int neighbourNode = backupCompletedAdjListGraph[node][i];
 
-			//if (adjListGraph[neighbourNode].size() != 0)// need to be changed here
+			if (backupAllVex.find(neighbourNode) != backupAllVex.end())// need to be changed here
 			{
 				addEdge(adjListGraph, node, neighbourNode);
+				degreeForBackupAdjListGraph[node]++;
+				degreeForBackupAdjListGraph[neighbourNode]++;
 			}
 		}
+
+		backupAllVex.insert(node);
+
 	}
 
 	static void addEdge(vector<vector<int> > &adjListGraph, int node1, int node2)
@@ -177,26 +182,35 @@ public:
 		adjListGraph[node2].push_back(node1);
 	}
 
-	static int decreaseComponentNumIfAddNode(const vector<int> &unionSet, vector<vector<int> > &adjListGraph, int node)
+	static int decreaseComponentNumIfAddNode(vector<int> &unionSet, const vector<vector<int> > &adjListGraph, int node, vector<int>& nodeNeighbourComponentVector, const vector<int>&  degreeForBackupAdjListGraph)
 	{
-		unordered_set<int> nodeNeighbourComponentSet;
+		int neighbourNodeCount = degreeForBackupAdjListGraph[node];
 
-		for (int i = 0; i < adjListGraph[node].size(); i++)
+		for (int k = 0; k < neighbourNodeCount; k++)
 		{
-			nodeNeighbourComponentSet.insert(findRoot(unionSet, adjListGraph[node][i]));	
+			nodeNeighbourComponentVector[k] = graphUtil::findRoot(unionSet, adjListGraph[node][k]);
 		}
 
-		return nodeNeighbourComponentSet.size();
+		auto endIt = nodeNeighbourComponentVector.begin() + neighbourNodeCount;
+
+		std::sort(nodeNeighbourComponentVector.begin(), endIt);
+		int decreaseValue = std::unique(nodeNeighbourComponentVector.begin(), endIt) - nodeNeighbourComponentVector.begin();
+		
+		return decreaseValue;
 	}
 
-	static int findRoot(const vector<int> &unionSet, int node)
+	static int findRoot(vector<int> &unionSet, int node)
 	{
-		while (node != unionSet[node])
+		if (node != unionSet[node])
 		{
-			node = unionSet[node];
+			int rootNode = findRoot(unionSet, unionSet[node]);
+			unionSet[node] = rootNode;
+			return rootNode;
 		}
-
-		return node;
+		else
+		{
+			return node;
+		}
 	}
 
 	static void merge(vector<int> &unionSet, int node1, int node2)
@@ -341,7 +355,7 @@ public:
 
 			for (auto rit = allPQ.rbegin(); batchLimiti < updateBatch && (rit != allPQ.rend()); rit++, batchLimiti++)
 			{
-				if (isInserted && (rit->first == 0))
+				if (isInserted && (rit->first < 100))
 				{
 					finalOutput = reInsert(finalOutput);
 					isInserted = false;
@@ -406,6 +420,8 @@ protected:
 	vector<int> reInsert(vector<int> beforeOutput)
 	{
 		vector<vector<int> > backupAdjListGraph = adjListGraph;
+		unordered_set<int> backupAllVex = allVex;
+
 		int originalOutPutSize = beforeOutput.size();
 		vector<int> finalOutput(originalOutPutSize);
 		int orginalGraphSize = backupCompletedAdjListGraph.size();
@@ -413,16 +429,30 @@ protected:
 		vector<int> unionSet(orginalGraphSize);
 		graphUtil::makeSet(backupAdjListGraph, unionSet);
 
+		vector<int> nodeNeighbourComponentVector(orginalGraphSize);
+		vector<int> degreeForBackupAdjListGraph(backupAdjListGraph.size());
+
+		for (int i = 0; i < degreeForBackupAdjListGraph.size(); i++)
+		{
+			degreeForBackupAdjListGraph[i] = backupAdjListGraph[i].size();
+		}
+
 		for (int indiceToEnd = originalOutPutSize - 1; indiceToEnd >= 0; indiceToEnd--)
 		{
-			cout << "modelID: " << modelID << " reInsertCount: " << indiceToEnd << endl;
+			if (indiceToEnd%outputNumBatch == 0)
+			{			
+				//restrict flood output when updateBatch == 1
+				cout << "modelID: " << modelID << " reInsertCount: " << indiceToEnd << endl;
+			}
+
+			
 
 			int minIndice = -1;
 			int minValue = orginalGraphSize;
 
 			for (int i = 0; i < beforeOutput.size(); i++)
 			{
-				int decreaseValue = graphUtil::decreaseComponentNumIfAddNode(backupCompletedAdjListGraph, unionSet, backupAdjListGraph, beforeOutput[i]);
+				int decreaseValue = graphUtil::decreaseComponentNumIfAddNode(unionSet, backupAdjListGraph, beforeOutput[i], nodeNeighbourComponentVector, degreeForBackupAdjListGraph);
 
 				if (decreaseValue < minValue)
 				{
@@ -431,7 +461,7 @@ protected:
 				}
 			}
 
-			graphUtil::addNode(backupCompletedAdjListGraph, backupAdjListGraph, beforeOutput[minIndice]);
+			graphUtil::recoverAddNode(backupCompletedAdjListGraph, backupAllVex, backupAdjListGraph, beforeOutput[minIndice], degreeForBackupAdjListGraph);
 
 			for (int i = 0; i < backupAdjListGraph[beforeOutput[minIndice]].size(); i++)
 			{
