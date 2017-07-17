@@ -158,7 +158,7 @@ public:
 		adjListGraph[node].clear();
 	}
 
-	static void recoverAddNode(const vector<vector<int> > &backupCompletedAdjListGraph, unordered_set<int>& backupAllVex, vector<vector<int> > &adjListGraph, int node)
+	static void recoverAddNode(const vector<vector<int> > &backupCompletedAdjListGraph, unordered_set<int>& backupAllVex, vector<vector<int> > &adjListGraph, int node, vector<int> &unionSet)
 	{
 		for (int i = 0; i < backupCompletedAdjListGraph[node].size(); i++)
 		{
@@ -167,6 +167,7 @@ public:
 			if (backupAllVex.find(neighbourNode) != backupAllVex.end())
 			{
 				addEdge(adjListGraph, node, neighbourNode);
+				graphUtil::merge(unionSet, node, neighbourNode);
 			}
 		}
 
@@ -353,7 +354,7 @@ public:
 
 			for (auto rit = allPQ.rbegin(); batchLimiti < updateBatch && (rit != allPQ.rend()); rit++, batchLimiti++)
 			{
-				if (isInserted && (rit->first < 100))
+				if (isInserted && (rit->first <= 100))
 				{
 					finalOutput = reInsert(finalOutput);
 					isInserted = false;
@@ -451,13 +452,7 @@ protected:
 				}
 			}
 
-			graphUtil::recoverAddNode(backupCompletedAdjListGraph, backupAllVex, backupAdjListGraph, beforeOutput[minIndice]);
-
-			for (int i = 0; i < backupAdjListGraph[beforeOutput[minIndice]].size(); i++)
-			{
-				// need to be changed here
-				graphUtil::merge(unionSet, beforeOutput[minIndice], backupAdjListGraph[beforeOutput[minIndice]][i]);
-			}
+			graphUtil::recoverAddNode(backupCompletedAdjListGraph, backupAllVex, backupAdjListGraph, beforeOutput[minIndice], unionSet);
 
 			finalOutput[indiceToEnd] = beforeOutput[minIndice];
 			beforeOutput.erase(beforeOutput.begin() + minIndice);
