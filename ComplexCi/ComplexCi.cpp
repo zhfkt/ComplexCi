@@ -351,17 +351,14 @@ public:
 			vector<int> batchList;
 			unsigned int batchLimiti = 0;
 
-			//pair<long long, int> debugPreviousMax = *(allPQ.rbegin());
+			if (isInserted && (allPQ.rbegin()->first < 20))
+			{
+				finalOutput = reInsert(finalOutput);
+				isInserted = false;
+			}
 
 			for (auto rit = allPQ.rbegin(); batchLimiti < updateBatch && (rit != allPQ.rend()); rit++, batchLimiti++)
 			{
-				if (isInserted && (rit->first < 0))
-				{
-					finalOutput = reInsert(finalOutput);
-					isInserted = false;
-				}
-
-
 				if (rit->first < 0)//try -1 and batchList is the min point causing Zero Component
 				{
 					// ci algorithm ends
