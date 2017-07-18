@@ -355,7 +355,7 @@ public:
 
 			for (auto rit = allPQ.rbegin(); batchLimiti < updateBatch && (rit != allPQ.rend()); rit++, batchLimiti++)
 			{
-				if (isInserted && (rit->first <= 0))
+				if (isInserted && (rit->first < 0))
 				{
 					finalOutput = reInsert(finalOutput);
 					isInserted = false;
