@@ -414,6 +414,8 @@ public:
 				if (biggestComponentCurrentRatio < biggestComponentEndThreshold)
 				//if (loopCount == 280000)
 				{
+					cout << "Start ReInsert: modelID: " << modelID << " loopCount: " << loopCount << " totalSize: " << totalSize << " maxCi: " << allPQ.rbegin()->first << " node: " << allPQ.rbegin()->second << " re-biggestComponentCurrentRatio: " << biggestComponentCurrentRatio << endl;
+
 					finalOutput = reInsert(finalOutput);
 					isInserted = false;
 				}
