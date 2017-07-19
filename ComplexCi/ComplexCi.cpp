@@ -487,7 +487,6 @@ protected:
 			eachStep = 1;
 		}
 
-		int originalOutPutSize = beforeOutput.size();
 		unordered_set<int> leftOutput(beforeOutput.begin(), beforeOutput.end());
 		vector<int> finalOutput;
 		
