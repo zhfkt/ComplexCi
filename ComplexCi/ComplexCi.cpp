@@ -412,7 +412,6 @@ public:
 				biggestComponentCurrentRatio = disjointSet(adjListGraph).getBiggestComponentCurrentRatio();
 
 				if (biggestComponentCurrentRatio < biggestComponentEndThreshold)
-				//if (loopCount == 280000)
 				{
 					cout << "Start ReInsert: modelID: " << modelID << " loopCount: " << loopCount << " totalSize: " << totalSize << " maxCi: " << allPQ.rbegin()->first << " node: " << allPQ.rbegin()->second << " re-biggestComponentCurrentRatio: " << biggestComponentCurrentRatio << endl;
 
@@ -699,6 +698,20 @@ public:
 
 			vector<int> batchList;
 			unsigned int batchLimiti = 0;
+
+			if (isInserted && (loopCount%outputNumBatch == 0))
+			{
+				biggestComponentCurrentRatio = disjointSet(adjListGraph).getBiggestComponentCurrentRatio();
+
+				if (biggestComponentCurrentRatio < biggestComponentEndThreshold)
+					//if (loopCount == 280000)
+				{
+					cout << "Start ReInsert: modelID: " << modelID << " loopCount: " << loopCount << " totalSize: " << totalSize << " maxCi: " << allPQ.rbegin()->first << " node: " << allPQ.rbegin()->second << " re-biggestComponentCurrentRatio: " << biggestComponentCurrentRatio << endl;
+
+					finalOutput = reInsert(finalOutput);
+					isInserted = false;
+				}
+			}
 
 			for (auto rit = allPQ.rbegin(); batchLimiti < updateBatch && (rit != allPQ.rend()); rit++, batchLimiti++)
 			{
@@ -1022,6 +1035,10 @@ int main(int argc, char* argv[])
 	else if (method == 5)
 	{
 		bca.reset(new basicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, true));
+	}
+	else if (method == 6)
+	{
+		bca.reset(new concurrentBasicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, true));
 	}
 	else
 	{
