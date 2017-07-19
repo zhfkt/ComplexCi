@@ -58,6 +58,100 @@ public:
 };
 
 
+class disjointSet
+{
+
+private:
+
+
+
+	void makeSet(const vector<vector<int> >& backupAdjListGraph)
+	{
+		for (int i = 0; i < unionSet.size(); i++)
+		{
+			unionSet[i] = i;
+			rankCount[i] = 1;
+		}
+
+		for (int i = 0; i < backupAdjListGraph.size(); i++)
+		{
+			for (int j = 0; j < backupAdjListGraph[i].size(); j++)
+			{
+				merge(i, backupAdjListGraph[i][j]);
+			}
+		}
+	}
+
+
+protected:
+	vector<int> unionSet;
+	vector<int> rankCount;
+	int maxRankCount = -1;
+
+public:
+	disjointSet(const vector<vector<int> >& backupAdjListGraph) : unionSet(backupAdjListGraph.size()), rankCount(backupAdjListGraph.size())
+	{
+		makeSet(backupAdjListGraph);
+	}
+
+	int findRoot(int node)
+	{
+		if (node != unionSet[node])
+		{
+			int rootNode = findRoot(unionSet[node]);
+			unionSet[node] = rootNode;
+			return rootNode;
+		}
+		else
+		{
+			return node;
+		}
+	}
+
+	void merge(int node1, int node2)
+	{
+		int node1Root = findRoot(node1);
+		int node2Root = findRoot(node2);
+
+		if (node1Root != node2Root)
+		{
+			if (rankCount[node2Root] > rankCount[node1Root])
+			{
+				unionSet[node1Root] = node2Root;
+				rankCount[node2Root] += rankCount[node1Root];
+
+				if (rankCount[node2Root] > maxRankCount)
+				{
+					maxRankCount = rankCount[node2Root];
+				}
+
+
+			}
+			else
+			{
+				unionSet[node2Root] = node1Root;
+				rankCount[node1Root] += rankCount[node2Root];
+
+
+				if (rankCount[node1Root] > maxRankCount)
+				{
+					maxRankCount = rankCount[node1Root];
+				}
+
+			}
+		}
+	}
+
+	double getBiggestComponentCurrentRatio() const
+	{
+		return double(maxRankCount) / double(rankCount.size());
+	}
+
+		
+
+
+};
+
 class graphUtil
 {
 private:
@@ -159,7 +253,7 @@ public:
 		adjListGraph[node].clear();
 	}
 
-	static void recoverAddNode(const vector<vector<int> > &backupCompletedAdjListGraph, unordered_set<int>& backupAllVex, vector<vector<int> > &adjListGraph, int node, vector<int> &unionSet)
+	static void recoverAddNode(const vector<vector<int> > &backupCompletedAdjListGraph, unordered_set<int>& backupAllVex, vector<vector<int> > &adjListGraph, int node, disjointSet &unionSet)
 	{
 		for (int i = 0; i < backupCompletedAdjListGraph[node].size(); i++)
 		{
@@ -168,7 +262,7 @@ public:
 			if (backupAllVex.find(neighbourNode) != backupAllVex.end())
 			{
 				addEdge(adjListGraph, node, neighbourNode);
-				graphUtil::merge(unionSet, node, neighbourNode);
+				unionSet.merge(node, neighbourNode);
 			}
 		}
 
@@ -182,7 +276,7 @@ public:
 		adjListGraph[node2].push_back(node1);
 	}
 
-	static int decreaseComponentNumIfAddNode(const vector<vector<int> >& backupCompletedAdjListGraph, const unordered_set<int>& backupAllVex, vector<int> &unionSet, int node)
+	static int decreaseComponentNumIfAddNode(const vector<vector<int> >& backupCompletedAdjListGraph, const unordered_set<int>& backupAllVex, disjointSet &unionSet, int node)
 	{
 		unordered_set<int> componentSet;
 
@@ -192,58 +286,17 @@ public:
 
 			if (backupAllVex.find(neighbourNode) != backupAllVex.end())
 			{
-				componentSet.insert(graphUtil::findRoot(unionSet, neighbourNode));
+				componentSet.insert(unionSet.findRoot(neighbourNode));
 			}
 		}
 
 		return componentSet.size();
 	}
 
-	static int findRoot(vector<int> &unionSet, int node)
-	{
-		if (node != unionSet[node])
-		{
-			int rootNode = findRoot(unionSet, unionSet[node]);
-			unionSet[node] = rootNode;
-			return rootNode;
-		}
-		else
-		{
-			return node;
-		}
-	}
-
-	static void merge(vector<int> &unionSet, int node1, int node2)
-	{
-		int node1Root = findRoot(unionSet, node1);
-		int node2Root = findRoot(unionSet, node2);
-
-		if (node1Root != node2Root)
-		{
-			unionSet[node1Root] = node2Root;
-		}
-	}
-
-	static void makeSet(const vector<vector<int> >& backupAdjListGraph, vector<int> &unionSet)
-	{
-		for (int i = 0; i < unionSet.size(); i++)
-		{
-			unionSet[i] = i;
-		}
-
-		for (int i = 0; i < backupAdjListGraph.size(); i++)
-		{
-			for (int j = 0; j < backupAdjListGraph[i].size(); j++)
-			{
-				merge(unionSet, i, backupAdjListGraph[i][j]);
-			}
-		}
-	}
-
-
-
 
 };
+
+
 
 
 class basicCiAlgo
@@ -263,6 +316,9 @@ protected:
 	vector<vector<int> > backupCompletedAdjListGraph;
 	int totalSize;
 	bool isInserted;
+
+	double biggestComponentCurrentRatio;
+	const double biggestComponentEndThreshold;
 
 private:
 
@@ -305,7 +361,7 @@ private:
 public:
 
 	basicCiAlgo(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch, const string& _path, const string& _modelID, bool _isInserted) :
-		ballRadius(_ballRadius), updateBatch(_updateBatch), outputNumBatch(_outputNumBatch), path(_path), modelID(_modelID), isInserted(_isInserted)
+		ballRadius(_ballRadius), updateBatch(_updateBatch), outputNumBatch(_outputNumBatch), path(_path), modelID(_modelID), isInserted(_isInserted), biggestComponentCurrentRatio(1.0), biggestComponentEndThreshold(0.01)
 	{	
 		load();
 	}
@@ -341,7 +397,7 @@ public:
 			if ((updateBatch != 1) || ((loopCount%outputNumBatch == 0) && (updateBatch == 1)))
 			{
 				//restrict flood output when updateBatch == 1
-				cout << "modelID: " << modelID << " loopCount: " << loopCount << " totalSize: " << totalSize << " maxCi: " << allPQ.rbegin()->first << " node: " << allPQ.rbegin()->second << endl;
+				cout << "modelID: " << modelID << " loopCount: " << loopCount << " totalSize: " << totalSize << " maxCi: " << allPQ.rbegin()->first << " node: " << allPQ.rbegin()->second << " biggestComponentCurrentRatio: " << biggestComponentCurrentRatio << endl;
 			}
 
 			loopCount += updateBatch;
@@ -351,10 +407,16 @@ public:
 			vector<int> batchList;
 			unsigned int batchLimiti = 0;
 
-			if (isInserted && (allPQ.rbegin()->first < 20))
+			if (isInserted && (loopCount%outputNumBatch == 0))
 			{
-				finalOutput = reInsert(finalOutput);
-				isInserted = false;
+				biggestComponentCurrentRatio = disjointSet(adjListGraph).getBiggestComponentCurrentRatio();
+
+				if (biggestComponentCurrentRatio < biggestComponentEndThreshold)
+				//if (loopCount == 280000)
+				{
+					finalOutput = reInsert(finalOutput);
+					isInserted = false;
+				}
 			}
 
 			for (auto rit = allPQ.rbegin(); batchLimiti < updateBatch && (rit != allPQ.rend()); rit++, batchLimiti++)
@@ -418,8 +480,8 @@ protected:
 	{
 		vector<vector<int> > backupAdjListGraph = adjListGraph;
 		unordered_set<int> backupAllVex = allVex;
-		int orginalGraphSize = backupCompletedAdjListGraph.size();
-		int eachStep = orginalGraphSize*0.001;
+
+		int eachStep = backupCompletedAdjListGraph.size()*0.001;
 		if (eachStep == 0)
 		{
 			eachStep = 1;
@@ -429,9 +491,7 @@ protected:
 		unordered_set<int> leftOutput(beforeOutput.begin(), beforeOutput.end());
 		vector<int> finalOutput;
 		
-
-		vector<int> unionSet(orginalGraphSize);
-		graphUtil::makeSet(backupAdjListGraph, unionSet);
+		disjointSet unionSet(backupAdjListGraph);
 
 		while (leftOutput.size() != 0)
 		{
