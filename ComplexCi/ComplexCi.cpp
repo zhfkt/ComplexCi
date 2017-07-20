@@ -147,8 +147,10 @@ public:
 		return double(maxRankCount) / double(rankCount.size());
 	}
 
-		
-
+	int getRank(int node) const
+	{
+		return rankCount[node];
+	}
 
 };
 
@@ -290,7 +292,16 @@ public:
 			}
 		}
 
-		return componentSet.size();
+		int sum = 1;
+
+		for (int eachNode : componentSet)
+		{
+			sum += unionSet.getRank(eachNode);
+		}
+
+		return sum;
+
+		//return componentSet.size();
 	}
 
 
