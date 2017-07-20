@@ -319,6 +319,8 @@ protected:
 
 	double biggestComponentCurrentRatio;
 	const double biggestComponentEndThreshold;
+	int computeComponentInterval;
+
 
 private:
 
@@ -361,9 +363,21 @@ private:
 public:
 
 	basicCiAlgo(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch, const string& _path, const string& _modelID, bool _isInserted) :
-		ballRadius(_ballRadius), updateBatch(_updateBatch), outputNumBatch(_outputNumBatch), path(_path), modelID(_modelID), isInserted(_isInserted), biggestComponentCurrentRatio(1.0), biggestComponentEndThreshold(0.01)
+		ballRadius(_ballRadius), updateBatch(_updateBatch), outputNumBatch(_outputNumBatch), path(_path), modelID(_modelID), isInserted(_isInserted), biggestComponentCurrentRatio(1.0), 
+		biggestComponentEndThreshold(0.01)
 	{	
 		load();
+		
+		computeComponentInterval = adjListGraph.size() * 0.001;
+		if (computeComponentInterval > 500)
+		{
+			computeComponentInterval = 500;
+		}
+		if (computeComponentInterval == 0)
+		{
+			computeComponentInterval = 1;
+		}
+
 	}
 
 	virtual vector<int> go()
@@ -407,7 +421,7 @@ public:
 			vector<int> batchList;
 			unsigned int batchLimiti = 0;
 
-			if (isInserted && (loopCount%outputNumBatch == 0))
+			if (isInserted && (loopCount%computeComponentInterval == 0))
 			{
 				biggestComponentCurrentRatio = disjointSet(adjListGraph).getBiggestComponentCurrentRatio();
 
@@ -482,7 +496,7 @@ protected:
 		vector<vector<int> > backupAdjListGraph = adjListGraph;
 		unordered_set<int> backupAllVex = allVex;
 
-		int eachStep = backupCompletedAdjListGraph.size()*0.001;
+		int eachStep = computeComponentInterval;
 		if (eachStep == 0)
 		{
 			eachStep = 1;
