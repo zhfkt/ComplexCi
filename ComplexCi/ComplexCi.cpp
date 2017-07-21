@@ -396,7 +396,23 @@ public:
 		rim(_rim), biggestComponentEndThreshold(_biggestComponentEndThreshold)
 	{	
 		cout << "biggestComponentEndThreshold: " << biggestComponentEndThreshold << endl;
-		cout << "reInsertMethod: " << rim << endl;
+		
+		
+		string rimName = "";
+		if (rim == COMPONENT_COUNT)
+		{
+			rimName="COMPONENT_COUNT";
+		}
+		else if (rim == COMPONENT_RANK)
+		{
+			rimName = "COMPONENT_RANK";
+		}
+		else
+		{
+			rimName = "default_COMPONENT_COUNT";
+		}
+
+		cout << "reInsertMethod: " << rimName << endl;
 
 		load();
 		
