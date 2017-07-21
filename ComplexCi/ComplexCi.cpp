@@ -147,12 +147,18 @@ public:
 		return double(maxRankCount) / double(rankCount.size());
 	}
 
-	int getRank(int node) const
+	int getRank(int rootNode) const
 	{
-		return rankCount[node];
+		return rankCount[rootNode];
 	}
 
 };
+
+enum reInsertMethod{
+	COMPONENT_COUNT,
+	COMPONENT_RANK,
+};
+
 
 class graphUtil
 {
@@ -278,7 +284,7 @@ public:
 		adjListGraph[node2].push_back(node1);
 	}
 
-	static int decreaseComponentNumIfAddNode(const vector<vector<int> >& backupCompletedAdjListGraph, const unordered_set<int>& backupAllVex, disjointSet &unionSet, int node)
+	static int decreaseComponentNumIfAddNode(const vector<vector<int> >& backupCompletedAdjListGraph, const unordered_set<int>& backupAllVex, disjointSet &unionSet, int node, reInsertMethod rim)
 	{
 		unordered_set<int> componentSet;
 
@@ -292,21 +298,29 @@ public:
 			}
 		}
 
-		int sum = 1;
-
-		for (int eachNode : componentSet)
+		if (rim == COMPONENT_RANK)
 		{
-			sum += unionSet.getRank(eachNode);
+			int sum = 1;
+
+			for (int eachNode : componentSet)
+			{
+				sum += unionSet.getRank(eachNode);
+			}
+
+			return sum;
 		}
-
-		return sum;
-
-		//return componentSet.size();
+		else if (rim == COMPONENT_COUNT)
+		{
+			return componentSet.size();
+		}
+		else
+		{
+			return componentSet.size();
+		}
 	}
 
 
 };
-
 
 
 
@@ -331,6 +345,7 @@ protected:
 	double biggestComponentCurrentRatio;
 	const double biggestComponentEndThreshold;
 	int computeComponentInterval;
+	reInsertMethod rim;
 
 
 private:
@@ -374,9 +389,15 @@ private:
 public:
 
 	basicCiAlgo(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch, const string& _path, const string& _modelID, bool _isInserted) :
+		basicCiAlgo(_ballRadius, _updateBatch, _outputNumBatch, _path, _modelID, _isInserted, 0.01, COMPONENT_RANK){}
+
+	basicCiAlgo(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch, const string& _path, const string& _modelID, bool _isInserted, double _biggestComponentEndThreshold, reInsertMethod _rim) :
 		ballRadius(_ballRadius), updateBatch(_updateBatch), outputNumBatch(_outputNumBatch), path(_path), modelID(_modelID), isInserted(_isInserted), biggestComponentCurrentRatio(1.0), 
-		biggestComponentEndThreshold(0.01)
+		rim(_rim), biggestComponentEndThreshold(_biggestComponentEndThreshold)
 	{	
+		cout << "biggestComponentEndThreshold: " << biggestComponentEndThreshold << endl;
+		cout << "reInsertMethod: " << rim << endl;
+
 		load();
 		
 		computeComponentInterval = adjListGraph.size() * 0.001;
@@ -528,7 +549,7 @@ protected:
 			for (int eachNode : leftOutput)
 			{
 				//min is better
-				int decreaseValue = graphUtil::decreaseComponentNumIfAddNode(backupCompletedAdjListGraph, backupAllVex, unionSet, eachNode);
+				int decreaseValue = graphUtil::decreaseComponentNumIfAddNode(backupCompletedAdjListGraph, backupAllVex, unionSet, eachNode, rim);
 				batchList.push_back(make_pair(decreaseValue, eachNode));
 			}
 
@@ -663,8 +684,12 @@ protected:
 	unsigned int threadNum;
 
 public:
+
 	concurrentBasicCiAlgo(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch, const string& _path, const string& _modelID, bool _isInserted) :
-		basicCiAlgo(_ballRadius, _updateBatch, _outputNumBatch, _path, _modelID, _isInserted)
+		basicCiAlgo(_ballRadius, _updateBatch, _outputNumBatch, _path, _modelID, _isInserted){}
+
+	concurrentBasicCiAlgo(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch, const string& _path, const string& _modelID, bool _isInserted, double _biggestComponentEndThreshold, reInsertMethod rim) :
+		basicCiAlgo(_ballRadius, _updateBatch, _outputNumBatch, _path, _modelID, _isInserted, _biggestComponentEndThreshold, rim)
 	{
 		threadNum = thread::hardware_concurrency();
 
@@ -996,6 +1021,7 @@ int main(int argc, char* argv[])
 	unsigned int ballRadius = 1;
 	unsigned int updateBatch = 1;
 	unsigned int outputNumBatch = 1;
+	double biggestComponentEndThreshold = 0.01;
 
 
 	string path = "";
@@ -1011,11 +1037,17 @@ int main(int argc, char* argv[])
 		updateBatch = stoi(argv[3]);
 		outputNumBatch = stoi(argv[4]);
 		method = stoi(argv[5]);
+
+		if (argc > 6)
+		{
+			biggestComponentEndThreshold = atof(argv[6]);
+		}
+
 	}
 	else
 	{
 		cout << "at least 4 parameters for csv path" << endl;
-		cout << "e.g. 'C:/Users/zhfkt/Documents/Visual Studio 2013/Projects/ComplexCi/Release/karate.txt' [ballRadius] [updateBatch] [outputNumBatch] [method]" << endl;
+		cout << "e.g. 'C:/Users/zhfkt/Documents/Visual Studio 2013/Projects/ComplexCi/Release/karate.txt' [ballRadius] [updateBatch] [outputNumBatch] [method] {[biggestComponentEndThreshold]}" << endl;
 		return 0;
 	}
 
@@ -1059,11 +1091,19 @@ int main(int argc, char* argv[])
 	}
 	else if (method == 5)
 	{
-		bca.reset(new basicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, true));
+		bca.reset(new basicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, true, biggestComponentEndThreshold, COMPONENT_COUNT));
 	}
 	else if (method == 6)
 	{
-		bca.reset(new concurrentBasicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, true));
+		bca.reset(new concurrentBasicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, true, biggestComponentEndThreshold, COMPONENT_COUNT));
+	}
+	else if (method == 7)
+	{
+		bca.reset(new basicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, true, biggestComponentEndThreshold, COMPONENT_RANK));
+	}
+	else if (method == 8)
+	{
+		bca.reset(new concurrentBasicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, true, biggestComponentEndThreshold, COMPONENT_RANK));
 	}
 	else
 	{
