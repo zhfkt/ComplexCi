@@ -416,7 +416,7 @@ public:
 
 		load();
 		
-		computeComponentInterval = adjListGraph.size() * 0.001;
+		computeComponentInterval = adjListGraph.size() * 0.00001;
 		if (computeComponentInterval > 500)
 		{
 			computeComponentInterval = 500;
