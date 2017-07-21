@@ -9,7 +9,14 @@ else
     exit;
 fi
 
-serID=$(date "+%y_%m_%d_%H_%M_%S")_"$ballRadius"_"$batch"_"$outputBatch"_"$method"
+if (( $# >= 5 ))
+then
+
+    reInsertRatio=$5
+
+fi
+
+serID=$(date "+%y_%m_%d_%H_%M_%S")_"$ballRadius"_"$batch"_"$outputBatch"_"$method"_"$reInsertRatio"
 
 echo "serID: " $serID
 
@@ -23,7 +30,7 @@ for i in `ls $csvFiles`
 do
    echo $i
    date
-    ./ComplexCi $i $ballRadius $batch $outputBatch $method  &
+    ./ComplexCi $i $ballRadius $batch $outputBatch $method $reInsertRatio  &
    date
 done
 
