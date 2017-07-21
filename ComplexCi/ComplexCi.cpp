@@ -716,7 +716,7 @@ public:
 			if ((updateBatch != 1) || ((loopCount%outputNumBatch == 0) && (updateBatch == 1)))
 			{
 				//restrict flood output when updateBatch == 1
-				cout << "modelID: " << modelID << " loopCount: " << loopCount << " totalSize: " << totalSize << " maxCi: " << allPQ.rbegin()->first << " node: " << allPQ.rbegin()->second << endl;
+				cout << "modelID: " << modelID << " loopCount: " << loopCount << " totalSize: " << totalSize << " maxCi: " << allPQ.rbegin()->first << " node: " << allPQ.rbegin()->second << " biggestComponentCurrentRatio: " << biggestComponentCurrentRatio << endl;
 			}
 
 			loopCount += updateBatch;
