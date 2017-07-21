@@ -416,7 +416,7 @@ public:
 
 		load();
 		
-		computeComponentInterval = adjListGraph.size() * 0.00001;
+		computeComponentInterval = adjListGraph.size() * 0.001;
 		if (computeComponentInterval > 500)
 		{
 			computeComponentInterval = 500;
@@ -427,6 +427,8 @@ public:
 		}
 
 	}
+
+
 
 	virtual vector<int> go()
 	{
@@ -464,23 +466,13 @@ public:
 
 			loopCount += updateBatch;
 
-			int candidateEnd = 0;
 
+
+			tryReInsert(loopCount, finalOutput);
+
+			int candidateEnd = 0;
 			vector<int> batchList;
 			unsigned int batchLimiti = 0;
-
-			if (isInserted && (loopCount%computeComponentInterval == 0))
-			{
-				biggestComponentCurrentRatio = disjointSet(adjListGraph).getBiggestComponentCurrentRatio();
-
-				if (biggestComponentCurrentRatio < biggestComponentEndThreshold)
-				{
-					cout << "Start ReInsert: modelID: " << modelID << " loopCount: " << loopCount << " totalSize: " << totalSize << " maxCi: " << allPQ.rbegin()->first << " node: " << allPQ.rbegin()->second << " re-biggestComponentCurrentRatio: " << biggestComponentCurrentRatio << endl;
-
-					finalOutput = reInsert(finalOutput);
-					isInserted = false;
-				}
-			}
 
 			for (auto rit = allPQ.rbegin(); batchLimiti < updateBatch && (rit != allPQ.rend()); rit++, batchLimiti++)
 			{
@@ -538,6 +530,29 @@ public:
 	}
 
 protected:
+
+	void tryReInsert(int loopCount, vector<int>& finalOutput)
+	{
+		int smallerInterval = int(computeComponentInterval*biggestComponentCurrentRatio);
+		
+		if (smallerInterval == 0)
+		{
+			smallerInterval = 1;
+		}
+
+		if (isInserted && (loopCount%smallerInterval == 0))
+		{
+			biggestComponentCurrentRatio = disjointSet(adjListGraph).getBiggestComponentCurrentRatio();
+
+			if (biggestComponentCurrentRatio < biggestComponentEndThreshold)
+			{
+				cout << "Start ReInsert: modelID: " << modelID << " loopCount: " << loopCount << " totalSize: " << totalSize << " maxCi: " << allPQ.rbegin()->first << " node: " << allPQ.rbegin()->second << " re-biggestComponentCurrentRatio: " << biggestComponentCurrentRatio << endl;
+
+				isInserted = false;
+				finalOutput = reInsert(finalOutput);
+			}
+		}
+	}
 
 	vector<int> reInsert(const vector<int> &beforeOutput)
 	{
@@ -768,22 +783,11 @@ public:
 
 			loopCount += updateBatch;
 
+
+			tryReInsert(loopCount, finalOutput);
+
 			vector<int> batchList;
 			unsigned int batchLimiti = 0;
-
-			if (isInserted && (loopCount%computeComponentInterval == 0))
-			{
-				biggestComponentCurrentRatio = disjointSet(adjListGraph).getBiggestComponentCurrentRatio();
-
-				if (biggestComponentCurrentRatio < biggestComponentEndThreshold)
-				{
-					cout << "Start ReInsert: modelID: " << modelID << " loopCount: " << loopCount << " totalSize: " << totalSize << " maxCi: " << allPQ.rbegin()->first << " node: " << allPQ.rbegin()->second << " re-biggestComponentCurrentRatio: " << biggestComponentCurrentRatio << endl;
-
-					finalOutput = reInsert(finalOutput);
-					isInserted = false;
-					switchToSingleThread = true;
-				}
-			}
 
 			for (auto rit = allPQ.rbegin(); batchLimiti < updateBatch && (rit != allPQ.rend()); rit++, batchLimiti++)
 			{
