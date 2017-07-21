@@ -261,21 +261,20 @@ public:
 		adjListGraph[node].clear();
 	}
 
-	static void recoverAddNode(const vector<vector<int> > &backupCompletedAdjListGraph, unordered_set<int>& backupAllVex, vector<vector<int> > &adjListGraph, int node, disjointSet &unionSet)
+	static void recoverAddNode(const vector<vector<int> > &backupCompletedAdjListGraph, vector<bool>& backupAllVex, vector<vector<int> > &adjListGraph, int node, disjointSet &unionSet)
 	{
 		for (int i = 0; i < backupCompletedAdjListGraph[node].size(); i++)
 		{
 			int neighbourNode = backupCompletedAdjListGraph[node][i];
 
-			if (backupAllVex.find(neighbourNode) != backupAllVex.end())
+			if (backupAllVex[neighbourNode])
 			{
 				addEdge(adjListGraph, node, neighbourNode);
 				unionSet.merge(node, neighbourNode);
 			}
 		}
 
-		backupAllVex.insert(node);
-
+		backupAllVex[node] = true;
 	}
 
 	static void addEdge(vector<vector<int> > &adjListGraph, int node1, int node2)
@@ -284,7 +283,7 @@ public:
 		adjListGraph[node2].push_back(node1);
 	}
 
-	static int decreaseComponentNumIfAddNode(const vector<vector<int> >& backupCompletedAdjListGraph, const unordered_set<int>& backupAllVex, disjointSet &unionSet, int node, reInsertMethod rim)
+	static int decreaseComponentNumIfAddNode(const vector<vector<int> >& backupCompletedAdjListGraph, const vector<bool>& backupAllVex, disjointSet &unionSet, int node, reInsertMethod rim)
 	{
 		unordered_set<int> componentSet;
 
@@ -292,7 +291,7 @@ public:
 		{
 			int neighbourNode = backupCompletedAdjListGraph[node][i];
 
-			if (backupAllVex.find(neighbourNode) != backupAllVex.end())
+			if (backupAllVex[neighbourNode])
 			{
 				componentSet.insert(unionSet.findRoot(neighbourNode));
 			}
@@ -566,7 +565,12 @@ protected:
 	vector<int> reInsert(const vector<int> &beforeOutput)
 	{
 		vector<vector<int> > backupAdjListGraph = adjListGraph;
-		unordered_set<int> backupAllVex = allVex;
+		
+		vector<bool> backupAllVex(backupAdjListGraph.size(), false);
+		for (int eachV : allVex)
+		{
+			backupAllVex[eachV] = true;
+		}
 
 		//int eachStep = computeComponentInterval;
 		int eachStep = 1;
