@@ -345,6 +345,7 @@ protected:
 	double biggestComponentCurrentRatio;
 	const double biggestComponentEndThreshold;
 	int computeComponentInterval;
+	int computeComponentIntervalIndice;
 	reInsertMethod rim;
 
 
@@ -417,14 +418,15 @@ public:
 		load();
 		
 		computeComponentInterval = adjListGraph.size() * 0.001;
-		if (computeComponentInterval > 500)
+		if (computeComponentInterval > 200)
 		{
-			computeComponentInterval = 500;
+			computeComponentInterval = 200;
 		}
 		if (computeComponentInterval == 0)
 		{
 			computeComponentInterval = 1;
 		}
+		computeComponentIntervalIndice = -1;
 
 	}
 
@@ -533,15 +535,22 @@ protected:
 
 	void tryReInsert(int loopCount, vector<int>& finalOutput)
 	{
+		/*
 		int smallerInterval = int(computeComponentInterval*biggestComponentCurrentRatio);
 		
 		if (smallerInterval == 0)
 		{
 			smallerInterval = 1;
 		}
+		*/
 
-		if (isInserted && (loopCount%smallerInterval == 0))
+		int newComputeComponentIntervalIndice = loopCount / computeComponentInterval;
+
+
+		if (isInserted && (newComputeComponentIntervalIndice > computeComponentIntervalIndice))
 		{
+			computeComponentIntervalIndice = newComputeComponentIntervalIndice;
+
 			biggestComponentCurrentRatio = disjointSet(adjListGraph).getBiggestComponentCurrentRatio();
 
 			if (biggestComponentCurrentRatio < biggestComponentEndThreshold)
