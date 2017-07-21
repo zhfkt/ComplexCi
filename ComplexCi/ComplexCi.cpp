@@ -546,7 +546,7 @@ protected:
 
 			if (biggestComponentCurrentRatio < biggestComponentEndThreshold)
 			{
-				cout << "Start ReInsert: modelID: " << modelID << " loopCount: " << loopCount << " totalSize: " << totalSize << " maxCi: " << allPQ.rbegin()->first << " node: " << allPQ.rbegin()->second << " re-biggestComponentCurrentRatio: " << biggestComponentCurrentRatio << endl;
+				cout << "Start ReInsert: modelID: " << modelID << " loopCount: " << loopCount << " totalSize: " << totalSize <<  " re-biggestComponentCurrentRatio: " << biggestComponentCurrentRatio << endl;
 
 				isInserted = false;
 				finalOutput = reInsert(finalOutput);
