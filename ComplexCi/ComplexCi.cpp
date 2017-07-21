@@ -507,7 +507,8 @@ protected:
 		vector<vector<int> > backupAdjListGraph = adjListGraph;
 		unordered_set<int> backupAllVex = allVex;
 
-		int eachStep = computeComponentInterval;
+		//int eachStep = computeComponentInterval;
+		int eachStep = 1;
 		if (eachStep == 0)
 		{
 			eachStep = 1;
