@@ -546,11 +546,14 @@ protected:
 		int newComputeComponentIntervalIndice = loopCount / computeComponentInterval;
 
 
-		if (isInserted && (newComputeComponentIntervalIndice > computeComponentIntervalIndice))
+		if (isInserted)
 		{
-			computeComponentIntervalIndice = newComputeComponentIntervalIndice;
+			if (newComputeComponentIntervalIndice > computeComponentIntervalIndice)
+			{
+				computeComponentIntervalIndice = newComputeComponentIntervalIndice;
 
-			biggestComponentCurrentRatio = disjointSet(adjListGraph).getBiggestComponentCurrentRatio();
+				biggestComponentCurrentRatio = disjointSet(adjListGraph).getBiggestComponentCurrentRatio();
+			}
 
 			if (biggestComponentCurrentRatio < biggestComponentEndThreshold)
 			{
@@ -577,7 +580,7 @@ protected:
 		}
 
 		//int eachStep = computeComponentInterval;
-		int eachStep = 1;
+		int eachStep = 20;
 		if (eachStep == 0)
 		{
 			eachStep = 1;
