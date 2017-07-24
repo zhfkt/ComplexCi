@@ -532,7 +532,7 @@ public:
 
 protected:
 
-	bool tryReInsert(int loopCount, vector<int>& finalOutput)
+	void tryReInsert(int loopCount, vector<int>& finalOutput)
 	{
 		/*
 		int smallerInterval = int(computeComponentInterval*biggestComponentCurrentRatio);
@@ -561,12 +561,8 @@ protected:
 
 				isInserted = false;
 				finalOutput = reInsert(finalOutput);
-
-				return true;
 			}
 		}
-
-		return false;
 	}
 
 	vector<int> reInsert(const vector<int> &beforeOutput)
@@ -823,10 +819,13 @@ public:
 
 			loopCount += updateBatch;
 
-			if (tryReInsert(loopCount, finalOutput))
+			tryReInsert(loopCount, finalOutput);
+
+			if (biggestComponentCurrentRatio < 0.1)
 			{
 				switchToSingleThread = true;
 			}
+
 			
 			vector<int> batchList;
 			unsigned int batchLimiti = 0;
