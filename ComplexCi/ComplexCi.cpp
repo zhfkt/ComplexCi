@@ -579,8 +579,11 @@ protected:
 			backupAllVex[eachV] = true;
 		}
 
-		//int eachStep = computeComponentInterval;
-		int eachStep = 20;
+		int eachStep = computeComponentInterval;
+		if (eachStep > 20)
+		{
+			eachStep = 20;
+		}
 		if (eachStep == 0)
 		{
 			eachStep = 1;
@@ -630,7 +633,7 @@ protected:
 
 	}
 
-	vector<int>& postProcess(vector<int>& finalOutput)
+	virtual vector<int>& postProcess(vector<int>& finalOutput)
 	{
 		//add left random
 
@@ -656,6 +659,23 @@ protected:
 		return finalOutput;
 	}
 
+};
+
+
+class fullReinsertBasicCiAlgo : public basicCiAlgo
+{
+
+public:
+
+	fullReinsertBasicCiAlgo(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch, const string& _path, const string& _modelID, reInsertMethod _rim) :
+		basicCiAlgo(_ballRadius, _updateBatch, _outputNumBatch, _path, _modelID, false, -1, _rim) {}
+	
+
+	virtual vector<int>& postProcess(vector<int>& finalOutput)
+	{
+		finalOutput = reInsert(finalOutput);
+		return basicCiAlgo::postProcess(finalOutput);
+	}
 };
 
 
@@ -932,6 +952,22 @@ public:
 };
 
 
+class fullReinsertConcurrentBasicCiAlgo : public concurrentBasicCiAlgo
+{
+
+public:
+
+	fullReinsertConcurrentBasicCiAlgo(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch, const string& _path, const string& _modelID, reInsertMethod _rim) :
+		concurrentBasicCiAlgo(_ballRadius, _updateBatch, _outputNumBatch, _path, _modelID, false, -1, _rim) {}
+
+
+	virtual vector<int>& postProcess(vector<int>& finalOutput)
+	{
+		finalOutput = reInsert(finalOutput);
+		return basicCiAlgo::postProcess(finalOutput);
+	}
+};
+
 
 
 
@@ -1205,6 +1241,23 @@ int main(int argc, char* argv[])
 	{
 		bca.reset(new concurrentBasicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, true, biggestComponentEndThreshold, COMPONENT_RANK));
 	}
+	else if (method == 9)
+	{
+		bca.reset(new fullReinsertBasicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, COMPONENT_COUNT));
+	}
+	else if (method == 10)
+	{
+		bca.reset(new fullReinsertConcurrentBasicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, COMPONENT_COUNT));
+	}
+	else if (method == 11)
+	{
+		bca.reset(new fullReinsertBasicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, COMPONENT_RANK));
+	}
+	else if (method == 12)
+	{
+		bca.reset(new fullReinsertConcurrentBasicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, COMPONENT_RANK));
+	}
+
 	else
 	{
 		cout << "Method " << method << " is not defined" << endl;
