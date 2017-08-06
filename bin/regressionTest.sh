@@ -1,7 +1,14 @@
+ballRadius=0
+
+if (( $# >= 1 ))
+then
+    ballRadius=$1
+fi
+
 for((i=0;i<19;i++))
 do
 	echo Now $i
-	./executeAll.sh 0 1 500 $i 0.001
+	./executeAll.sh $ballRadius 1 500 $i 0.001
 	#sleep 5s
 	logFile=`ls -t | head -1`
 	tail $logFile
