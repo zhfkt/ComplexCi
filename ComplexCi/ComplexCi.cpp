@@ -446,10 +446,13 @@ public:
 
 		reinsertEachStep = computeComponentInterval;
 
-		if (reinsertEachStep > 20)
+		if (isSlowInterval)
 		{
-			reinsertEachStep = 20;
-		}	
+			if (reinsertEachStep > 20)
+			{
+				reinsertEachStep = 20;
+			}
+		}
 	}
 
 	void tryReInsert(const vector<vector<int> >& adjListGraph, const unordered_set<int>& allVex, int loopCount, vector<int>& finalOutput)
