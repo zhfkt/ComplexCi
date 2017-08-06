@@ -8,6 +8,7 @@ fi
 for((i=0;i<19;i++))
 do
 	echo Now $i
+	date
 	./executeAll.sh $ballRadius 1 500 $i 0.001
 	#sleep 5s
 	logFile=`ls -t | head -1`
