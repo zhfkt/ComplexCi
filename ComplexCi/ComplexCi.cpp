@@ -22,15 +22,12 @@
 #include <thread>
 #include <future>
 #include <algorithm>
+#include <exception>
 
-#include "CITM.cpp"
 #include "CI_HEAP.cpp"
 
 using namespace std;
 using namespace chrono;
-
-
-
 
 class util
 {
@@ -86,7 +83,7 @@ private:
 protected:
 	vector<int> unionSet;
 	vector<int> rankCount;
-	int maxRankCount = -1;
+	int maxRankCount = 0;
 
 public:
 	disjointSet(const vector<vector<int> >& backupAdjListGraph) : unionSet(backupAdjListGraph.size()), rankCount(backupAdjListGraph.size())
@@ -152,11 +149,6 @@ public:
 		return rankCount[rootNode];
 	}
 
-};
-
-enum reInsertMethod{
-	COMPONENT_COUNT,
-	COMPONENT_RANK,
 };
 
 
@@ -277,13 +269,43 @@ public:
 		backupAllVex[node] = true;
 	}
 
-	static void addEdge(vector<vector<int> > &adjListGraph, int node1, int node2)
+	static void addEdge(vector<vector<int> > &adjListGraph, int node0, int node1)
 	{
-		adjListGraph[node1].push_back(node2);
-		adjListGraph[node2].push_back(node1);
+		if (((int)adjListGraph.size() - 1) < std::max(node0, node1))
+		{
+			adjListGraph.resize(std::max(node0, node1) + 1);
+		}
+
+		adjListGraph[node0].push_back(node1);
+		adjListGraph[node1].push_back(node0);
+	}
+};
+
+
+class decreaseComponentStrategy
+{
+public:
+
+	decreaseComponentStrategy(const string& description)
+	{
+		cout << "decreaseComponentStrategy: " << description << endl;
 	}
 
-	static int decreaseComponentNumIfAddNode(const vector<vector<int> >& backupCompletedAdjListGraph, const vector<bool>& backupAllVex, disjointSet &unionSet, int node, reInsertMethod rim)
+	virtual int decreaseComponentNumIfAddNode(const vector<vector<int> >& backupCompletedAdjListGraph, const vector<bool>& currentAllVex, disjointSet &unionSet, int node) = 0;
+	
+};
+
+
+class decreaseComponentRank :public decreaseComponentStrategy
+{
+
+public:
+
+
+	decreaseComponentRank() :decreaseComponentStrategy("decreaseComponentRank"){}
+	
+
+	virtual int decreaseComponentNumIfAddNode(const vector<vector<int> >& backupCompletedAdjListGraph, const vector<bool>& currentAllVex, disjointSet &unionSet, int node)
 	{
 		unordered_set<int> componentSet;
 
@@ -291,31 +313,189 @@ public:
 		{
 			int neighbourNode = backupCompletedAdjListGraph[node][i];
 
-			if (backupAllVex[neighbourNode])
+			if (currentAllVex[neighbourNode])
 			{
 				componentSet.insert(unionSet.findRoot(neighbourNode));
 			}
 		}
 
-		if (rim == COMPONENT_RANK)
-		{
-			int sum = 1;
+		int sum = 1;
 
-			for (int eachNode : componentSet)
+		for (int eachNode : componentSet)
+		{
+			sum += unionSet.getRank(eachNode);
+		}
+
+		return sum;
+	}
+};
+
+class decreaseComponentCount : public decreaseComponentStrategy
+{
+public:
+
+	decreaseComponentCount() :decreaseComponentStrategy("decreaseComponentCount"){}
+
+	virtual int decreaseComponentNumIfAddNode(const vector<vector<int> >& backupCompletedAdjListGraph, const vector<bool>& currentAllVex, disjointSet &unionSet, int node) override
+	{
+		unordered_set<int> componentSet;
+
+		for (int i = 0; i < backupCompletedAdjListGraph[node].size(); i++)
+		{
+			int neighbourNode = backupCompletedAdjListGraph[node][i];
+
+			if (currentAllVex[neighbourNode])
 			{
-				sum += unionSet.getRank(eachNode);
+				componentSet.insert(unionSet.findRoot(neighbourNode));
+			}
+		}
+
+		return (int)componentSet.size();
+	}
+};
+
+
+class reInsertStrategy
+{
+protected:
+
+	double biggestComponentCurrentRatio;
+	const double biggestComponentEndThreshold;
+	int computeComponentInterval, computeComponentIntervalIndice, reinsertEachStep;
+	bool isSlowInterval, isContinueReInserted;
+
+	const string& modelID;
+	const vector<vector<int> >& backupCompletedAdjListGraph;
+
+	shared_ptr<decreaseComponentStrategy> decreaseStrategy;
+
+public:
+
+	enum reInsertMethod{
+		NONE_INSERT,
+		COMPONENT_COUNT,
+		COMPONENT_RANK,
+		FULL_COMPONENT_COUNT,
+		FULL_COMPONENT_RANK,
+		FAST_COMPONENT_COUNT,
+		FAST_COMPONENT_RANK
+	};
+
+	reInsertStrategy(bool _isSlowInterval, double _biggestComponentEndThreshold, const vector<vector<int> >& _backupCompletedAdjListGraph, 
+		const string& _modelID, shared_ptr<decreaseComponentStrategy> _decreaseStrategy, const string& reInsertStrategyName = "reInsertStrategy") :
+		isSlowInterval(_isSlowInterval), isContinueReInserted(true),computeComponentIntervalIndice(-1), biggestComponentCurrentRatio(1.0), 
+		biggestComponentEndThreshold(_biggestComponentEndThreshold), backupCompletedAdjListGraph(_backupCompletedAdjListGraph), modelID(_modelID),
+		decreaseStrategy(_decreaseStrategy)
+	{
+		cout << "biggestComponentEndThreshold: " << biggestComponentEndThreshold << endl;
+		cout << "reInsertStrategyName: " << reInsertStrategyName << endl;
+		
+		computeComponentInterval = int(backupCompletedAdjListGraph.size() * 0.001);
+
+		if (isSlowInterval)
+		{
+			if (computeComponentInterval > 200)
+			{
+				computeComponentInterval = 200;
+			}
+		}
+
+		if (computeComponentInterval == 0)
+		{
+			computeComponentInterval = 1;
+		}
+
+		//---------------------
+
+		reinsertEachStep = computeComponentInterval;
+
+		if (reinsertEachStep > 20)
+		{
+			reinsertEachStep = 20;
+		}	
+	}
+
+	void tryReInsert(const vector<vector<int> >& adjListGraph, const unordered_set<int>& allVex, int loopCount, vector<int>& finalOutput)
+	{
+		if (isContinueReInserted)
+		{
+			int newComputeComponentIntervalIndice = loopCount / computeComponentInterval;
+
+
+			if (newComputeComponentIntervalIndice > computeComponentIntervalIndice)
+			{
+				computeComponentIntervalIndice = newComputeComponentIntervalIndice;
+
+				biggestComponentCurrentRatio = disjointSet(adjListGraph).getBiggestComponentCurrentRatio();
 			}
 
-			return sum;
+			if (biggestComponentCurrentRatio < biggestComponentEndThreshold)
+			{
+				cout << "Start ReInsert: modelID: " << modelID << " loopCount: " << loopCount << " totalSize: " << adjListGraph.size() << " re-biggestComponentCurrentRatio: " << biggestComponentCurrentRatio << endl;
+
+				isContinueReInserted = false;
+				finalOutput = reInsert(finalOutput, adjListGraph, allVex);
+			}
 		}
-		else if (rim == COMPONENT_COUNT)
+	}
+
+	vector<int> reInsert(const vector<int> &beforeOutput, const vector<vector<int> >& adjListGraph, const unordered_set<int>& allVex)
+	{
+		vector<vector<int> > currentAdjListGraph = adjListGraph;
+
+		vector<bool> currentAllVex(currentAdjListGraph.size(), false);
+		for (int eachV : allVex)
 		{
-			return componentSet.size();
+			currentAllVex[eachV] = true;
 		}
-		else
+
+		unordered_set<int> leftOutput(beforeOutput.begin(), beforeOutput.end());
+		vector<int> finalOutput;
+
+		disjointSet unionSet(currentAdjListGraph);
+
+		while (leftOutput.size() != 0)
 		{
-			return componentSet.size();
+			cout << "modelID: " << modelID << " reInsertCount: " << leftOutput.size() << endl;
+
+			vector<pair<int, int> >  batchList;
+
+			for (int eachNode : leftOutput)
+			{
+				//min is better
+				int decreaseValue = decreaseStrategy->decreaseComponentNumIfAddNode(backupCompletedAdjListGraph, currentAllVex, unionSet, eachNode);
+				batchList.push_back(make_pair(decreaseValue, eachNode));
+			}
+
+
+			if (reinsertEachStep >= batchList.size())
+			{
+				reinsertEachStep = (int)batchList.size();
+			}
+			else
+			{
+				std::nth_element(batchList.begin(), batchList.begin() + reinsertEachStep, batchList.end());
+			}
+
+			for (int i = 0; i < reinsertEachStep; i++)
+			{
+				finalOutput.push_back(batchList[i].second);
+				leftOutput.erase(batchList[i].second);
+
+				graphUtil::recoverAddNode(backupCompletedAdjListGraph, currentAllVex, currentAdjListGraph, batchList[i].second, unionSet);
+			}
+
 		}
+
+		std::reverse(finalOutput.begin(), finalOutput.end());
+
+		return finalOutput;
+
+	}
+
+	double getBiggestComponentCurrentRatio()
+	{
+		return biggestComponentCurrentRatio;
 	}
 
 
@@ -323,8 +503,98 @@ public:
 
 
 
+class basicCiAlgo;
+
+class parametersBuilder
+{
+	//friend class basicCiAlgo;
+
+public:
+	unsigned int ballRadius;
+	unsigned int updateBatch;
+	unsigned int outputNumBatch;
+	const string& path;
+	const string& modelID;
+
+	double biggestComponentEndThreshold;
+	reInsertStrategy::reInsertMethod rim;
+
+public:
+	parametersBuilder(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch, const string& _path, const string& _modelID) :
+		ballRadius(_ballRadius), updateBatch(_updateBatch), outputNumBatch(_outputNumBatch), path(_path), modelID(_modelID),
+		biggestComponentEndThreshold(0.01), rim(reInsertStrategy::NONE_INSERT){}
+
+	parametersBuilder& setBiggestComponentEndThreshold(double _biggestComponentEndThreshold)
+	{
+		biggestComponentEndThreshold = _biggestComponentEndThreshold;
+		return *this;
+	}
+
+	parametersBuilder& setReInsertMethod(reInsertStrategy::reInsertMethod _rim)
+	{
+		rim = _rim;
+		return *this;
+	}
+
+	template<class T>
+	T* build()
+	{
+		return new T(*this);
+	}
+
+};
+
 class basicCiAlgo
 {
+
+public:
+	
+	basicCiAlgo(const parametersBuilder& builder) : path(builder.path), modelID(builder.modelID), ballRadius(builder.ballRadius),
+		updateBatch(builder.updateBatch), outputNumBatch(builder.outputNumBatch)
+	{
+
+		load();
+
+		if (builder.rim == reInsertStrategy::COMPONENT_COUNT)
+		{
+			shared_ptr<decreaseComponentStrategy> decreaseStrategy(new decreaseComponentCount());
+			reInsert.reset(new reInsertStrategy(true, builder.biggestComponentEndThreshold, adjListGraph, modelID, decreaseStrategy));
+		}
+		else if (builder.rim == reInsertStrategy::COMPONENT_RANK)
+		{
+			shared_ptr<decreaseComponentStrategy> decreaseStrategy(new decreaseComponentRank());
+			reInsert.reset(new reInsertStrategy(true, builder.biggestComponentEndThreshold, adjListGraph, modelID, decreaseStrategy));
+		}
+		else if (builder.rim == reInsertStrategy::NONE_INSERT)
+		{
+			//reInsert = nullptr;
+		}
+		else if (builder.rim == reInsertStrategy::FULL_COMPONENT_COUNT)
+		{
+			shared_ptr<decreaseComponentStrategy> decreaseStrategy(new decreaseComponentCount());
+			fullReInsert.reset(new reInsertStrategy(true, builder.biggestComponentEndThreshold, adjListGraph, modelID, decreaseStrategy));
+		}
+		else if (builder.rim == reInsertStrategy::FULL_COMPONENT_RANK)
+		{
+			shared_ptr<decreaseComponentStrategy> decreaseStrategy(new decreaseComponentRank());
+			fullReInsert.reset(new reInsertStrategy(true, builder.biggestComponentEndThreshold, adjListGraph, modelID, decreaseStrategy));
+		}
+		else if (builder.rim == reInsertStrategy::FAST_COMPONENT_COUNT)
+		{
+			shared_ptr<decreaseComponentStrategy> decreaseStrategy(new decreaseComponentCount());
+			fullReInsert.reset(new reInsertStrategy(false, builder.biggestComponentEndThreshold, adjListGraph, modelID, decreaseStrategy));
+		}
+		else if (builder.rim == reInsertStrategy::FAST_COMPONENT_RANK)
+		{
+			shared_ptr<decreaseComponentStrategy> decreaseStrategy(new decreaseComponentRank());
+			fullReInsert.reset(new reInsertStrategy(false, builder.biggestComponentEndThreshold, adjListGraph, modelID, decreaseStrategy));
+		}
+		else
+		{
+			throw exception("can not find the corresponding reInsertStrategy class");
+		}
+	}
+	
 
 protected:
 
@@ -337,106 +607,52 @@ protected:
 	
 	unordered_set<int> allVex;
 	vector<vector<int> > adjListGraph;
-	vector<vector<int> > backupCompletedAdjListGraph;
-	int totalSize;
-	bool isInserted;
-
-	double biggestComponentCurrentRatio;
-	const double biggestComponentEndThreshold;
-	int computeComponentInterval;
-	int computeComponentIntervalIndice;
-	reInsertMethod rim;
-
+	shared_ptr<reInsertStrategy> reInsert;
+	shared_ptr<reInsertStrategy> fullReInsert;
 
 private:
 
 	void load()
 	{
-		cout << "First Read Start" << endl;
+		cout << "Read Start: " << path << endl;
 
 		string eachLine;
 		ifstream is;
 		is.open(path);
 
+		if (!is.good())
+		{
+			is.close();
+			throw exception((string("Can not open the file: ") + path).c_str());
+		}
+
 		while (is >> eachLine)
 		{
 			vector<string> csvEachLine = util::split(eachLine, ',');
 
-			allVex.insert(stoi(csvEachLine[0]));
-			allVex.insert(stoi(csvEachLine[1]));
+			int node0 = stoi(csvEachLine[0]);
+			int node1 = stoi(csvEachLine[1]);
+
+			allVex.insert(node0);
+			allVex.insert(node1);
+
+			graphUtil::addEdge(adjListGraph, node0, node1);
 
 		}
 		is.close();
 
-		totalSize = (int)allVex.size();
-		adjListGraph.resize(totalSize);
-
-		cout << "First Read End/Second Read Start" << endl;
-
-		is.open(path);
-		while (is >> eachLine)
-		{
-			vector<string> csvEachLine = util::split(eachLine, ',');
-			graphUtil::addEdge(adjListGraph, stoi(csvEachLine[0]), stoi(csvEachLine[1]));
-		}
-
-		cout << "Second Read End" << endl;
-
-		backupCompletedAdjListGraph = adjListGraph;
+		cout << "Read End: " << path << endl;
 	}
 
 
 public:
 
-	basicCiAlgo(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch, const string& _path, const string& _modelID, bool _isInserted) :
-		basicCiAlgo(_ballRadius, _updateBatch, _outputNumBatch, _path, _modelID, _isInserted, 0.01, COMPONENT_RANK){}
-
-	basicCiAlgo(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch, const string& _path, const string& _modelID, bool _isInserted, double _biggestComponentEndThreshold, reInsertMethod _rim) :
-		ballRadius(_ballRadius), updateBatch(_updateBatch), outputNumBatch(_outputNumBatch), path(_path), modelID(_modelID), isInserted(_isInserted), biggestComponentCurrentRatio(1.0), 
-		rim(_rim), biggestComponentEndThreshold(_biggestComponentEndThreshold)
-	{	
-		cout << "biggestComponentEndThreshold: " << biggestComponentEndThreshold << endl;
-		
-		
-		string rimName = "";
-		if (rim == COMPONENT_COUNT)
-		{
-			rimName="COMPONENT_COUNT";
-		}
-		else if (rim == COMPONENT_RANK)
-		{
-			rimName = "COMPONENT_RANK";
-		}
-		else
-		{
-			rimName = "default_COMPONENT_COUNT";
-		}
-
-		cout << "reInsertMethod: " << rimName << endl;
-
-		load();
-		
-		computeComponentInterval = adjListGraph.size() * 0.001;
-		if (computeComponentInterval > 200)
-		{
-			computeComponentInterval = 200;
-		}
-		if (computeComponentInterval == 0)
-		{
-			computeComponentInterval = 1;
-		}
-		computeComponentIntervalIndice = -1;
-
-	}
-
-
-
 	virtual vector<int> go()
 	{
 		set<pair<long long, int> > allPQ; //ci/currentNode --- long is 32 bit on the win and long long is 64 bit / and long long can be multiple
-		vector<long long> revereseLoopUpAllPQ(totalSize);
+		vector<long long> revereseLoopUpAllPQ(allVex.size());
 
-		graphUtil gu(totalSize);
+		graphUtil gu((int)allVex.size());
 
 		cout << "modelID: " << modelID << " First Cal CI" << endl;
 
@@ -450,10 +666,6 @@ public:
 			revereseLoopUpAllPQ[currentNode] = ci;
 		}
 
-		vector<bool> candidateUpdateNodesBool(totalSize, 0);
-		vector<int> candidateUpdateNodesVector(totalSize, -1);
-
-		
 
 		vector<int> finalOutput;
 		int loopCount = 0;
@@ -462,16 +674,17 @@ public:
 			if ((updateBatch != 1) || ((loopCount%outputNumBatch == 0) && (updateBatch == 1)))
 			{
 				//restrict flood output when updateBatch == 1
-				cout << "modelID: " << modelID << " loopCount: " << loopCount << " totalSize: " << totalSize << " maxCi: " << allPQ.rbegin()->first << " node: " << allPQ.rbegin()->second << " biggestComponentCurrentRatio: " << biggestComponentCurrentRatio << endl;
+				cout << "modelID: " << modelID << " loopCount: " << loopCount << " totalSize: " << allVex.size() << " maxCi: " << allPQ.rbegin()->first 
+					<< " node: " << allPQ.rbegin()->second << " biggestComponentCurrentRatio: " << reInsert->getBiggestComponentCurrentRatio() << endl;
 			}
 
 			loopCount += updateBatch;
 
+			if (reInsert)
+			{
+				reInsert->tryReInsert(adjListGraph, allVex, loopCount, finalOutput);
+			}
 
-
-			tryReInsert(loopCount, finalOutput);
-
-			int candidateEnd = 0;
 			vector<int> batchList;
 			unsigned int batchLimiti = 0;
 
@@ -488,6 +701,8 @@ public:
 				allVex.erase(rit->second);  //remove key
 			}
 
+			unordered_set<int> candidateUpdateNodesSet;
+
 			for (int i : batchList)
 			{
 				gu.getNeighbourFrontierAndScope(adjListGraph, ballRadius + 1, i);
@@ -496,11 +711,7 @@ public:
 
 				for (auto bfsIt = bfsQueue.begin(); bfsIt != bfsQueue.begin() + endIt; bfsIt++)
 				{
-					if (!candidateUpdateNodesBool[*bfsIt])
-					{
-						candidateUpdateNodesVector[candidateEnd++] = (*bfsIt);
-						candidateUpdateNodesBool[*bfsIt] = 1;
-					}
+					candidateUpdateNodesSet.insert(*bfsIt);
 				}
 			}
 
@@ -511,7 +722,7 @@ public:
 				//candidateUpdateNodesWithCi.insert(make_pair(i, -1));// no need to because self will be included in the candidateUpdateNodes and updated in the below
 			}
 
-			for (auto canIt = candidateUpdateNodesVector.begin(); canIt != (candidateUpdateNodesVector.begin() + candidateEnd); canIt++)
+			for (auto canIt = candidateUpdateNodesSet.begin(); canIt != candidateUpdateNodesSet.end(); canIt++)
 			{
 				long long updatedCi = gu.basicCi(adjListGraph, ballRadius, *canIt);
 
@@ -521,116 +732,19 @@ public:
 				allPQ.insert(make_pair(updatedCi, *canIt));
 
 				revereseLoopUpAllPQ[*canIt] = updatedCi;
-
-				candidateUpdateNodesBool[*canIt] = 0; //recover candidateUpdateNodesBool to zero
-
 			}
 
 		}
-
-	}
-
-protected:
-
-	void tryReInsert(int loopCount, vector<int>& finalOutput)
-	{
-		/*
-		int smallerInterval = int(computeComponentInterval*biggestComponentCurrentRatio);
-		
-		if (smallerInterval == 0)
-		{
-			smallerInterval = 1;
-		}
-		*/
-
-		int newComputeComponentIntervalIndice = loopCount / computeComponentInterval;
-
-
-		if (isInserted)
-		{
-			if (newComputeComponentIntervalIndice > computeComponentIntervalIndice)
-			{
-				computeComponentIntervalIndice = newComputeComponentIntervalIndice;
-
-				biggestComponentCurrentRatio = disjointSet(adjListGraph).getBiggestComponentCurrentRatio();
-			}
-
-			if (biggestComponentCurrentRatio < biggestComponentEndThreshold)
-			{
-				cout << "Start ReInsert: modelID: " << modelID << " loopCount: " << loopCount << " totalSize: " << totalSize <<  " re-biggestComponentCurrentRatio: " << biggestComponentCurrentRatio << endl;
-
-				isInserted = false;
-				finalOutput = reInsert(finalOutput);
-			}
-		}
-	}
-
-	vector<int> reInsert(const vector<int> &beforeOutput)
-	{
-		vector<vector<int> > backupAdjListGraph = adjListGraph;
-		
-		vector<bool> backupAllVex(backupAdjListGraph.size(), false);
-		for (int eachV : allVex)
-		{
-			backupAllVex[eachV] = true;
-		}
-
-		int eachStep = computeComponentInterval;
-		if (eachStep > 20)
-		{
-			eachStep = 20;
-		}
-		if (eachStep == 0)
-		{
-			eachStep = 1;
-		}
-
-		unordered_set<int> leftOutput(beforeOutput.begin(), beforeOutput.end());
-		vector<int> finalOutput;
-		
-		disjointSet unionSet(backupAdjListGraph);
-
-		while (leftOutput.size() != 0)
-		{
-			cout << "modelID: " << modelID << " reInsertCount: " << leftOutput.size() << endl;
-			
-			vector<pair<int, int> >  batchList;
-
-			for (int eachNode : leftOutput)
-			{
-				//min is better
-				int decreaseValue = graphUtil::decreaseComponentNumIfAddNode(backupCompletedAdjListGraph, backupAllVex, unionSet, eachNode, rim);
-				batchList.push_back(make_pair(decreaseValue, eachNode));
-			}
-
-			
-			if (eachStep >= batchList.size())
-			{
-				eachStep = batchList.size();
-			}
-			else
-			{
-				std::nth_element(batchList.begin(), batchList.begin() + eachStep, batchList.end());
-			}
-
-			for (int i = 0; i < eachStep; i++)
-			{
-				finalOutput.push_back(batchList[i].second);
-				leftOutput.erase(batchList[i].second);
-
-				graphUtil::recoverAddNode(backupCompletedAdjListGraph, backupAllVex, backupAdjListGraph, batchList[i].second, unionSet);
-			}
-			
-		}
-
-		std::reverse(finalOutput.begin(), finalOutput.end());
-
-		return finalOutput;
 
 	}
 
 	virtual vector<int>& postProcess(vector<int>& finalOutput)
 	{
+		if (fullReInsert)
+		{
+			finalOutput = fullReInsert->reInsert(finalOutput, adjListGraph, allVex);
+		}
+
 		//add left random
 
 		cout << modelID << " Before Random adding the left CI equals zero: " << finalOutput.size() << endl;
@@ -655,23 +769,6 @@ protected:
 		return finalOutput;
 	}
 
-};
-
-
-class fullReinsertBasicCiAlgo : public basicCiAlgo
-{
-
-public:
-
-	fullReinsertBasicCiAlgo(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch, const string& _path, const string& _modelID, reInsertMethod _rim) :
-		basicCiAlgo(_ballRadius, _updateBatch, _outputNumBatch, _path, _modelID, false, -1, _rim) {}
-	
-
-	virtual vector<int>& postProcess(vector<int>& finalOutput)
-	{
-		finalOutput = reInsert(finalOutput);
-		return basicCiAlgo::postProcess(finalOutput);
-	}
 };
 
 
@@ -752,11 +849,8 @@ protected:
 
 public:
 
-	concurrentBasicCiAlgo(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch, const string& _path, const string& _modelID, bool _isInserted) :
-		basicCiAlgo(_ballRadius, _updateBatch, _outputNumBatch, _path, _modelID, _isInserted){}
-
-	concurrentBasicCiAlgo(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch, const string& _path, const string& _modelID, bool _isInserted, double _biggestComponentEndThreshold, reInsertMethod rim) :
-		basicCiAlgo(_ballRadius, _updateBatch, _outputNumBatch, _path, _modelID, _isInserted, _biggestComponentEndThreshold, rim)
+	concurrentBasicCiAlgo(const parametersBuilder& builder) :
+		basicCiAlgo(builder) 
 	{
 		threadNum = thread::hardware_concurrency();
 
@@ -766,7 +860,6 @@ public:
 		}
 
 		cout << "auto detect hardware concurrency: " << threadNum << endl;
-	
 	}
 
 	virtual vector<int> go()
@@ -774,14 +867,14 @@ public:
 		bool switchToSingleThread = false;
 
 		set<pair<long long, int> > allPQ; //ci/currentNode --- long is 32 bit on the win and long long is 64 bit / and long long can be multiple
-		vector<long long> revereseLoopUpAllPQ(totalSize);
+		vector<long long> revereseLoopUpAllPQ(allVex.size());
 
-		graphUtil gu(totalSize);
+		graphUtil gu((int)allVex.size());
 		vector<future<vector<pair<long long, int> > > > firstThreadPoolFutureGetCi;
 		
 		cout << "modelID: " << modelID << " First Cal CI" << endl;
 
-		vector<concurrentGraphUtil> cgu(threadNum, concurrentGraphUtil(totalSize, threadNum));
+		vector<concurrentGraphUtil> cgu(threadNum, concurrentGraphUtil((int)allVex.size(), threadNum));
 
 		//thread start
 
@@ -803,10 +896,6 @@ public:
 			}
 		}
 
-		vector<bool> candidateUpdateNodesBool(totalSize, 0);
-		vector<int> candidateUpdateNodesVector(totalSize, -1);
-
-
 		vector<int> finalOutput;
 		int loopCount = 0;
 		while (true)
@@ -814,19 +903,22 @@ public:
 			if ((updateBatch != 1) || ((loopCount%outputNumBatch == 0) && (updateBatch == 1)))
 			{
 				//restrict flood output when updateBatch == 1
-				cout << "modelID: " << modelID << " loopCount: " << loopCount << " totalSize: " << totalSize << " maxCi: " << allPQ.rbegin()->first << " node: " << allPQ.rbegin()->second << " biggestComponentCurrentRatio: " << biggestComponentCurrentRatio << endl;
+				cout << "modelID: " << modelID << " loopCount: " << loopCount << " totalSize: " << allVex.size() << " maxCi: " << allPQ.rbegin()->first << " node: " << allPQ.rbegin()->second <<  endl;
 			}
 
 			loopCount += updateBatch;
 
-			tryReInsert(loopCount, finalOutput);
-
-			if (biggestComponentCurrentRatio < 0.1)
+			if (reInsert)
 			{
-				switchToSingleThread = true;
+				reInsert->tryReInsert(adjListGraph, allVex, loopCount, finalOutput);
+
+				if (reInsert->getBiggestComponentCurrentRatio() < 0.5)
+				{
+					switchToSingleThread = true;
+				}
+
 			}
 
-			
 			vector<int> batchList;
 			unsigned int batchLimiti = 0;
 
@@ -846,9 +938,7 @@ public:
 			
 			if (switchToSingleThread)
 			{
-
-				int candidateEnd = 0;
-
+				unordered_set<int> candidateUpdateNodesSet;
 
 				for (int i : batchList)
 				{
@@ -858,11 +948,7 @@ public:
 
 					for (auto bfsIt = bfsQueue.begin(); bfsIt != bfsQueue.begin() + endIt; bfsIt++)
 					{
-						if (!candidateUpdateNodesBool[*bfsIt])
-						{
-							candidateUpdateNodesVector[candidateEnd++] = (*bfsIt);
-							candidateUpdateNodesBool[*bfsIt] = 1;
-						}
+						candidateUpdateNodesSet.insert(*bfsIt);
 					}
 				}
 
@@ -873,7 +959,7 @@ public:
 					//candidateUpdateNodesWithCi.insert(make_pair(i, -1));// no need to because self will be included in the candidateUpdateNodes and updated in the below
 				}
 
-				for (auto canIt = candidateUpdateNodesVector.begin(); canIt != (candidateUpdateNodesVector.begin() + candidateEnd); canIt++)
+				for (auto canIt = candidateUpdateNodesSet.begin(); canIt != candidateUpdateNodesSet.end(); canIt++)
 				{
 					long long updatedCi = gu.basicCi(adjListGraph, ballRadius, *canIt);
 
@@ -883,8 +969,6 @@ public:
 					allPQ.insert(make_pair(updatedCi, *canIt));
 
 					revereseLoopUpAllPQ[*canIt] = updatedCi;
-
-					candidateUpdateNodesBool[*canIt] = 0; //recover candidateUpdateNodesBool to zero
 
 				}
 
@@ -950,26 +1034,6 @@ public:
 
 };
 
-
-class fullReinsertConcurrentBasicCiAlgo : public concurrentBasicCiAlgo
-{
-
-public:
-
-	fullReinsertConcurrentBasicCiAlgo(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch, const string& _path, const string& _modelID, reInsertMethod _rim) :
-		concurrentBasicCiAlgo(_ballRadius, _updateBatch, _outputNumBatch, _path, _modelID, false, -1, _rim) {}
-
-
-	virtual vector<int>& postProcess(vector<int>& finalOutput)
-	{
-		finalOutput = reInsert(finalOutput);
-		return basicCiAlgo::postProcess(finalOutput);
-	}
-};
-
-
-
-
 class outputFinalOutput
 {
 private:
@@ -1027,18 +1091,37 @@ public:
 
 class openSourceCiAlgo : public basicCiAlgo
 {
+
+private:
+
+	string tempFormatFile;
+	bool isReInserted;
+
 public:
-	openSourceCiAlgo(unsigned int _ballRadius, unsigned int _updateBatch, unsigned int _outputNumBatch, const string& _path, const string& _modelID, bool _isInserted) :
-		basicCiAlgo(_ballRadius, _updateBatch, _outputNumBatch, _path, _modelID, _isInserted)
+
+	openSourceCiAlgo(const parametersBuilder& builder) :
+		basicCiAlgo(builder)
 	{
 		tempFormatFile = "tempFormatFile_" + modelID + ".fmt";
 		transformToFormat();
+
+		if (builder.rim == reInsertStrategy::COMPONENT_COUNT)
+		{
+			isReInserted = true;
+		}
+		else if (builder.rim == reInsertStrategy::NONE_INSERT)
+		{
+			isReInserted = false;
+		}
+		else
+		{
+			throw exception("Other methods except reInsertStrategy::COMPONENT_COUNT for openSourceCiAlgo is not supported");
+		}
 
 	}
 
 	virtual vector<int> go()
 	{
-
 		ci::int_t i, N, **Graph, *listInfluencers;
 		int L;
 		const char *network;
@@ -1055,7 +1138,7 @@ public:
 		fflush(stdout);
 
 		//GET INFLUENCERS
-		listInfluencers = ci::get_influencers(Node, N, Graph, L, isInserted);
+		listInfluencers = ci::get_influencers(Node, N, Graph, L, isReInserted);
 
 		fprintf(stdout, "\t\t\t\t  ### NETWORK DONE ###\n\n");
 		fflush(stdout);
@@ -1073,9 +1156,6 @@ public:
 		return postProcess(finalOutput);
 	}
 
-protected:
-
-	string tempFormatFile;
 
 	
 private:
@@ -1103,7 +1183,7 @@ private:
 	
 
 
-
+/*
 
 class openSourceCiTMAlgo : public openSourceCiAlgo
 {
@@ -1147,7 +1227,7 @@ public:
 	}
 
 };
-
+*/
 
 
 
@@ -1200,82 +1280,144 @@ int main(int argc, char* argv[])
 	
 	//--------------
 
-	high_resolution_clock::time_point t1 = high_resolution_clock::now();
+	try
+	{
 
-	shared_ptr<basicCiAlgo> bca;
 
-	if (method == 0)
-	{
-		bca.reset(new basicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, false));
-	}
-	else if (method == 1)
-	{
-		bca.reset(new openSourceCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, true));
-	}
-	else if (method == 2)
-	{
-		bca.reset(new openSourceCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, false));
-	}
-	else if (method == 3)
-	{
-		bca.reset(new openSourceCiTMAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID));
-	}
-	else if (method == 4)
-	{
-		bca.reset(new concurrentBasicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, false));
-	}
-	else if (method == 5)
-	{
-		bca.reset(new basicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, true, biggestComponentEndThreshold, COMPONENT_COUNT));
-	}
-	else if (method == 6)
-	{
-		bca.reset(new concurrentBasicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, true, biggestComponentEndThreshold, COMPONENT_COUNT));
-	}
-	else if (method == 7)
-	{
-		bca.reset(new basicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, true, biggestComponentEndThreshold, COMPONENT_RANK));
-	}
-	else if (method == 8)
-	{
-		bca.reset(new concurrentBasicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, true, biggestComponentEndThreshold, COMPONENT_RANK));
-	}
-	else if (method == 9)
-	{
-		bca.reset(new fullReinsertBasicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, COMPONENT_COUNT));
-	}
-	else if (method == 10)
-	{
-		bca.reset(new fullReinsertConcurrentBasicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, COMPONENT_COUNT));
-	}
-	else if (method == 11)
-	{
-		bca.reset(new fullReinsertBasicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, COMPONENT_RANK));
-	}
-	else if (method == 12)
-	{
-		bca.reset(new fullReinsertConcurrentBasicCiAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID, COMPONENT_RANK));
-	}
 
-	else
-	{
-		cout << "Method " << method << " is not defined" << endl;
-		return 0;
+
+
+		unique_ptr<basicCiAlgo> bca;
+
+		if (method == 0)
+		{
+			// Just use in the test instead formal release
+			bca.reset(parametersBuilder(ballRadius, updateBatch, outputNumBatch, path, modelID).
+				build<basicCiAlgo>());
+		}
+		else if (method == 1)
+		{
+			bca.reset(parametersBuilder(ballRadius, updateBatch, outputNumBatch, path, modelID).
+				setReInsertMethod(reInsertStrategy::COMPONENT_COUNT).
+				build<openSourceCiAlgo>());
+		}
+		else if (method == 2)
+		{
+			// Just use in the test instead formal release
+			bca.reset(parametersBuilder(ballRadius, updateBatch, outputNumBatch, path, modelID).build<openSourceCiAlgo>());
+		}
+		else if (method == 3)
+		{
+			// disable openSourceCiTMAlgo
+			cout << "Disabled openSourceCiTMAlgo" << endl;
+			return 0;
+
+			//bca.reset(new openSourceCiTMAlgo(ballRadius, updateBatch, outputNumBatch, path, modelID));
+		}
+		else if (method == 4)
+		{
+			// Just use in the test instead formal release
+			bca.reset(parametersBuilder(ballRadius, updateBatch, outputNumBatch, path, modelID).build<concurrentBasicCiAlgo>());
+		}
+		else if (method == 5)
+		{
+			bca.reset(parametersBuilder(ballRadius, updateBatch, outputNumBatch, path, modelID).
+				setBiggestComponentEndThreshold(biggestComponentEndThreshold).
+				setReInsertMethod(reInsertStrategy::COMPONENT_COUNT).
+				build<basicCiAlgo>());
+		}
+		else if (method == 6)
+		{
+			bca.reset(parametersBuilder(ballRadius, updateBatch, outputNumBatch, path, modelID).
+				setBiggestComponentEndThreshold(biggestComponentEndThreshold).
+				setReInsertMethod(reInsertStrategy::COMPONENT_COUNT).
+				build<concurrentBasicCiAlgo>());
+		}
+		else if (method == 7)
+		{
+			bca.reset(parametersBuilder(ballRadius, updateBatch, outputNumBatch, path, modelID).
+				setBiggestComponentEndThreshold(biggestComponentEndThreshold).
+				setReInsertMethod(reInsertStrategy::COMPONENT_RANK).
+				build<basicCiAlgo>());
+		}
+		else if (method == 8)
+		{
+			bca.reset(parametersBuilder(ballRadius, updateBatch, outputNumBatch, path, modelID).
+				setBiggestComponentEndThreshold(biggestComponentEndThreshold).
+				setReInsertMethod(reInsertStrategy::COMPONENT_RANK).
+				build<concurrentBasicCiAlgo>());
+		}
+		else if (method == 9)
+		{
+			// Just use in the test instead formal release
+			bca.reset(parametersBuilder(ballRadius, updateBatch, outputNumBatch, path, modelID).
+				setBiggestComponentEndThreshold(-1).
+				setReInsertMethod(reInsertStrategy::FULL_COMPONENT_COUNT).
+				build<basicCiAlgo>());
+		}
+		else if (method == 10)
+		{
+			// Just use in the test instead formal release
+			bca.reset(parametersBuilder(ballRadius, updateBatch, outputNumBatch, path, modelID).
+				setBiggestComponentEndThreshold(-1).
+				setReInsertMethod(reInsertStrategy::FULL_COMPONENT_COUNT).
+				build<concurrentBasicCiAlgo>());
+
+		}
+		else if (method == 11)
+		{
+			// Just use in the test instead formal release
+			bca.reset(parametersBuilder(ballRadius, updateBatch, outputNumBatch, path, modelID).
+				setBiggestComponentEndThreshold(-1).
+				setReInsertMethod(reInsertStrategy::FULL_COMPONENT_RANK).
+				build<basicCiAlgo>());
+
+		}
+		else if (method == 12)
+		{
+			// Just use in the test instead formal release
+
+			bca.reset(parametersBuilder(ballRadius, updateBatch, outputNumBatch, path, modelID).
+				setBiggestComponentEndThreshold(-1).
+				setReInsertMethod(reInsertStrategy::FULL_COMPONENT_RANK).
+				build<concurrentBasicCiAlgo>());
+		}
+		else if (method == 13)
+		{
+			bca.reset(parametersBuilder(ballRadius, updateBatch, outputNumBatch, path, modelID).
+				setBiggestComponentEndThreshold(biggestComponentEndThreshold).
+				setReInsertMethod(reInsertStrategy::FAST_COMPONENT_COUNT).
+				build<basicCiAlgo>());
+		}
+		else if (method == 14)
+		{
+			bca.reset(parametersBuilder(ballRadius, updateBatch, outputNumBatch, path, modelID).
+				setBiggestComponentEndThreshold(biggestComponentEndThreshold).
+				setReInsertMethod(reInsertStrategy::FAST_COMPONENT_RANK).
+				build<basicCiAlgo>());
+		}
+		else
+		{
+			cout << "Method " << method << " is not defined" << endl;
+			return 0;
+		}
+
+		high_resolution_clock::time_point t1 = high_resolution_clock::now();
+
+		const vector<int>& finalOutput = bca->go();
+
+		high_resolution_clock::time_point t2 = high_resolution_clock::now();
+		auto duration = duration_cast<seconds>(t2 - t1).count();
+
+		cout << modelID << " duration: " << duration << "s" << endl;
+
+		outputFinalOutput ofo(output, modelID, finalOutput, outputNumBatch);
+		ofo.outputToFile();
 	}
-
-	const vector<int>& finalOutput = bca->go();
-
-	//--------------
-
-	outputFinalOutput ofo(output,modelID,finalOutput,outputNumBatch);
-	ofo.outputToFile();
-
-	
-
-	high_resolution_clock::time_point t2 = high_resolution_clock::now();
-	auto duration = duration_cast<seconds>(t2 - t1).count();
-
-	cout << modelID << " duration: " << duration << "s" << endl;
+	catch (const exception e)
+	{
+		cout << "Error: " << e.what() << endl;
+	}
 
 	system("pause");
 	return 0;

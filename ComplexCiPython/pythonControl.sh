@@ -20,12 +20,14 @@ date
 csvFiles=../data/networks/*.csv
 pythonOut=../data/networks/pythonResults/
 
+mkdir -p $pythonOut
+
 for i in `ls $csvFiles`
 do
    echo $i
    date
 		#disable output buffer
-        python3 -u ComplexCiPython.py $i $pythonOut $ballRadius $batch 500 $methodCentrality &
+        python3 -u ComplexCiPython.py $i $pythonOut $ballRadius $batch 500 $methodCentrality 
    date
 done
 
