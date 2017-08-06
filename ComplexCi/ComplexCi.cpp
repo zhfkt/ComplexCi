@@ -291,7 +291,7 @@ public:
 		cout << "decreaseComponentStrategy: " << description << endl;
 	}
 
-	virtual int decreaseComponentNumIfAddNode(const vector<vector<int> >& backupCompletedAdjListGraph, const vector<bool>& currentAllVex, disjointSet &unionSet, int node) = 0;
+	virtual long long decreaseComponentNumIfAddNode(const vector<vector<int> >& backupCompletedAdjListGraph, const vector<bool>& currentAllVex, disjointSet &unionSet, int node) = 0;
 	
 };
 
@@ -305,7 +305,7 @@ public:
 	decreaseComponentRank() :decreaseComponentStrategy("decreaseComponentRank"){}
 	
 
-	virtual int decreaseComponentNumIfAddNode(const vector<vector<int> >& backupCompletedAdjListGraph, const vector<bool>& currentAllVex, disjointSet &unionSet, int node)
+	virtual long long decreaseComponentNumIfAddNode(const vector<vector<int> >& backupCompletedAdjListGraph, const vector<bool>& currentAllVex, disjointSet &unionSet, int node)
 	{
 		unordered_set<int> componentSet;
 
@@ -319,7 +319,7 @@ public:
 			}
 		}
 
-		int sum = 1;
+		long long sum = 1;
 
 		for (int eachNode : componentSet)
 		{
@@ -336,7 +336,7 @@ public:
 
 	decreaseComponentCount() :decreaseComponentStrategy("decreaseComponentCount"){}
 
-	virtual int decreaseComponentNumIfAddNode(const vector<vector<int> >& backupCompletedAdjListGraph, const vector<bool>& currentAllVex, disjointSet &unionSet, int node) override
+	virtual long long decreaseComponentNumIfAddNode(const vector<vector<int> >& backupCompletedAdjListGraph, const vector<bool>& currentAllVex, disjointSet &unionSet, int node) override
 	{
 		unordered_set<int> componentSet;
 
@@ -350,7 +350,40 @@ public:
 			}
 		}
 
-		return (int)componentSet.size();
+		return (long long)componentSet.size();
+	}
+};
+
+class decreaseComponentMultiple : public decreaseComponentStrategy
+{
+public:
+
+	decreaseComponentMultiple() :decreaseComponentStrategy("decreaseComponentMultiple"){}
+
+	virtual long long decreaseComponentNumIfAddNode(const vector<vector<int> >& backupCompletedAdjListGraph, const vector<bool>& currentAllVex, disjointSet &unionSet, int node) override
+	{
+		unordered_set<int> componentSet;
+
+		for (int i = 0; i < backupCompletedAdjListGraph[node].size(); i++)
+		{
+			int neighbourNode = backupCompletedAdjListGraph[node][i];
+
+			if (currentAllVex[neighbourNode])
+			{
+				componentSet.insert(unionSet.findRoot(neighbourNode));
+			}
+		}
+
+		long long sum = 1;
+
+		for (int eachNode : componentSet)
+		{
+			sum += unionSet.getRank(eachNode);
+		}
+
+		sum *= componentSet.size();
+
+		return sum;
 	}
 };
 
@@ -378,7 +411,11 @@ public:
 		FULL_COMPONENT_COUNT,
 		FULL_COMPONENT_RANK,
 		FAST_COMPONENT_COUNT,
-		FAST_COMPONENT_RANK
+		FAST_COMPONENT_RANK,
+		FIRSTINORDER_COMPONENT_COUNT,
+		FIRSTINORDER_COMPONENT_RANK,
+		COMPONENT_MULTIPLE,
+		FIRSTINORDER_COMPONENT_MULTIPLE,
 	};
 
 	reInsertStrategy(bool _isSlowInterval, double _biggestComponentEndThreshold, const vector<vector<int> >& _backupCompletedAdjListGraph, 
@@ -439,7 +476,7 @@ public:
 		}
 	}
 
-	vector<int> reInsert(const vector<int> &beforeOutput, const vector<vector<int> >& adjListGraph, const unordered_set<int>& allVex)
+	virtual vector<int> reInsert(const vector<int> &beforeOutput, const vector<vector<int> >& adjListGraph, const unordered_set<int>& allVex)
 	{
 		vector<vector<int> > currentAdjListGraph = adjListGraph;
 
@@ -458,12 +495,12 @@ public:
 		{
 			cout << "modelID: " << modelID << " reInsertCount: " << leftOutput.size() << endl;
 
-			vector<pair<int, int> >  batchList;
+			vector<pair<long long, int> >  batchList;
 
 			for (int eachNode : leftOutput)
 			{
 				//min is better
-				int decreaseValue = decreaseStrategy->decreaseComponentNumIfAddNode(backupCompletedAdjListGraph, currentAllVex, unionSet, eachNode);
+				long long decreaseValue = decreaseStrategy->decreaseComponentNumIfAddNode(backupCompletedAdjListGraph, currentAllVex, unionSet, eachNode);
 				batchList.push_back(make_pair(decreaseValue, eachNode));
 			}
 
@@ -500,6 +537,75 @@ public:
 
 
 };
+
+
+class reInsertFirstInOrderStrategy : public reInsertStrategy
+{
+public:
+	reInsertFirstInOrderStrategy(bool _isSlowInterval, double _biggestComponentEndThreshold, const vector<vector<int> >& _backupCompletedAdjListGraph,
+		const string& _modelID, shared_ptr<decreaseComponentStrategy> _decreaseStrategy) :
+	reInsertStrategy(_isSlowInterval, _biggestComponentEndThreshold, _backupCompletedAdjListGraph, _modelID, _decreaseStrategy, "reInsertFirstInOrderStrategy")
+	{}
+
+	virtual vector<int> reInsert(const vector<int> &beforeOutput, const vector<vector<int> >& adjListGraph, const unordered_set<int>& allVex)
+	{
+		vector<vector<int> > currentAdjListGraph = adjListGraph;
+
+		vector<bool> currentAllVex(currentAdjListGraph.size(), false);
+		for (int eachV : allVex)
+		{
+			currentAllVex[eachV] = true;
+		}
+
+		unordered_map<int, int> leftOutput;
+		for (int i = 0; i < beforeOutput.size(); i++)
+		{
+			leftOutput[beforeOutput[i]] = (int)beforeOutput.size() - i;
+		}
+		vector<int> finalOutput;
+
+		disjointSet unionSet(currentAdjListGraph);
+
+		while (leftOutput.size() != 0)
+		{
+			cout << "modelID: " << modelID << " reInsertCount: " << leftOutput.size() << endl;
+
+			vector<tuple<long long, int, int> >  batchList;
+
+			for (const auto& eachNode : leftOutput)
+			{
+				//min is better
+				long long decreaseValue = decreaseStrategy->decreaseComponentNumIfAddNode(backupCompletedAdjListGraph, currentAllVex, unionSet, eachNode.first);
+				batchList.push_back(make_tuple(decreaseValue, eachNode.second, eachNode.first));
+			}
+
+
+			if (reinsertEachStep >= batchList.size())
+			{
+				reinsertEachStep = (int)batchList.size();
+			}
+			else
+			{
+				std::sort(batchList.begin(), batchList.end());
+			}
+
+			for (int i = 0; i < reinsertEachStep; i++)
+			{
+				finalOutput.push_back(std::get<2>(batchList[i]));
+				leftOutput.erase(std::get<2>(batchList[i]));
+
+				graphUtil::recoverAddNode(backupCompletedAdjListGraph, currentAllVex, currentAdjListGraph, std::get<2>(batchList[i]), unionSet);
+			}
+
+		}
+
+		std::reverse(finalOutput.begin(), finalOutput.end());
+
+		return finalOutput;
+	}
+
+};
+
 
 
 
@@ -582,12 +688,32 @@ public:
 		else if (builder.rim == reInsertStrategy::FAST_COMPONENT_COUNT)
 		{
 			shared_ptr<decreaseComponentStrategy> decreaseStrategy(new decreaseComponentCount());
-			fullReInsert.reset(new reInsertStrategy(false, builder.biggestComponentEndThreshold, adjListGraph, modelID, decreaseStrategy));
+			reInsert.reset(new reInsertStrategy(false, builder.biggestComponentEndThreshold, adjListGraph, modelID, decreaseStrategy));
 		}
 		else if (builder.rim == reInsertStrategy::FAST_COMPONENT_RANK)
 		{
 			shared_ptr<decreaseComponentStrategy> decreaseStrategy(new decreaseComponentRank());
-			fullReInsert.reset(new reInsertStrategy(false, builder.biggestComponentEndThreshold, adjListGraph, modelID, decreaseStrategy));
+			reInsert.reset(new reInsertStrategy(false, builder.biggestComponentEndThreshold, adjListGraph, modelID, decreaseStrategy));
+		}
+		else if (builder.rim == reInsertStrategy::FIRSTINORDER_COMPONENT_RANK)
+		{
+			shared_ptr<decreaseComponentStrategy> decreaseStrategy(new decreaseComponentRank());
+			reInsert.reset(new reInsertFirstInOrderStrategy(true, builder.biggestComponentEndThreshold, adjListGraph, modelID, decreaseStrategy));
+		}
+		else if (builder.rim == reInsertStrategy::FIRSTINORDER_COMPONENT_COUNT)
+		{
+			shared_ptr<decreaseComponentStrategy> decreaseStrategy(new decreaseComponentCount());
+			reInsert.reset(new reInsertFirstInOrderStrategy(true, builder.biggestComponentEndThreshold, adjListGraph, modelID, decreaseStrategy));
+		}
+		else if (builder.rim == reInsertStrategy::COMPONENT_MULTIPLE)
+		{
+			shared_ptr<decreaseComponentStrategy> decreaseStrategy(new decreaseComponentMultiple());
+			reInsert.reset(new reInsertStrategy(true, builder.biggestComponentEndThreshold, adjListGraph, modelID, decreaseStrategy));
+		}
+		else if (builder.rim == reInsertStrategy::FIRSTINORDER_COMPONENT_MULTIPLE)
+		{
+			shared_ptr<decreaseComponentStrategy> decreaseStrategy(new decreaseComponentMultiple());
+			reInsert.reset(new reInsertFirstInOrderStrategy(true, builder.biggestComponentEndThreshold, adjListGraph, modelID, decreaseStrategy));
 		}
 		else
 		{
@@ -1396,7 +1522,43 @@ int main(int argc, char* argv[])
 				setReInsertMethod(reInsertStrategy::FAST_COMPONENT_RANK).
 				build<basicCiAlgo>());
 		}
-		else
+		else if (method == 15)
+		{
+			// Just use in the test instead formal release
+
+			bca.reset(parametersBuilder(ballRadius, updateBatch, outputNumBatch, path, modelID).
+				setBiggestComponentEndThreshold(biggestComponentEndThreshold).
+				setReInsertMethod(reInsertStrategy::FIRSTINORDER_COMPONENT_COUNT).
+				build<concurrentBasicCiAlgo>());
+		}
+		else if (method == 16)
+		{
+			// Just use in the test instead formal release
+
+			bca.reset(parametersBuilder(ballRadius, updateBatch, outputNumBatch, path, modelID).
+				setBiggestComponentEndThreshold(biggestComponentEndThreshold).
+				setReInsertMethod(reInsertStrategy::FIRSTINORDER_COMPONENT_RANK).
+				build<concurrentBasicCiAlgo>());
+		}
+		else if (method == 17)
+		{
+			// Just use in the test instead formal release
+
+			bca.reset(parametersBuilder(ballRadius, updateBatch, outputNumBatch, path, modelID).
+				setBiggestComponentEndThreshold(biggestComponentEndThreshold).
+				setReInsertMethod(reInsertStrategy::COMPONENT_MULTIPLE).
+				build<concurrentBasicCiAlgo>());
+		}
+		else if (method == 18)
+		{
+			// Just use in the test instead formal release
+
+			bca.reset(parametersBuilder(ballRadius, updateBatch, outputNumBatch, path, modelID).
+				setBiggestComponentEndThreshold(biggestComponentEndThreshold).
+				setReInsertMethod(reInsertStrategy::FIRSTINORDER_COMPONENT_MULTIPLE).
+				build<concurrentBasicCiAlgo>());
+		}
+		else		
 		{
 			cout << "Method " << method << " is not defined" << endl;
 			return 0;
