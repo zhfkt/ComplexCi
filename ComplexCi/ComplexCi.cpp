@@ -398,7 +398,8 @@ protected:
 	bool isSlowInterval, isContinueReInserted;
 
 	const string& modelID;
-	const vector<vector<int> >& backupCompletedAdjListGraph;
+	const vector<vector<int> > backupCompletedAdjListGraph; //must invoke copy constructor here
+	
 
 	shared_ptr<decreaseComponentStrategy> decreaseStrategy;
 
