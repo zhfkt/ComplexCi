@@ -9,7 +9,7 @@ csvFiles=../data/networks/*.csv
 for i in `ls $csvFiles`
 do
    echo $i
-    ./ComplexCi  0 1 500 14 0.01  &
+    ./ComplexCi  $i 0 1 500 14 0.01  &
 done
 
 wait
