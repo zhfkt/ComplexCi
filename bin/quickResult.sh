@@ -1,4 +1,4 @@
-serID=$(date "+%y_%m_%d_%H_%M_%S")_"$ballRadius"_"$batch"_"$outputBatch"_"$method"_"$reInsertRatio"
+serID=quickResult_$(date "+%y_%m_%d_%H_%M_%S")_0_1_500_14_0.01
 echo "serID: " $serID
 exec > $serID.log
 
