@@ -717,7 +717,7 @@ public:
 		}
 		else
 		{
-			throw exception("can not find the corresponding reInsertStrategy class");
+			throw runtime_error("can not find the corresponding reInsertStrategy class");
 		}
 	}
 	
@@ -749,7 +749,7 @@ private:
 		if (!is.good())
 		{
 			is.close();
-			throw exception((string("Can not open the file: ") + path).c_str());
+			throw runtime_error((string("Can not open the file: ") + path).c_str());
 		}
 
 		while (is >> eachLine)
@@ -1241,7 +1241,7 @@ public:
 		}
 		else
 		{
-			throw exception("Other methods except reInsertStrategy::COMPONENT_COUNT for openSourceCiAlgo is not supported");
+			throw runtime_error("Other methods except reInsertStrategy::COMPONENT_COUNT for openSourceCiAlgo is not supported");
 		}
 
 	}
@@ -1576,7 +1576,7 @@ int main(int argc, char* argv[])
 		outputFinalOutput ofo(output, modelID, finalOutput, outputNumBatch);
 		ofo.outputToFile();
 	}
-	catch (const exception e)
+	catch (const runtime_error e)
 	{
 		cout << "Error: " << e.what() << endl;
 	}
