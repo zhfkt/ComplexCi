@@ -918,37 +918,39 @@ private:
 public:
 	concurrentGraphUtil(int totalSize, int _threadNum) : gu(totalSize), threadNum(_threadNum){}
 
-	vector<pair<long long, int> > concurrentCi(int threadIndice, int ballRadius, const vector<vector<int> > &adjListGraph, const vector<int>& batchList)
+	vector<pair<long long, int> > concurrentCiForBatchList(int threadIndice, int ballRadius, const vector<vector<int> > &adjListGraph, const vector<int>& batchList)
 	{
 		vector<pair<long long, int> > vectorPQ;
 
-		if (batchList.size() == 0)
+		for (int i = threadIndice; i < batchList.size(); i += threadNum)
 		{
-			for (int i = threadIndice; i < adjListGraph.size(); i += threadNum)
-			{
-				int currentNode = i;
+			int currentNode = batchList[i];
 
-				// core_ci
-				long long ci = gu.basicCi(adjListGraph, ballRadius, currentNode);
-				vectorPQ.push_back(make_pair(ci, currentNode));
-			}
-		}
-		else
-		{
-			for (int i = threadIndice; i < batchList.size(); i += threadNum)
-			{
-				int currentNode = batchList[i];
-
-				// core_ci
-				long long ci = gu.basicCi(adjListGraph, ballRadius, currentNode);
-				vectorPQ.push_back(make_pair(ci, currentNode));
-			}
-
-
+			// core_ci
+			long long ci = gu.basicCi(adjListGraph, ballRadius, currentNode);
+			vectorPQ.push_back(make_pair(ci, currentNode));
 		}
 
 		return vectorPQ;
 	}
+
+	vector<pair<long long, int> > concurrentCiForFirstTime(int threadIndice, int ballRadius, const vector<vector<int> > &adjListGraph)
+	{
+		vector<pair<long long, int> > vectorPQ;
+
+		for (int i = threadIndice; i < adjListGraph.size(); i += threadNum)
+		{
+			int currentNode = i;
+
+			// core_ci
+			long long ci = gu.basicCi(adjListGraph, ballRadius, currentNode);
+			vectorPQ.push_back(make_pair(ci, currentNode));
+		}
+
+		return vectorPQ;
+	}
+
+
 
 	
 	unordered_set<int> concurrentGetNeighbourFrontierAndScope(int threadIndice, int ballRadius, const vector<vector<int> > &adjListGraph, const vector<int>& batchList)
@@ -1016,8 +1018,7 @@ public:
 
 		for (unsigned int i = 0; i < threadNum; i++)
 		{
-			vector<int> dummyList;
-			firstThreadPoolFutureGetCi.push_back(async(std::launch::async, &concurrentGraphUtil::concurrentCi, cgu[i], i, ballRadius, ref(adjListGraph), ref(dummyList)));
+			firstThreadPoolFutureGetCi.push_back(async(std::launch::async, &concurrentGraphUtil::concurrentCiForFirstTime, cgu[i], i, ballRadius, ref(adjListGraph)));
 		}
 		
 		//wait thread to end
@@ -1149,7 +1150,7 @@ public:
 				//thread start
 				for (unsigned int i = 0; i < threadNum; i++)
 				{
-					updateThreadPoolFutureGetCi.push_back(async(std::launch::async, &concurrentGraphUtil::concurrentCi, cgu[i], i, ballRadius, ref(adjListGraph), ref(candidateUpdateNodesVector)));
+					updateThreadPoolFutureGetCi.push_back(async(std::launch::async, &concurrentGraphUtil::concurrentCiForBatchList, cgu[i], i, ballRadius, ref(adjListGraph), ref(candidateUpdateNodesVector)));
 				}
 
 				//wait thread to end
