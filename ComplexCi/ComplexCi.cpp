@@ -168,14 +168,14 @@ public:
 		alreadyAccessBool.resize(totalSize, 0);	
 	}
 
-	vector<int>& getBfsQueue()
+	vector<int>::iterator getBeginItForBfsQueue()
 	{
-		return bfsQueue;
+		return bfsQueue.begin();
 	}
 
-	int getEndIt()
+	vector<int>::iterator getEndItForBfsQueue()
 	{
-		return endIt;
+		return bfsQueue.begin() + endIt;
 	}
 
 
@@ -842,10 +842,8 @@ public:
 			for (int i : batchList)
 			{
 				gu.getNeighbourFrontierAndScope(adjListGraph, ballRadius + 1, i);
-				const vector<int>& bfsQueue = gu.getBfsQueue();
-				int endIt = gu.getEndIt();
-
-				for (auto bfsIt = bfsQueue.begin(); bfsIt != bfsQueue.begin() + endIt; bfsIt++)
+				
+				for (auto bfsIt = gu.getBeginItForBfsQueue(); bfsIt != gu.getEndItForBfsQueue(); bfsIt++)
 				{
 					candidateUpdateNodesSet.insert(*bfsIt);
 				}
@@ -963,10 +961,8 @@ public:
 
 			// core_ci
 			gu.getNeighbourFrontierAndScope(adjListGraph, ballRadius + 1, currentNode);
-			const vector<int>& bfsQueue = gu.getBfsQueue();
-			int endIt = gu.getEndIt();
 
-			for (auto bfsIt = bfsQueue.begin(); bfsIt != bfsQueue.begin() + endIt; bfsIt++)
+			for (auto bfsIt = gu.getBeginItForBfsQueue(); bfsIt != gu.getEndItForBfsQueue(); bfsIt++)
 			{
 				candidateUpdateNodesSet.insert(*bfsIt);
 			}
@@ -1087,10 +1083,8 @@ public:
 				for (int i : batchList)
 				{
 					gu.getNeighbourFrontierAndScope(adjListGraph, ballRadius + 1, i);
-					const vector<int>& bfsQueue = gu.getBfsQueue();
-					int endIt = gu.getEndIt();
 
-					for (auto bfsIt = bfsQueue.begin(); bfsIt != bfsQueue.begin() + endIt; bfsIt++)
+					for (auto bfsIt = gu.getBeginItForBfsQueue(); bfsIt != gu.getEndItForBfsQueue(); bfsIt++)
 					{
 						candidateUpdateNodesSet.insert(*bfsIt);
 					}
