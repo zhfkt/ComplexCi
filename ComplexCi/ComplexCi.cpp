@@ -1307,7 +1307,7 @@ public:
 };
 
 openSourceCiAlgo::openSourceCiAlgo(const openSourceParametersBuilder& builder) :
-basicCiAlgo(parametersBuilder(builder.ballRadius, builder.updateBatch, outputNumBatch, builder.path, builder.modelID, builder.isPrintMinPointCausingMinComponent)),
+basicCiAlgo(parametersBuilder(builder.ballRadius, builder.updateBatch, builder.outputNumBatch, builder.path, builder.modelID, builder.isPrintMinPointCausingMinComponent)),
 	isReInserted(builder.isReInserted)
 {
 	tempFormatFile = "tempFormatFile_" + modelID + ".fmt";
