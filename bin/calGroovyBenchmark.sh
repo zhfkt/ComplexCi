@@ -9,6 +9,7 @@ fi
 
 logFile=`ls -t | head -1`
 tail $logFile
+fullLogFile=`readlink -f $logFile`
 serId=`echo $logFile | sed -e 's/\.log$//'`
 
 cd ../Master_algorithm
@@ -18,13 +19,19 @@ cat /tmp/groovyResult
 
 
 valueResult="$serId , "
+timeResult=" time , "
+minPointResult=" minPoint , "
 for i in model1 model2 model3 model4 real1 real2 real3 real4
 do
 	valueResult=$valueResult`egrep $i /tmp/groovyResult  | awk -F ":" '{print $2}'`" , "
+	timeResult=$timeResult`egrep "$i duration" $fullLogFile | awk -F ":" '{print $2}'`" , "
+	minPointResult=$minPointResult`egrep "Min Point count" $fullLogFile | awk -F ":" '{print $2}'`" , "
 done
 valueResult=$valueResult`egrep "^[0-9]\.([0-9]*)" /tmp/groovyResult`
+timeResult=$timeResult`egrep "duration" $fullLogFile | tail -1 | awk -F ":" '{print $2}'`
 echo $valueResult   >> $regressionResult
-
+echo $timeResult   >> $regressionResult
+echo $minPointResult   >> $regressionResult
 
 echo $regressionResult
 cat $regressionResult
