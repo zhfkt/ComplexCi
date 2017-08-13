@@ -1568,54 +1568,19 @@ int main(int argc, char* argv[])
 		}
 		else if (method == 9)
 		{
-			// Just use in the test instead formal release
-			bca.reset(parametersBuilder(ballRadius, updateBatch, outputNumBatch, path, modelID, isPrintMinPointCausingMinComponent).
-				setBiggestComponentEndThreshold(0.0).//means fullreinsert
-				setReInsertMethod(reInsertStrategy::COMPONENT_COUNT).
-				build<basicCiAlgo>());
-		}
-		else if (method == 10)
-		{
-			// Just use in the test instead formal release
-			bca.reset(parametersBuilder(ballRadius, updateBatch, outputNumBatch, path, modelID, isPrintMinPointCausingMinComponent).
-				setBiggestComponentEndThreshold(0.0). //means fullreinsert
-				setReInsertMethod(reInsertStrategy::COMPONENT_COUNT).
-				build<concurrentBasicCiAlgo>());
-
-		}
-		else if (method == 11)
-		{
-			// Just use in the test instead formal release
-			bca.reset(parametersBuilder(ballRadius, updateBatch, outputNumBatch, path, modelID, isPrintMinPointCausingMinComponent).
-				setBiggestComponentEndThreshold(0.0). //means fullreinsert
-				setReInsertMethod(reInsertStrategy::COMPONENT_RANK).
-				build<basicCiAlgo>());
-
-		}
-		else if (method == 12)
-		{
-			// Just use in the test instead formal release
-
-			bca.reset(parametersBuilder(ballRadius, updateBatch, outputNumBatch, path, modelID, isPrintMinPointCausingMinComponent).
-				setBiggestComponentEndThreshold(0.0).//means fullreinsert
-				setReInsertMethod(reInsertStrategy::COMPONENT_RANK).
-				build<concurrentBasicCiAlgo>());
-		}
-		else if (method == 13)
-		{
 			bca.reset(parametersBuilder(ballRadius, updateBatch, outputNumBatch, path, modelID, isPrintMinPointCausingMinComponent).
 				setBiggestComponentEndThreshold(biggestComponentEndThreshold).
 				setReInsertMethod(reInsertStrategy::FAST_COMPONENT_COUNT).
 				build<basicCiAlgo>());
 		}
-		else if (method == 14)
+		else if (method == 10)
 		{
 			bca.reset(parametersBuilder(ballRadius, updateBatch, outputNumBatch, path, modelID, isPrintMinPointCausingMinComponent).
 				setBiggestComponentEndThreshold(biggestComponentEndThreshold).
 				setReInsertMethod(reInsertStrategy::FAST_COMPONENT_RANK).
 				build<basicCiAlgo>());
 		}
-		else if (method == 15)
+		else if (method == 11)
 		{
 			// Just use in the test instead formal release
 
@@ -1624,7 +1589,7 @@ int main(int argc, char* argv[])
 				setReInsertMethod(reInsertStrategy::FIRSTINORDER_COMPONENT_COUNT).
 				build<concurrentBasicCiAlgo>());
 		}
-		else if (method == 16)
+		else if (method == 12)
 		{
 			// Just use in the test instead formal release
 
@@ -1633,7 +1598,7 @@ int main(int argc, char* argv[])
 				setReInsertMethod(reInsertStrategy::FIRSTINORDER_COMPONENT_RANK).
 				build<concurrentBasicCiAlgo>());
 		}
-		else if (method == 17)
+		else if (method == 13)
 		{
 			// Just use in the test instead formal release
 
@@ -1642,7 +1607,7 @@ int main(int argc, char* argv[])
 				setReInsertMethod(reInsertStrategy::COMPONENT_MULTIPLE).
 				build<concurrentBasicCiAlgo>());
 		}
-		else if (method == 18)
+		else if (method == 14)
 		{
 			// Just use in the test instead formal release
 

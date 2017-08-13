@@ -12,12 +12,23 @@ regressionResult=`readlink -f regressionResult/$serIDRegression.csv`
 echo " , model1 , model2 , model3 , model4 , real1 , real2 , real3 , real4 , total " > $regressionResult
 
 
-for((i=0;i<19;i++))
+for((i=0;i<14;i++))
 do
 	echo Now $i
 	date
 	./executeAll.sh $ballRadius 1 500 $i 0.001
 	./calGroovyBenchmark.sh $regressionResult
 done
+
+
+for i in 5 6 7 8
+do
+	echo Now $i
+	date
+	./executeAll.sh $ballRadius 1 500 $i 0.0
+	./calGroovyBenchmark.sh $regressionResult
+done
+
+
 
 

@@ -1,3 +1,7 @@
+serIDRegression=$(date "+%y_%m_%d_%H_%M_%S")_"$ballRadius"
+regressionResult=`readlink -f regressionResult/$serIDRegression.csv`
+echo " , model1 , model2 , model3 , model4 , real1 , real2 , real3 , real4 , total " > $regressionResult
+
 for i in 5 7 8 1 13
 do
 	echo Now $i
@@ -12,15 +16,12 @@ do
 		fi
 	
 		./executeAll.sh $j 1 500 $i $ratio
-		#sleep 5s
-		logFile=`ls -t | head -1`
-		tail $logFile
-		serId=`echo $logFile | sed -e 's/\.log$//'`
-		cd ../Master_algorithm
-		groovy  -cp 'target/algorithm-1.0-SNAPSHOT.jar:/root/.m2/repository/log4j/log4j/1.2.17/log4j-1.2.17.jar'  src/main/java/org/dc/algorithm/NetMaster.groovy  ../data/networks/results/$serId/$serId.csv  ../data/networks.zip
-		cd -
+		./calGroovyBenchmark.sh $regressionResult
 	done
 done
 
 ./bestResult.sh
+./calGroovyBenchmark.sh $regressionResult
+
 ./quickResult.sh
+./calGroovyBenchmark.sh $regressionResult

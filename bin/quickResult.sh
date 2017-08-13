@@ -1,4 +1,4 @@
-serID=quickResult_$(date "+%y_%m_%d_%H_%M_%S")_0_1_500_14_0.01
+serID=quickResult_$(date "+%y_%m_%d_%H_%M_%S")
 echo "serID: " $serID
 exec > $serID.log
 
@@ -6,11 +6,14 @@ date
 
 csvFiles=../data/networks/*.csv
 
-for i in `ls $csvFiles`
-do
-   echo $i
-    ./ComplexCi  $i 0 1 500 14 0.01  &
-done
+./ComplexCi ../data/networks/model1.csv 0 1 500 10 0.01  &
+./ComplexCi ../data/networks/model2.csv 0 1 500 10 0.01  &
+./ComplexCi ../data/networks/model3.csv 0 1 500 9 0.01  &
+./ComplexCi ../data/networks/model4.csv 0 1 500 10 0.01  &
+./ComplexCi ../data/networks/real1.csv 0 1 500 10 0.01  &
+./ComplexCi ../data/networks/real2.csv 0 1 500 10 0.01  &
+./ComplexCi ../data/networks/real3.csv 0 1 500 10 0.01  &
+./ComplexCi ../data/networks/real4.csv 0 1 500 10 0.01  &
 
 wait
 
@@ -25,9 +28,3 @@ cd $resultFolder
 date
 
 cd -
-
-logFile=`ls -t | head -1`
-tail $logFile
-serId=`echo $logFile | sed -e 's/\.log$//'`
-cd ../Master_algorithm
-groovy  -cp 'target/algorithm-1.0-SNAPSHOT.jar:/root/.m2/repository/log4j/log4j/1.2.17/log4j-1.2.17.jar'  src/main/java/org/dc/algorithm/NetMaster.groovy  ../data/networks/results/$serId/$serId.csv  ../data/networks.zip
