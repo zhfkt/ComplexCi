@@ -37,7 +37,7 @@ echo $minPointResult   >> $regressionResult
 echo $regressionResult
 cat $regressionResult
 
-printf "\n\n score overall: "
+printf "\n\n score overall: \n\n"
 
 grep "score" $regressionResult | sed 's/\s//g' | awk -F ',' '{print $10}'
 
