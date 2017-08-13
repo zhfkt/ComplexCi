@@ -21,13 +21,13 @@ do
 	tail $logFile
 	serId=`echo $logFile | sed -e 's/\.log$//'`
 	cd ../Master_algorithm
-	groovy  -cp 'target/algorithm-1.0-SNAPSHOT.jar:/root/.m2/repository/log4j/log4j/1.2.17/log4j-1.2.17.jar'  src/main/java/org/dc/algorithm/NetMaster.groovy  ../data/networks/results/$serId/$serId.csv  ../data/networks.zip
+	groovy  -cp 'target/algorithm-1.0-SNAPSHOT.jar:/root/.m2/repository/log4j/log4j/1.2.17/log4j-1.2.17.jar'  src/main/java/org/dc/algorithm/NetMaster.groovy  ../data/networks/results/$serId/$serId.csv  ../data/networks.zip > /tmp/groovyResult
 
 	echo "$ballRadius_$i" >> $regressionResult
-	
-	groovy  -cp 'target/algorithm-1.0-SNAPSHOT.jar:/root/.m2/repository/log4j/log4j/1.2.17/log4j-1.2.17.jar'  src/main/java/org/dc/algorithm/NetMaster.groovy  ../data/networks/results/$serId/$serId.csv  ../data/networks.zip | grep 'Result' >> $regressionResult
-	
+	cat /tmp/groovyResult
+	grep 'Result' /tmp/groovyResult >> $regressionResult	
 	echo $regressionResult
+	cat $regressionResult
 	
 	cd -
 done
