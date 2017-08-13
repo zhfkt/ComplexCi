@@ -7,29 +7,17 @@ then
     ballRadius=$1
 fi
 
-serID=$(date "+%y_%m_%d_%H_%M_%S")_"$ballRadius"
-regressionResult=`readlink -f regressionResult/$serID.log`
-echo "Regression Test" > $regressionResult
+serIDRegression=$(date "+%y_%m_%d_%H_%M_%S")_"$ballRadius"
+regressionResult=`readlink -f regressionResult/$serIDRegression.csv`
+echo " , model1 , model2 , model3 , model4 , real1 , real2 , real3 , real4 , total " > $regressionResult
+
 
 for((i=0;i<19;i++))
 do
 	echo Now $i
 	date
 	./executeAll.sh $ballRadius 1 500 $i 0.001
-	#sleep 5s
-	logFile=`ls -t | head -1`
-	tail $logFile
-	serId=`echo $logFile | sed -e 's/\.log$//'`
-	cd ../Master_algorithm
-	groovy  -cp 'target/algorithm-1.0-SNAPSHOT.jar:/root/.m2/repository/log4j/log4j/1.2.17/log4j-1.2.17.jar'  src/main/java/org/dc/algorithm/NetMaster.groovy  ../data/networks/results/$serId/$serId.csv  ../data/networks.zip > /tmp/groovyResult
-
-	echo ${ballRadius}_$i >> $regressionResult
-	cat /tmp/groovyResult
-	grep 'Result' /tmp/groovyResult >> $regressionResult	
-	echo $regressionResult
-	cat $regressionResult
-	
-	cd -
+	./calGroovyBenchmark.sh $regressionResult
 done
 
 
