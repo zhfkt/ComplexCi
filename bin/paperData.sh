@@ -1,5 +1,6 @@
 serIDRegression="paperData"_$(date "+%y_%m_%d_%H_%M_%S")
 regressionResult=`readlink -f regressionResult/$serIDRegression.csv`
+echo $regressionResult
 
 for i in 5 7 8 1 13
 do

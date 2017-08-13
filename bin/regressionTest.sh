@@ -9,6 +9,7 @@ fi
 
 serIDRegression="regressionTest"_$(date "+%y_%m_%d_%H_%M_%S")_"$ballRadius"
 regressionResult=`readlink -f regressionResult/$serIDRegression.csv`
+echo $regressionResult
 
 for((i=0;i<14;i++))
 do
