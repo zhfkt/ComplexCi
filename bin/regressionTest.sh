@@ -9,13 +9,14 @@ fi
 
 echoWhetherPassed()
 {
-	while read compareFile1 <&3 && read compareFile2 <&4; do     
-		 echo "$compareFile1" "$compareFile2" 
-		 if diff "$compareFile1" "$compareFile2" >/dev/null ; then
-			 echo Passed
+	while read compareString1 <&3 && read compareString2 <&4; do     
+		 
+		 if ["$compareString1" == "$compareString2"] >/dev/null ; then
+			 echo "$compareString1" "$compareString2"  Passed
 		 else
-			 echo Not Passed
+			 echo "$compareString1" "$compareString2" Not Passed
 		 fi 
+		 
 	done 3</tmp/overrallScore 4<regressionTest${ballRadius}
 	
 }
