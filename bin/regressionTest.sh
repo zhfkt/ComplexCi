@@ -11,7 +11,7 @@ echoWhetherPassed()
 {
 	while read compareString1 <&3 && read compareString2 <&4; do     
 		 
-		 if ["$compareString1" == "$compareString2"] >/dev/null ; then
+		 if [ "$compareString1" == "$compareString2" ] >/dev/null ; then
 			 echo "$compareString1" "$compareString2"  Passed
 		 else
 			 echo "$compareString1" "$compareString2" Not Passed
