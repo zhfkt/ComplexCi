@@ -1616,6 +1616,45 @@ int main(int argc, char* argv[])
 				setReInsertMethod(reInsertStrategy::FIRSTINORDER_COMPONENT_MULTIPLE).
 				build<concurrentBasicCiAlgo>());
 		}
+		
+		else if (method == 15)
+		{
+			// Just use in the test instead formal release
+
+			bca.reset(parametersBuilder(ballRadius, updateBatch, outputNumBatch, path, modelID, isPrintMinPointCausingMinComponent).
+				setBiggestComponentEndThreshold(biggestComponentEndThreshold).
+				setReInsertMethod(reInsertStrategy::FIRSTINORDER_COMPONENT_COUNT).
+				build<basicCiAlgo>());
+		}
+		else if (method == 16)
+		{
+			// Just use in the test instead formal release
+
+			bca.reset(parametersBuilder(ballRadius, updateBatch, outputNumBatch, path, modelID, isPrintMinPointCausingMinComponent).
+				setBiggestComponentEndThreshold(biggestComponentEndThreshold).
+				setReInsertMethod(reInsertStrategy::FIRSTINORDER_COMPONENT_RANK).
+				build<basicCiAlgo>());
+		}
+		else if (method == 17)
+		{
+			// Just use in the test instead formal release
+
+			bca.reset(parametersBuilder(ballRadius, updateBatch, outputNumBatch, path, modelID, isPrintMinPointCausingMinComponent).
+				setBiggestComponentEndThreshold(biggestComponentEndThreshold).
+				setReInsertMethod(reInsertStrategy::COMPONENT_MULTIPLE).
+				build<basicCiAlgo>());
+		}
+		else if (method == 18)
+		{
+			// Just use in the test instead formal release
+
+			bca.reset(parametersBuilder(ballRadius, updateBatch, outputNumBatch, path, modelID, isPrintMinPointCausingMinComponent).
+				setBiggestComponentEndThreshold(biggestComponentEndThreshold).
+				setReInsertMethod(reInsertStrategy::FIRSTINORDER_COMPONENT_MULTIPLE).
+				build<basicCiAlgo>());
+		}
+		
+		
 		else		
 		{
 			cout << "Method " << method << " is not defined" << endl;
