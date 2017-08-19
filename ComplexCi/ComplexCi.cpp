@@ -426,7 +426,7 @@ public:
 		cout << "biggestComponentEndThreshold: " << biggestComponentEndThreshold << endl;
 		cout << "reInsertStrategyName: " << reInsertStrategyName << endl;
 		
-		computeComponentInterval = int(backupCompletedAdjListGraph.size() * 0.001);
+		computeComponentInterval = int(backupCompletedAdjListGraph.size() * 0.01);
 
 		if (isSlowInterval)
 		{
@@ -443,7 +443,7 @@ public:
 
 		//---------------------
 
-		reinsertEachStep = computeComponentInterval;
+		reinsertEachStep = int(backupCompletedAdjListGraph.size() * 0.001);
 
 		if (isSlowInterval)
 		{
@@ -452,6 +452,7 @@ public:
 				reinsertEachStep = 20;
 			}
 		}
+			
 	}
 
 	void tryReInsert(const vector<vector<int> >& adjListGraph, const unordered_set<int>& allVex, int loopCount, vector<int>& finalOutput)
@@ -1616,6 +1617,8 @@ int main(int argc, char* argv[])
 				setReInsertMethod(reInsertStrategy::FIRSTINORDER_COMPONENT_MULTIPLE).
 				build<concurrentBasicCiAlgo>());
 		}
+		
+		//15-18 is the single thread version for concurrent version of 11-14
 		
 		else if (method == 15)
 		{
