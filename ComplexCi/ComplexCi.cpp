@@ -1678,7 +1678,7 @@ int main(int argc, char* argv[])
 		cout << "Error: " << e.what() << endl;
 	}
 
-	system("pause");
+	//system("pause");
 	return 0;
 }
 
