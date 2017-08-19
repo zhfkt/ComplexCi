@@ -4,13 +4,33 @@ echo $regressionResult
 
 date
 
-for i in 7 8
+if false;
+then
+
+    for i in 7 8
+    do
+        echo Now $i
+
+        ./executeAll.sh 2 1 500 $i 0.001
+        ./calGroovyBenchmark.sh $regressionResult
+
+    done
+
+fi
+
+
+for i in 11 12 13 14
 do
-	echo Now $i
-	
-	./executeAll.sh 2 1 500 $i 0.001
-	./calGroovyBenchmark.sh $regressionResult
+    echo Now $i
+
+    ./executeAll.sh 2 1 500 $i 0.001
+    ./calGroovyBenchmark.sh $regressionResult
 
 done
+
+
+
+
+
 
 date
