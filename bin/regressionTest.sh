@@ -16,7 +16,7 @@ echoWhetherPassed()
 		 else
 			 echo Not Passed
 		 fi 
-	done 3</tmp/groovyResult 4<regressionTest${ballRadius}
+	done 3</tmp/overrallScore 4<regressionTest${ballRadius}
 	
 }
 

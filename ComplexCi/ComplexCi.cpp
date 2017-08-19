@@ -1679,6 +1679,9 @@ int main(int argc, char* argv[])
 	}
 
 	//system("pause");
+	
+	cerr << modelID << " ends" << endl;
+	
 	return 0;
 }
 

@@ -37,9 +37,11 @@ echo $minPointResult   >> $regressionResult
 echo $regressionResult
 cat $regressionResult
 
+grep "score" $regressionResult | sed 's/\s//g' | awk -F ',' '{print $10}' > /tmp/overrallScore
+
 printf "\n\nscore overall:\n"
 
-grep "score" $regressionResult | sed 's/\s//g' | awk -F ',' '{print $10}'
+cat /tmp/overrallScore
 
 printf "\n\n"
 	
