@@ -475,6 +475,9 @@ public:
 
 				isContinueReInserted = false;
 				finalOutput = reInsert(finalOutput, adjListGraph, allVex);
+				
+				cout << modelID << " Min Component Point count reach the Min Component when reinsert enabled:  " << finalOutput.size() << endl;
+				
 			}
 		}
 	}
@@ -913,7 +916,7 @@ public:
 			finalOutput = fullReInsert->reInsert(finalOutput, adjListGraph, allVex);
 		}
 
-		cout << modelID << " Min Point count reach the Min Component when reinsert enabled or Zero Ci value when reinsert disabled:  " << finalOutput.size() << endl;
+		cout << modelID << " Algorithm ends min point size: " << finalOutput.size() << endl;
 
 		if (!isPrintMinPointCausingMinComponent)
 		{
@@ -1357,6 +1360,8 @@ vector<int> openSourceCiAlgo::go()
 	}
 
 	free(listInfluencers);
+	
+	cout << modelID << " Min Component Point count reach the Min Component:  " << finalOutput.size() << endl;
 
 	return postProcess(finalOutput);
 }

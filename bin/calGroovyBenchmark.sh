@@ -21,11 +21,13 @@ cat /tmp/groovyResult
 valueResult=" score , "
 timeResult=" time , "
 minPointResult=" minPoint , "
+algoEndsPointResult=" algoEndsPoint , "
 for i in model1 model2 model3 model4 real1 real2 real3 real4
 do
 	valueResult=$valueResult`egrep $i /tmp/groovyResult  | awk -F ":" '{print $2}'`" , "
 	timeResult=$timeResult`egrep "$i duration" $fullLogFile | awk -F ":" '{print $2}'`" , "
-	minPointResult=$minPointResult`egrep "$i Min Point count" $fullLogFile | awk -F ":" '{print $2}'`" , "
+	minPointResult=$minPointResult`egrep "$i Min Component Point" $fullLogFile | awk -F ":" '{print $2}'`" , "
+	algoEndsPointResult=$algoEndsPointResult`egrep "$i Algorithm ends min point" $fullLogFile | awk -F ":" '{print $2}'`" , "
 done
 valueResult=$valueResult`egrep "^[0-9]\.([0-9]*)" /tmp/groovyResult`
 timeResult=$timeResult`egrep "duration" $fullLogFile | tail -1 | awk -F ":" '{print $2}'`
@@ -33,6 +35,8 @@ echo " $serId , model1 , model2 , model3 , model4 , real1 , real2 , real3 , real
 echo $valueResult   >> $regressionResult
 echo $timeResult   >> $regressionResult
 echo $minPointResult   >> $regressionResult
+echo $algoEndsPointResult   >> $regressionResult
+
 
 echo $regressionResult
 cat $regressionResult

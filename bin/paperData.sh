@@ -52,30 +52,39 @@ do
 	./calGroovyBenchmark.sh $regressionResult
 done
 
-#######
-#part2 reinsert start
-#######
-
-for i in 15 18
-do
-	for j in 0.0 0.0001 0.01 0.1 
-	do
-		./executeAll.sh 2 1 500 $i $j
-		./calGroovyBenchmark.sh $regressionResult
-	done
-done
 
 #######
-#part3 concurrent for best method
+#part2 concurrent for best method
 #######
 
-for i in 11 14
-do
-	./executeAll.sh 2 1 500 $i 0.001
-	./calGroovyBenchmark.sh $regressionResult
-done
+#for i in 11 14
+#do
+#	./executeAll.sh 2 1 500 $i 0.001
+#	./calGroovyBenchmark.sh $regressionResult
+#done
+
+./bestResult.sh
+./calGroovyBenchmark.sh $regressionResult
 
 #find that only real1/real3 will boost
+
+
+#######
+#part3 reinsert start
+#######
+
+#for i in 15 18
+#do
+#	for j in 0.0 0.0001 0.01 0.1 
+#	do
+#		./executeAll.sh 2 1 500 $i $j
+#		./calGroovyBenchmark.sh $regressionResult
+#	done
+#done
+
+./bestResult.sh
+./calGroovyBenchmark.sh $regressionResult
+
 
 #######
 #part4 best stragety 
@@ -84,14 +93,21 @@ done
 ./bestResult.sh
 ./calGroovyBenchmark.sh $regressionResult
 
+
 #######
-#part5 quick stragety 
+#part5 batch stragety 
+#######
+
+./bestResult.sh
+./calGroovyBenchmark.sh $regressionResult
+
+
+#######
+#part6 quick stragety 
 #######
 
 ./quickResult.sh
 ./calGroovyBenchmark.sh $regressionResult
-
-
 
 
 

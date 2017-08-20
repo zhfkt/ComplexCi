@@ -25,8 +25,6 @@ then
 
 	done
 	
-fi
-
 for j in 0 1 2
 do	
 	for i in 1 9
@@ -34,7 +32,11 @@ do
 		./executeAll.sh $j 1 500 $i 0.01
 		./calGroovyBenchmark.sh $regressionResult
 	done
-done
+done	
+	
+fi
+
+
 
 for i in 11 14
 do
