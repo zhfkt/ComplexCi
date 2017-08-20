@@ -101,6 +101,10 @@ done
 ./calGroovyBenchmark.sh $regressionResult
 
 
+#######
+#part7 python result hit
+#######
+
 
 
 
