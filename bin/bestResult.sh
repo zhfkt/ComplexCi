@@ -14,7 +14,7 @@ fi
 
 if (( $# >= 3 ))
 then
-    reinsertRatio=$2
+    reinsertRatio=$3
 else
     reinsertRatio=0.001
 fi
