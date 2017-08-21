@@ -20,7 +20,7 @@ else
 fi
 
 
-serID=bestResult_$(date "+%y_%m_%d_%H_%M_%S")
+serID=bestResult_$(date "+%y_%m_%d_%H_%M_%S")_multiCoreMethod_"$multiCoreMethod"_batchSize_"$batchSize"_reinsertRatio_"$reInsertRatio"
 echo "serID: " $serID
 exec > $serID.log
 
