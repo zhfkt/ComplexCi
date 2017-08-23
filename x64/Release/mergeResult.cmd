@@ -1,5 +1,5 @@
 FOR /f %%a IN ('WMIC OS GET LocalDateTime ^| FIND "."') DO SET DTS=%%a
-SET serID=quickResult_win_%DTS:~0,4%-%DTS:~4,2%-%DTS:~6,2%_%DTS:~8,2%-%DTS:~10,2%-%DTS:~12,2%
+SET serID=resultWin_%DTS:~0,4%-%DTS:~4,2%-%DTS:~6,2%_%DTS:~8,2%-%DTS:~10,2%-%DTS:~12,2%
 echo serID: %serID%
 
 set resultFolder=..\..\data\networks\results\%serID%\
