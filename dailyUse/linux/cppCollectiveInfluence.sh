@@ -5,7 +5,7 @@ then
 	batchSize=$3
 	whetherOutputLimitedNode=$4
 else
-    echo './traditionalCollectiveInfluence.sh <networkPath> <ballRadius> <batchSize> <whetherOutputLimitedNode>'
+    echo './cppCollectiveInfluence.sh <networkPath> <ballRadius> <batchSize> <whetherOutputLimitedNode>'
 	echo '<ballRadius> is the Radius parameter defined in the Collective Influence Algorithm'
 	echo '<batchSize> batch size of deleted points per updating Collective Influence value'
 	echo '<whetherOutputLimitedNode> whether output limited point leading to 0.01 of giant component ratio or all points'
