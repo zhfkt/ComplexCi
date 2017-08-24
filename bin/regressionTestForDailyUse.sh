@@ -26,7 +26,7 @@ cd -
 
 ./calGroovyBenchmark.sh /tmp/regressionTestForDailyUse.result
 
-echo 'model1 0.207893888'
+echo 'model1 0.212114535'
 echo 'model2 a little worse than 0.174871586'
-echo 'model3 0.34461667'
+echo 'model3 0.348837118'
 
