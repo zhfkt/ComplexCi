@@ -4,9 +4,9 @@ exec > $serID.log
 
 cd ../dailyUse/linux/
 
-./traditionalCollectiveInfluence.sh ../../data/networks/model1.csv 2 0 &
+./traditionalCollectiveInfluence.sh ../../data/networks/model1.csv 0 0 &
 ./newReinsertCollectiveInfluence.sh ../../data/networks/model2.csv 0 1 0 &
-./cppCollectiveInfluence.sh ../../data/networks/model3.csv 2 1 0 &
+./cppCollectiveInfluence.sh ../../data/networks/model3.csv 0 1 0 &
 
 cd -
 
