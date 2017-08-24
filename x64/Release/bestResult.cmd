@@ -8,3 +8,5 @@ ComplexCi ../../data/networks/real3.csv 2 1 500 14 0.001
 ComplexCi ../../data/networks/real4.csv 2 1 500 18 0.001  
 
 mergeResult.cmd
+
+pause

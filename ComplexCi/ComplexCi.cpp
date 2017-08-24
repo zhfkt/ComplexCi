@@ -1453,37 +1453,99 @@ int main(int argc, char* argv[])
 	if (argc > 5)
 	{
 		path = argv[1];
-		output = path + "_out";
+		std::replace(path.begin(), path.end(), '\\', '/');
 
-		ballRadius = stoi(argv[2]);
-		updateBatch = stoi(argv[3]);
-		outputNumBatch = stoi(argv[4]);
-		method = stoi(argv[5]);
+		output = path + "_out";
+		
+		try
+		{
+			ballRadius = stoi(argv[2]);
+		}
+		catch (...)
+		{
+			cerr << "ballRadius string could not be read properly as an int" << endl;
+			return 0;
+		}
+		
+		try
+		{
+			updateBatch = stoi(argv[3]);
+		}
+		catch (...)
+		{
+			cerr << "updateBatch string could not be read properly as an int" << endl;
+			return 0;
+		}
+		
+		try
+		{
+			outputNumBatch = stoi(argv[4]);
+		}
+		catch (...)
+		{
+			cerr << "outputNumBatch string could not be read properly as an int" << endl;
+			return 0;
+		}
+		
+		try
+		{
+			method = stoi(argv[5]);
+		}
+		catch (...)
+		{
+			cerr << "method string could not be read properly as an int" << endl;
+			return 0;
+		}
 
 		if (argc > 6)
 		{
-			biggestComponentEndThreshold = atof(argv[6]);
+			try
+			{
+				biggestComponentEndThreshold = atof(argv[6]);
+			}
+			catch (...)
+			{
+				cerr << "biggestComponentEndThreshold string could not be read properly as an float" << endl;
+				return 0;
+			}	
 		}
 
 		if (argc > 7)
 		{
-			int intPrintMinPointCausingMinComponent = stoi(argv[7]);
+			try
+			{
+				int intPrintMinPointCausingMinComponent = stoi(argv[7]);
 
-			if (intPrintMinPointCausingMinComponent == 0)
-			{
-				isPrintMinPointCausingMinComponent = false;
+				if (intPrintMinPointCausingMinComponent == 0)
+				{
+					isPrintMinPointCausingMinComponent = false;
+				}
+				else
+				{
+					isPrintMinPointCausingMinComponent = true;
+				}
+
 			}
-			else
+			catch (...)
 			{
-				isPrintMinPointCausingMinComponent = true;
+				cerr << "isPrintMinPointCausingMinComponent string could not be read properly as an int" << endl;
+				return 0;
 			}
 		}
 
 	}
 	else
 	{
-		cout << "at least 4 parameters for csv path" << endl;
-		cout << "e.g. 'C:/Users/zhfkt/Documents/Visual Studio 2013/Projects/ComplexCi/Release/karate.txt' [ballRadius] [updateBatch] [outputNumBatch] [method] {[biggestComponentEndThreshold]}" << endl;
+		cout << "At least 5 parameters for ComplexCi" << endl;
+		cout << "e.g. ./ComplexCi [path] [ballRadius] [updateBatch] [outputNumBatch] [method] {[biggestComponentEndThreshold]} {[isPrintMinPointCausingMinComponent]}" << endl;
+		
+		cout << "<path> is the file path" << endl;
+		cout << "<ballRadius> is the Radius parameter defined in the Collective Influence Algorithm" << endl;
+		cout << "<updateBatch> batch size of deleted points per updating Collective Influence value (traditional ci will be fixed to 1)" << endl;
+		cout << "<outputNumBatch> output num of point each line in the final result file" << endl;
+		cout << "<method> method of deleting node. There are serveral ways and the user can check the ReadMe" << endl;
+		cout << "<biggestComponentEndThreshold> giant component ratio where the deleting node algorithm stops for cpp ci (traditional ci will be fixed to 0.01)" << endl;
+		cout << "<isPrintMinPointCausingMinComponent> whether output limited point leading to 0(new cpp ci)/0.01(traditional ci) of giant component ratio or all points" << endl;
 		return 0;
 	}
 
@@ -1505,11 +1567,6 @@ int main(int argc, char* argv[])
 
 	try
 	{
-
-
-
-
-
 		unique_ptr<basicCiAlgo> bca;
 
 		if (method == 0)
