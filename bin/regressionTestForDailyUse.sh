@@ -1,4 +1,4 @@
-serID=bestResult_$(date "+%y_%m_%d_%H_%M_%S")_multiCoreMethod_"$multiCoreMethod"_batchSize_"$batchSize"_reinsertRatio_"$reinsertRatio"
+serID=regressionTestForDailyUse_$(date "+%y_%m_%d_%H_%M_%S")
 echo "serID: " $serID
 exec > $serID.log
 
@@ -12,13 +12,15 @@ cd -
 
 wait
 
-resultFolder=../data/networks/results/$serID/ 
+resultFolder=../data/networks/results/$serID/
 
 mkdir -p  $resultFolder
 mv ../data/networks/*.csv_out  $resultFolder
 cd $resultFolder
 
-../../../../bin/mergeResult.sh 
+echo "serID: " $serID
+
+../../../../bin/mergeResult.sh
 
 date
 
