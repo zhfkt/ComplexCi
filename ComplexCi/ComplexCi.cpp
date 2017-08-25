@@ -1536,8 +1536,10 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
+		cout << endl << "Pls refer https://github.com/zhfkt/ComplexCi for more info about ComplexCi" << endl << endl;
+
 		cout << "At least 5 parameters for ComplexCi" << endl;
-		cout << "e.g. ./ComplexCi [path] [ballRadius] [updateBatch] [outputNumBatch] [method] {[biggestComponentEndThreshold]} {[isPrintMinPointCausingMinComponent]}" << endl;
+		cout << "e.g. ./ComplexCi [path] [ballRadius] [updateBatch] [outputNumBatch] [method] {[biggestComponentEndThreshold]} {[isPrintMinPointCausingMinComponent]}" << endl << endl;
 		
 		cout << "<path> is the file path" << endl;
 		cout << "<ballRadius> is the Radius parameter defined in the Collective Influence Algorithm" << endl;
