@@ -1,6 +1,3 @@
-// ComplexCi.cpp : 定义控制台应用程序的入口点。
-//
-
 //#include "stdafx.h"
 
 #include <iostream>
@@ -1546,7 +1543,7 @@ int main(int argc, char* argv[])
 		cout << "<updateBatch> batch size of deleted points per updating Collective Influence value (traditional ci will be fixed to 1)" << endl;
 		cout << "<outputNumBatch> output num of point each line in the final result file" << endl;
 		cout << "<method> method of deleting node. There are serveral ways and the user can check the ReadMe" << endl;
-		cout << "<biggestComponentEndThreshold> giant component ratio where the deleting node algorithm stops for cpp ci (traditional ci will be fixed to 0.01)" << endl;
+		cout << "<biggestComponentEndThreshold> complex network collapses to the certain giant component ratio where the reinsert algorithm starts for cpp ci (traditional ci will be fixed to 0.01)" << endl;
 		cout << "<isPrintMinPointCausingMinComponent> whether output limited point leading to 0(new cpp ci)/0.01(traditional ci) of giant component ratio or all points" << endl;
 		return 0;
 	}

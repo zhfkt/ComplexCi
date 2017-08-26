@@ -28,10 +28,10 @@ done
 #part1 core method
 #######
 
-for i in 9 10
-do
-	./executeAll.sh 0 1 500 $i 0.01
-	./calGroovyBenchmark.sh $regressionResult	
+for j in 0 1 2
+do	
+	./executeAll.sh $j 1 500 10 0.01
+	./calGroovyBenchmark.sh $regressionResult
 done
 
 for i in 5 7
