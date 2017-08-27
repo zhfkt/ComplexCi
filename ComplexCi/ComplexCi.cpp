@@ -1542,7 +1542,7 @@ int main(int argc, char* argv[])
 		cout << "<ballRadius> is the Radius parameter defined in the Collective Influence Algorithm" << endl;
 		cout << "<updateBatch> batch size of deleted points per updating Collective Influence value (traditional ci will be fixed to 1)" << endl;
 		cout << "<outputNumBatch> output num of point each line in the final result file" << endl;
-		cout << "<method> method of deleting node. There are serveral ways and the user can check the ReadMe" << endl;
+		cout << "<method> method of several algorithms in collective influence. The user can check the ReadMe" << endl;
 		cout << "<biggestComponentEndThreshold> complex network collapses to the certain giant component ratio where the reinsert algorithm starts for cpp ci (traditional ci will be fixed to 0.01)" << endl;
 		cout << "<isPrintMinPointCausingMinComponent> whether output limited point leading to 0(new cpp ci)/0.01(traditional ci) of giant component ratio or all points" << endl;
 		return 0;
