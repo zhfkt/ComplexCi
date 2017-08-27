@@ -36,11 +36,8 @@ done
 
 for i in 5 7
 do
-	for j in 0 1 2
-	do
-		./executeAll.sh $j 1 500 $i 0.01
-		./calGroovyBenchmark.sh $regressionResult
-	done
+	./executeAll.sh 2 1 500 $i 0.01
+	./calGroovyBenchmark.sh $regressionResult
 done
 
 for i in 15 16 17 18
@@ -66,7 +63,7 @@ done
 #part3 reinsert start
 #######
 
-for j in 0.0 0.0001 0.001 0.1 
+for j in 0.0 0.0001 0.001 0.01 0.1 
 do
 	./bestResult.sh 0 1 $j
 	./calGroovyBenchmark.sh $regressionResult
