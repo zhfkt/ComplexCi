@@ -1,34 +1,52 @@
-serID=regressionTestForDailyUse_$(date "+%y_%m_%d_%H_%M_%S")
-echo "serID: " $serID
-exec > $serID.log
+serIDRegression="regressionTestForDailyUse_"_$(date "+%y_%m_%d_%H_%M_%S")
+mkdir regressionResult
+regressionResult=`readlink -f regressionResult/$serIDRegression.csv`
+echo $regressionResult
 
-cd ../dailyUse/linux/
 
-./traditionalCollectiveInfluence.sh ../../data/networks/model1.csv 0 0 &
-./newReinsertCollectiveInfluence.sh ../../data/networks/model2.csv 0 1 0 &
-./cppCollectiveInfluence.sh ../../data/networks/model3.csv 0 1 0 &
+csvFiles=../../data/networks/*.csv
 
-cd -
 
-wait
+for j in traditionalCollectiveInfluence  newReinsertCollectiveInfluence cppCollectiveInfluence
+do	
+	for ballRadius in 0 1 2
+	do
+	
+		serID=regressionTestForDailyUse_$j_$ballRadius_$(date "+%y_%m_%d_%H_%M_%S")
+		echo "serID: " $serID
+		exec > $serID.log	
+	
+		cd ../dailyUse/linux/
+	
+		for i in `ls $csvFiles`
+		do			
+			if [ $i == "traditionalCollectiveInfluence" ]
+			then
+				./$j.sh $i $ballRadius 0 &
+			else
+				./$j.sh $i $ballRadius 1 0 &
+			fi
+		done
+		
+		wait
+					
+		resultFolder=../../data/networks/results/$serID/
 
-resultFolder=../data/networks/results/$serID/
+		mkdir -p  $resultFolder
+		mv ../../data/networks/*.csv_out  $resultFolder
+		cd $resultFolder
 
-mkdir -p  $resultFolder
-mv ../data/networks/*.csv_out  $resultFolder
-cd $resultFolder
+		../../../../bin/mergeResult.sh
 
-echo "serID: " $serID
+		cd ../../../../bin/
 
-../../../../bin/mergeResult.sh
+		./calGroovyBenchmark.sh $serIDRegression
+		
+		echo $regressionResult
 
-date
+	done
+		
+done
 
-cd -
 
-./calGroovyBenchmark.sh /tmp/regressionTestForDailyUse.result
-
-echo 'model1 0.212114535'
-echo 'model2 0.17444529252104574'
-echo 'model3 0.348837118'
 

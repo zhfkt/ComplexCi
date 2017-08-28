@@ -1,4 +1,5 @@
 serIDRegression="paperData"_$(date "+%y_%m_%d_%H_%M_%S")
+mkdir regressionResult
 regressionResult=`readlink -f regressionResult/$serIDRegression.csv`
 echo $regressionResult
 
