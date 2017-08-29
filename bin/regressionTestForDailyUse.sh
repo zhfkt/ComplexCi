@@ -20,7 +20,7 @@ do
 	
 		for i in `ls $csvFiles`
 		do			
-			if [ $i == "traditionalCollectiveInfluence" ]
+			if [ $j == "traditionalCollectiveInfluence" ]
 			then
 				./$j.sh $i $ballRadius 0 &
 			else
