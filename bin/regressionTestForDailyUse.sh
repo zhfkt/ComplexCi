@@ -12,7 +12,7 @@ do
 	for ballRadius in 0 1 2
 	do
 	
-		serID=regressionTestForDailyUse_$j_$ballRadius_$(date "+%y_%m_%d_%H_%M_%S")
+		serID=regressionTestForDailyUse_"$j"_"$ballRadius"_$(date "+%y_%m_%d_%H_%M_%S")
 		echo "serID: " $serID
 		exec > $serID.log	
 	
@@ -37,6 +37,8 @@ do
 		cd $resultFolder
 
 		../../../../bin/mergeResult.sh
+
+		exec > /dev/tty
 
 		cd ../../../../bin/
 
