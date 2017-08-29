@@ -42,7 +42,7 @@ do
 
 		cd ../../../../bin/
 
-		./calGroovyBenchmark.sh $serIDRegression
+		./calGroovyBenchmark.sh $regressionResult
 		
 		echo $regressionResult
 
