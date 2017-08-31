@@ -128,7 +128,7 @@ e.g.
 ./cppCollectiveInfluence.sh /home/network/model1.csv 2 500 0
 ```
 
-It means users are using the cppCollectiveInfluence strategy for the input file model1.csv with parameter ballRadius 2. The output file only contain all nodes and 500 nodes will be deleted in a batch per updating CI values when the Complex Network collapses.
+It means users are using the cppCollectiveInfluence strategy for the input file model1.csv with parameter ballRadius 2. The output file contain all nodes and 500 nodes will be deleted in a batch per updating CI values when the Complex Network collapses.
 
 * newReinsertCollectiveInfluence
 
@@ -152,7 +152,7 @@ e.g.
 ./newReinsertCollectiveInfluence.sh /home/network/model1.csv 2 500 0
 ```
 
-It means users are using the newReinsertCollectiveInfluence strategy for the input file model1.csv with parameter ballRadius 2. The output file only contain all nodes and 500 nodes will be deleted in a batch per updating CI values when the Complex Network collapses.
+It means users are using the newReinsertCollectiveInfluence strategy for the input file model1.csv with parameter ballRadius 2. The output file contain all nodes and 500 nodes will be deleted in a batch per updating CI values when the Complex Network collapses.
 
 ####  Directly use with Binary ComplexCi
 
