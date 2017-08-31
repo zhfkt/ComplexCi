@@ -39,7 +39,7 @@ git clone https://github.com/zhfkt/ComplexCi.git
 ```
 There are lots of C++11 features and syntax in the code so that the C++ Compiler needs to support C++11 Standard . In fact, there is only one cpp file ComplexCi/ComplexCi.cpp need to be compiled and it doesn’t rely on the other extra library
 
-* Linux
+* __Linux__
 
 Users can enter into the “bin/” under root project folder and execute 
 
@@ -55,7 +55,7 @@ or just execute
 
 to generate binary bin/ComplexCi . Pls notice that the version of g++ needs to support c++11. For my own dev, the compilation is passed under g++ 5.4.0 on Ubuntu 16.04. Otherwise , you will get failure of several incorrect syntax errors.
 
-* Windows
+* __Windows__
 
 There has already been a windows binary file x64/Release/ComplexCi.exe compiled on the Windows7 x64 in the repository. It can just be used if users do not need to recompile or change the code. If users want to compile themselves and have the Visual Studio 2013 or higher version, they can directly open the ComplexCi.sln and compile the code in the IDE. The binary file will be generated under x64/Release/ComplexCi.exe .  I believe users can also pick up any other IDE or Compiler supporting C++11 to compile the file ComplexCi/ComplexCi.cpp . Pls note that replace the x64/Release/ComplexCi.exe with your own generate file after compilation.
 
@@ -91,11 +91,8 @@ Script “traditionalCollectiveInfluence” accepts 3 parameters:
 ```
 
 
-<networkPath> is the file path. The file format is described in the section Network Input File Format
-<ballRadius> is the Radius parameter defined in the Collective Influence Algorithm
+* "networkPath" is the file path. The file format is described in the section Network Input File Format
+* "ballRadius" is the Radius parameter defined in the Collective Influence Algorithm
 When the ballRadius is zero, pls notice that Collective Influence Algorithm will degenerate into HDA (high degree adaptive) algorithm. a.k.a. CI value of each node will be equal with degree of the node.
-<isPrintMinPointCausingMinComponent> whether the output file contains limited point leading to 0.01 of giant component ratio or all points. If it is set to 0, the program will output all nodes. Otherwise the program will output partial points, which will make the giant component ratio to 0.01 in the deleting nodes process
-
-
-
+* "isPrintMinPointCausingMinComponent" whether the output file contains limited point leading to 0.01 of giant component ratio or all points. If it is set to 0, the program will output all nodes. Otherwise the program will output partial points, which will make the giant component ratio to 0.01 in the deleting nodes process
 
