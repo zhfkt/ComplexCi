@@ -11,4 +11,6 @@ cd ../Master_algorithm
 mvn install
 cd -
 
+./make.sh
+
 ./regressionTest.sh -1

@@ -29,6 +29,8 @@ serIDRegression="regressionTest"_$(date "+%y_%m_%d_%H_%M_%S")_"$ballRadius"
 regressionResult=`readlink -f regressionResult/$serIDRegression.csv`
 echo $regressionResult
 
+# simple verify for -1
+
 if [ $ballRadius == "-1" ]
 then
 	ballRadius=0
