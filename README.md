@@ -221,6 +221,21 @@ In order to demonstrate the performance of 3 main algorithms mentioned in the sc
 
 The smaller value is, the better the algorithm is.
 
+
+
+| traditionalCollectiveInfluence  |  model1               |  model2               |  model3               |  model4               |  real1                 |  real2                |  real3                |  real4                |  total              | 
+|---------------------------------|-----------------------|-----------------------|-----------------------|-----------------------|------------------------|-----------------------|-----------------------|-----------------------|---------------------| 
+|    ballRadius 0                 |                       |                       |                       |                       |                        |                       |                       |                       |                     | 
+| Robustness score                           |  0.212114534612088    |  0.17709037313540452  |  0.348481036230115    |  0.12859942346503628  |  0.045041207056709186  |  0.09025154053851878  |  0.10223159378314642  |  0.07550525408592051  |  1.1793149629069386 | 
+| time                            |  188s                 |  155s                 |  304s                 |  117s                 |  705s                  |  93s                  |  504s                 |  170s                 |  705s               | 
+|    ballRadius 1                 |                       |                       |                       |                       |                        |                       |                       |                       |                     | 
+| Robustness score                           |  0.20800639074039926  |  0.17324625919321315  |  0.34604280704747226  |  0.12492956150823462  |  0.040972609847787014  |  0.04901976443029454  |  0.09643886331014216  |  0.06585377276228349  |  1.1045100288398264 | 
+| time                            |  200s                 |  157s                 |  341s                 |  121s                 |  597s                  |  69s                  |  727s                 |  173s                 |  727s               | 
+|    ballRadius 2                 |                       |                       |                       |                       |                        |                       |                       |                       |                     | 
+| Robustness score                           |  0.20789388803711847  |  0.17317167411754655  |  0.34463047623781007  |  0.11886148127352672  |  0.03889459943318143   |  0.04175959763917532  |  0.09551290409611483  |  0.04887182948469872  |  1.0695964503191722 | 
+| time                            |  1558s                |  539s                 |  1435s                |  306s                 |  30738s                |  57s                  |  74935s               |  930s                 |  74935s             | 
+
+
 TABLE <zhfkt>
 
 From the benchmark ,we can see that the result of traditional c implementation traditionalCollectiveInfluence and new c++ cppCollectiveInfluence can both achieve nearly the same result in the metric of Robustness, even the new c++ implementation is more efficient and spends much less time on some datasets than the traditional c program. Data structure of disjoint-set is used in the reinsertion in the new c++ implementation ComplexCi and it can boost a lot. The traditionalCollectiveInfluence didn’t use this data structure and I think that’s the reason why the traditional c program was slow.
