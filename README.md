@@ -236,6 +236,32 @@ The smaller value is, the better the algorithm is.
 | time                            |  1558s                |  539s                 |  1435s                |  306s                 |  30738s                |  57s                  |  74935s               |  930s                 |  74935s             | 
 
 
+| cppCollectiveInfluence   |  model1               |  model2               |  model3               |  model4               |  real1                 |  real2                |  real3                |  real4                |  total              | 
+|-----------------------------------------|-----------------------|-----------------------|----------------------|-----------------------|------------------------|-----------------------|-----------------------|-----------------------|---------------------| 
+|   ballRadius 0    |                       |                       |                      |                       |                        |                       |                       |                       |                     | 
+| Robustness score                        |  0.212995180868404    |  0.17825623938243235  |  0.3488371179362446  |  0.13044095644008905  |  0.045896723529755164  |  0.09179360554722535  |  0.10295712423699685  |  0.0751453308376666   |  1.186322278778814  | 
+| time                                    |  150s                 |  121s                 |  219s                |  91s                  |  203s                  |  90s                  |  173s                 |  144s                 |  219s               | 
+|    ballRadius 1   |                       |                       |                      |                       |                        |                       |                       |                       |                     | 
+| Robustness score                        |  0.20786575375254526  |  0.17287603491106443  |  0.3459314785219725  |  0.12575885953564994  |  0.040715001251767136  |  0.05447973556367088  |  0.09693691645394834  |  0.06535296016836702  |  1.1099167401589856 | 
+| time                                    |  233s                 |  175s                 |  321s                |  128s                 |  500s                  |  62s                  |  637s                 |  167s                 |  637s               | 
+
+
+
+
+| newReinsertCollectiveInfluence   |  model1               |  model2               |  model3               |  model4               |  real1                 |  real2                |  real3                |  real4                |  total              | 
+|-------------------|-----------------------|-----------------------|-----------------------|-----------------------|------------------------|------------------------|-----------------------|------------------------|---------------------| 
+| ballRadius 0      |                       |                       |                       |                       |                        |                        |                       |                        |                     | 
+| Robustness score  |  0.21000490990392326  |  0.17444529252104574  |  0.36034441350886226  |  0.11746295657331152  |  0.031548233231912595  |  0.006941739197243699  |  0.09783211110280018  |  0.041713875596863736  |  1.040293531635963  | 
+| time              |  149s                 |  127s                 |  204s                 |  92s                  |  163s                  |  102s                  |  162s                 |  133s                  |  204s               | 
+|    ballRadius 1   |                       |                       |                       |                       |                        |                        |                       |                        |                     | 
+| Robustness score  |  0.21044370166986182  |  0.17434312193474896  |  0.36559101609567096  |  0.11522041258279037  |  0.031796305201905184  |  0.004606194038268482  |  0.09681978041671271  |  0.04212234411487126   |  1.0409428760548298 | 
+| time              |  228s                 |  171s                 |  321s                 |  123s                 |  461s                  |  65s                   |  609s                 |  159s                  |  609s               | 
+|    ballRadius 2   |                       |                       |                       |                       |                        |                        |                       |                        |                     | 
+| Robustness score  |  0.21069031148180584  |  0.1739382260811252   |  0.3585359736237585   |  0.11479791818923121  |  0.03034023526276518   |  0.003917689626285443  |  0.09541840314234191  |  0.03698295069413116   |  1.0246217081014446 | 
+| time              |  1841s                |  769s                 |  1679s                |  392s                 |  27375s                |  58s                   |  43405s               |  1009s                 |  43405s             | 
+
+
+
 TABLE <zhfkt>
 
 From the benchmark ,we can see that the result of traditional c implementation traditionalCollectiveInfluence and new c++ cppCollectiveInfluence can both achieve nearly the same result in the metric of Robustness, even the new c++ implementation is more efficient and spends much less time on some datasets than the traditional c program. Data structure of disjoint-set is used in the reinsertion in the new c++ implementation ComplexCi and it can boost a lot. The traditionalCollectiveInfluence didn’t use this data structure and I think that’s the reason why the traditional c program was slow.
