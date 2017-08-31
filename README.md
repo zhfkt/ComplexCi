@@ -268,8 +268,6 @@ The smaller value is, the better the algorithm is.
 
 The time doesn't cover IO read/write from/to disk and 8 datasets are all running in parallel on the 4-core cpu machine (Intel Xeon E5-2667v4 Broadwell 3.2 GHz) with linux.
 
-TABLE <zhfkt>
-
 From the benchmark ,we can see that the result of traditional c implementation traditionalCollectiveInfluence and new c++ cppCollectiveInfluence can both achieve nearly the same result in the metric of Robustness, even the new c++ implementation is more efficient and spends much less time on some datasets than the traditional c program. Data structure of disjoint-set is used in the reinsertion in the new c++ implementation ComplexCi and it can boost a lot. The traditionalCollectiveInfluence didn’t use this data structure and I think that’s the reason why the traditional c program was slow.
 
 We can also see that newReinsertCollectiveInfluence can achieve better Robustness Value result. It can be proved that the newReinsertCollectiveInfluence performs well even the ballRadius is set to 0 in the simple HDA (high degree adaptive) algorithm without using Collective Influence algorithm.
@@ -362,7 +360,7 @@ bestResult.sh is the bash script to generate the best result of DataCastle Compe
 
 
 
-If you have any question on this project, welcome to file the issue on the github. Thank you !
+If you have any question on this project, welcome to file the issue on the github.
 
 ## DOI
 
