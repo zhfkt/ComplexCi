@@ -261,6 +261,7 @@ The smaller value is, the better the algorithm is.
 | time              |  1841s                |  769s                 |  1679s                |  392s                 |  27375s                |  58s                   |  43405s               |  1009s                 |  43405s             | 
 
 
+Notice: the time doesn;t cover IO read/write from/to disk.
 
 TABLE <zhfkt>
 
