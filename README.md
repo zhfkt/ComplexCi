@@ -30,7 +30,9 @@ This section describes the Usage of the ComplexCi and its corresponding scripts
 
 ####  Download Release
 
-####  Fetch from Github Source and Compile
+Binary file compile based on windows 7 x64 is provided on the https://github.com/zhfkt/ComplexCi/releases
+
+#### Or Fetch from Github Source and Compile
 
 Users can directly clone the repository by the git command or just download the zip archiver on the webpage
 
@@ -215,7 +217,7 @@ From the above instance, the nodes of networks model1 will be removed following 
 
 ##  Benchmark
 
-In order to demonstrate the performance of 3 main algorithms mentioned in the scripts traditionalCollectiveInfluence, cppCollectiveInfluence and newReinsertCollectiveInfluence, I provide 8 test datasets downloaded from DataCastle Competition at GITHUB LINK <zhfkt> . Here the metric of Robustness is another measure to quantify the performance of ranking methods introduced by the paper
+In order to demonstrate the performance of 3 main algorithms mentioned in the scripts traditionalCollectiveInfluence, cppCollectiveInfluence and newReinsertCollectiveInfluence, I provide 8 test datasets downloaded from DataCastle Competition at https://github.com/zhfkt/ComplexCi/releases/download/v0.1/networks.zip . Here the metric of Robustness is another measure to quantify the performance of ranking methods introduced by the paper
 	
 > Schneider C M, Moreira A A, Andrade J S, et al. Mitigation of malicious attacks on networks[J]. Proceedings of the National Academy of Sciences, 2011, 108(10): 3838-3841. 
 
@@ -291,7 +293,7 @@ The bestresult script is to get the score of NUM <zhfkt> in the best performance
 
 If users want to experience the quick/best result of the raised algorithm for DataCastle Competition, they can follow the steps:
 
-* Download zip files networks.zip containing 8 datasets from GITHUB LINK<zhfkt> and extract it under data/networks/ . That’s say, the path of 8 dataset files will be
+* Download zip files networks.zip containing 8 datasets from https://github.com/zhfkt/ComplexCi/releases/download/v0.1/networks.zip and extract it under data/networks/ . That’s say, the path of 8 dataset files will be
 
 
 ```
