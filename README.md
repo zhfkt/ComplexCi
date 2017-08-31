@@ -193,7 +193,7 @@ If users want to control the more flexible behaviour in the Collective Influence
    16. (Experimental) 15 is based on method 6 . Another enhanced re-insert algorithm is applied on it ,which will choose rank __behind__ in the sequence of node importance with high priority. Method 6 will just ignore the rank information. This method is also the __single__ thread implementation of the method 11.
    17. (Experimental) 16 is based on method 8 . Another enhanced re-insert algorithm is applied on it ,which will choose rank __behind__ in the sequence of node importance with high priority. Method 8 will just ignore the rank information. This method is also the __single__ thread implementation of the method 12.
    18. (Experimental) 17 is based on method 8. Reinsert algorithm will use the __multiply__ kernel when combining giant component information . This method is also the __single__ implementation of the method 13.
-   19. (Experimental) 18 is based on method 17. Reinsert algorithm will choose rank __behind__ in the sequence of node importance with high priority combined with __multiply____ kernel. This method is also the __single__ thread implementation of the method 14.
+   19. (Experimental) 18 is based on method 17. Reinsert algorithm will choose rank __behind__ in the sequence of node importance with high priority combined with __multiply__ kernel. This method is also the __single__ thread implementation of the method 14.
    
 I believe users can just use the method without Experimental tag for their daily use because these methods with Experimental tag do not take effect obviously for most Complex Network datasets. There is no need for users to get the knowledge of these method in most cases. Pls ignore them. See in the DataCastle Comptition Section.
 
@@ -249,7 +249,7 @@ The bestresult script is to get the score of NUM <zhfkt> in the best performance
 
 If users want to experience the quick/best result of the raised algorithm for DataCastle Competition, they can follow the steps:
 
-* Download zip files networks.zip containing 8 datasets from GITHUB LINK<zhfkt> and extract it under data/networks/ . That’s say, the 8 dataset files will be
+* Download zip files networks.zip containing 8 datasets from GITHUB LINK<zhfkt> and extract it under data/networks/ . That’s say, the path of 8 dataset files will be
 
 
 ```
@@ -266,7 +266,7 @@ data/networks/real4.csv
 
 
 * Compile the code according to the above instruction on windows/linux or just use the current binary file under windows in the Release zip
-* quickResult script: For the linux, users can execute the quickResult.sh under bin/ folder to get a quick result and wait until finish. The task is completed in about 5 minutes in serveral million-scale networks on the 4-core machine. For the windows, users can execute the quickResult.cmd under x64/release/ folder and the cmd will pop up 8 separate consoles. Until these consoles all complete the algorithm, users are able to use the mergeResult.cmd to merge the 8 files into one result file.
+* quickResult script: For the linux, users can execute the quickResult.sh under bin/ folder to get a quick result and wait until finish. The task will be completed in about 5 minutes in serveral million-scale networks on the 4-core machine. For the windows, users can execute the quickResult.cmd under x64/release/ folder and the cmd will pop up 8 separate consoles. Until these consoles all complete the algorithm, users are able to use the mergeResult.cmd to merge the 8 files into one result file.
 * bestResult script: For the linux, users are also able to execute the bestResult.sh under bin/ folder to get the best result but it will take nearly 8 hours to complete the whole algorithm for all datasets. For the windows, users can execute bestResult.cmd to get a best result, but which will take longer time than linux version because it is not implemented in parallel for 8 datasets.
 * Output results will be in a folder under data/networks/results/ for both windows and linux
 
