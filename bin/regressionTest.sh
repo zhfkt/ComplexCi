@@ -29,29 +29,49 @@ serIDRegression="regressionTest"_$(date "+%y_%m_%d_%H_%M_%S")_"$ballRadius"
 regressionResult=`readlink -f regressionResult/$serIDRegression.csv`
 echo $regressionResult
 
-for((i=0;i<19;i++))
-do
-	echo Now $i
-	date
-	./executeAll.sh $ballRadius 1 500 $i 0.001
-	./calGroovyBenchmark.sh $regressionResult
-	
-	echoWhetherPassed
-	
-done
+if [ $ballRadius == "-1" ]
+then
+	ballRadius=0
+	for((i=0;i<3;i++))
+	do
+		echo Now $i
+		date
+		./executeAll.sh $ballRadius 1 500 $i 0.001
+		./calGroovyBenchmark.sh $regressionResult
+		
+		echoWhetherPassed
+		
+	done
 
 
-for i in 5 6 7 8
-do
-	echo Now $i
-	date
-	./executeAll.sh $ballRadius 1 500 $i 0.0
-	./calGroovyBenchmark.sh $regressionResult
-	
-	echoWhetherPassed
-	
-done
+
+else
 
 
+	for((i=0;i<19;i++))
+	do
+		echo Now $i
+		date
+		./executeAll.sh $ballRadius 1 500 $i 0.001
+		./calGroovyBenchmark.sh $regressionResult
+		
+		echoWhetherPassed
+		
+	done
+
+
+	for i in 5 6 7 8
+	do
+		echo Now $i
+		date
+		./executeAll.sh $ballRadius 1 500 $i 0.0
+		./calGroovyBenchmark.sh $regressionResult
+		
+		echoWhetherPassed
+		
+	done
+
+
+fi
 
 
