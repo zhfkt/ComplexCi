@@ -91,8 +91,10 @@ Script “traditionalCollectiveInfluence” accepts 3 parameters:
 ```
 
 
-
-
+<networkPath> is the file path. The file format is described in the section Network Input File Format
+<ballRadius> is the Radius parameter defined in the Collective Influence Algorithm
+When the ballRadius is zero, pls notice that Collective Influence Algorithm will degenerate into HDA (high degree adaptive) algorithm. a.k.a. CI value of each node will be equal with degree of the node.
+<isPrintMinPointCausingMinComponent> whether the output file contains limited point leading to 0.01 of giant component ratio or all points. If it is set to 0, the program will output all nodes. Otherwise the program will output partial points, which will make the giant component ratio to 0.01 in the deleting nodes process
 
 
 
