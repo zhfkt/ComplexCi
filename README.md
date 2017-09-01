@@ -288,9 +288,9 @@ Those tasks could be formalized as a generic challenge that is identifying vital
 
 Here I write 2 scripts both on the windows and linux platform to help users to get the quick and best results based on the ComplexCi for DataCastle Competition. 
 
-The quickresult script is a quick way to generate the output. Compared with the best result, it doesn’t spend too much time and the result is still competitive and surprisingly in the scale of million. The quickresult script can achieve NUM <zhfkt> in the metric of Robustness. 
+The quickresult script is a quick way to generate the output. Compared with the best result, it doesn’t spend too much time and the result is still competitive and surprisingly in the scale of million. The quickresult script can achieve 1.0287 in the metric of Robustness. 
 
-The bestresult script is to get the score of NUM <zhfkt> in the best performance in terms of Robustness. However, it will take much longer time to finish in serveral hours.
+The bestresult script will get the score of 0.9932 in the best performance in terms of Robustness. However, it will take much longer time to finish in serveral hours.
 
 If users want to experience the quick/best result of the raised algorithm for DataCastle Competition, they can follow the steps:
 
