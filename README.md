@@ -327,6 +327,24 @@ tail -f "serID".log
 
 I will describe detailed algorithm in the experiment paper soon.
 
+### BestResult/QuickResult Benchmark of DataCastle Competition 
+
+
+| quickResult  |  model1               |  model2               |  model3              |  model4               |  real1                 |  real2                 |  real3                |  real4                 |  total              | 
+|--------------|-----------------------|-----------------------|----------------------|-----------------------|------------------------|------------------------|-----------------------|------------------------|---------------------| 
+| score        |  0.2100  |  0.1744  |  0.3488  |  0.1174  |  0.0315  |  0.0069  |  0.0978  |  0.0417  |  1.0287 | 
+| time         |  150s                 |  128s                 |  215s                |  100s                 |  165s                  |  103s                  |  162s                 |  135s                  |  215s               | 
+
+
+| bestResult  |  model1               |  model2               |  model3               |  model4               |  real1                |  real2                  |  real3               |  real4                 |  total              | 
+|-------------|-----------------------|-----------------------|-----------------------|-----------------------|-----------------------|-------------------------|----------------------|------------------------|---------------------| 
+| score       |  0.2060  |  0.1699  |  0.3439  |  0.1107  |  0.0306  |  0.0026  |  0.0935  |  0.0357  |  0.9932 | 
+| time        |  14583s               |  10010s               |  22442s               |  5966s                |  30485s               |  6983s                  |  28867s              |  10434s                |  30485s             | 
+
+The time doesn't cover IO read/write from/to disk and 8 datasets are all running in parallel on the 4-core cpu machine (Intel Xeon E5-2667v4 Broadwell 3.2 GHz) with linux.
+
+
+
 ## Folder/Files
 
 * ComplexCi: 
