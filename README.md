@@ -286,7 +286,7 @@ Those tasks could be formalized as a generic challenge that is identifying vital
 
 ### How to get Quick/Best Result
 
-Here I write 2 scripts both on the windows and linux platform to help users to get the quick and best results based on the ComplexCi. 
+Here I write 2 scripts both on the windows and linux platform to help users to get the quick and best results based on the ComplexCi for DataCastle Competition. 
 
 The quickresult script is a quick way to generate the output. Compared with the best result, it doesn’t spend too much time and the result is still competitive and surprisingly in the scale of million. The quickresult script can achieve NUM <zhfkt> in the metric of Robustness. 
 
@@ -294,7 +294,7 @@ The bestresult script is to get the score of NUM <zhfkt> in the best performance
 
 If users want to experience the quick/best result of the raised algorithm for DataCastle Competition, they can follow the steps:
 
-* Download zip files networks.zip containing 8 datasets from https://github.com/zhfkt/ComplexCi/releases/download/v0.1/networks.zip and extract it under data/networks/ . That’s say, the path of 8 dataset files will be
+* Download zip files networks.zip containing 8 datasets from https://github.com/zhfkt/ComplexCi/releases/download/v0.1/networks.zip and extract it under data/ . That’s say, the path of 8 dataset files will be
 
 
 ```
@@ -327,7 +327,7 @@ tail -f "serID".log
 
 I will describe detailed algorithm in the experiment paper soon.
 
-### BestResult/QuickResult Benchmark of DataCastle Competition 
+### Quick/Best Result Benchmark
 
 
 | quickResult  |  model1               |  model2               |  model3              |  model4               |  real1                 |  real2                 |  real3                |  real4                 |  total              | 
