@@ -294,8 +294,9 @@ The bestresult script is to get the score of NUM <zhfkt> in the best performance
 
 If users want to experience the quick/best result of the raised algorithm for DataCastle Competition, they can follow the steps:
 
-* Download zip files networks.zip containing 8 datasets from https://github.com/zhfkt/ComplexCi/releases/download/v0.1/networks.zip and extract it under data/ . That’s say, the path of 8 dataset files will be
+* Compile the ComplexCi code according to the above instruction on windows/linux or just use the current binary file under windows in the Release zip
 
+* Download zip files networks.zip containing 8 datasets from https://github.com/zhfkt/ComplexCi/releases/download/v0.1/networks.zip and extract it under data/ in the project ComplexCi. That’s say, the path of 8 dataset files will be
 
 ```
 data/networks/model1.csv
@@ -308,9 +309,6 @@ data/networks/real3.csv
 data/networks/real4.csv
 ```
 
-
-
-* Compile the code according to the above instruction on windows/linux or just use the current binary file under windows in the Release zip
 * quickResult script: For the linux, users can execute the quickResult.sh under bin/ folder to get a quick result and wait until finish. The task will be completed in about 5 minutes in serveral million-scale networks on the 4-core machine. For the windows, users can execute the quickResult.cmd under x64/release/ folder and the cmd will pop up 8 separate consoles. Until these consoles all complete the algorithm, users are able to use the mergeResult.cmd to merge the 8 files into one result file.
 * bestResult script: For the linux, users are also able to execute the bestResult.sh under bin/ folder to get the best result but it will take nearly 8 hours to complete the whole algorithm for all datasets. For the windows, users can execute bestResult.cmd to get a best result, but which will take longer time than linux version because it is not implemented in parallel for 8 datasets.
 * Output results will be in a folder under data/networks/results/ for both windows and linux
