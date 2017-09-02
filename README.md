@@ -199,8 +199,8 @@ If users want to control the more flexible behaviour in the Collective Influence
    
 I believe users can just use the method without *Experimental* tag for their daily use because these methods with *Experimental* tag do not take effect obviously for most Complex Network datasets. There is no need for users to get the knowledge of these method in most cases. Pls ignore them. See in the DataCastle Comptition Section.
 
-6. “biggestComponentEndThreshold” complex network collapses to the certain giant component ratio where the reinsert algorithm starts for cpp ci . Traditional ci will be fixed to 0.01 . If the method 0, 2, 4 are used, <biggestComponentEndThreshold> will not be used without Reinsertion
-7. “isPrintMinPointCausingMinComponent” whether output limited point leading to 0(new cpp ci)/0.01(traditional ci) of giant component ratio or all points. If it is set to 0, the program will output all nodes. Otherwise the program will output partial nodes. This input parameter contains the same meaning with the <isPrintMinPointCausingMinComponent> in the script traditionalCollectiveInfluence, cppCollectiveInfluence and newReinsertCollectiveInfluence.
+6. “biggestComponentEndThreshold” complex network collapses to the certain giant component ratio where the reinsert algorithm starts in the new c++ CI algorithm. If the traditional CI of "method" 1  is used, "biggestComponentEndThreshold" will be fixed to 0.01. If the "method" 0, 2, 4 are used, "biggestComponentEndThreshold" will not be used and CI algorithm will be done without reinsertion. 
+7. “isPrintMinPointCausingMinComponent” whether output limited point leading to 0(new cpp ci)/0.01(traditional ci) of giant component ratio or all points. If it is set to 0, the program will output all nodes. Otherwise the program will output partial nodes. This input parameter contains the same meaning with the "isPrintMinPointCausingMinComponent" in the script traditionalCollectiveInfluence, cppCollectiveInfluence and newReinsertCollectiveInfluence.
 
 ####  Output file
 
