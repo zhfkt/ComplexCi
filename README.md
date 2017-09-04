@@ -309,7 +309,9 @@ data/networks/real3.csv
 data/networks/real4.csv
 ```
 
-* quickResult script: For the linux, users can execute 
+* quickResult script: 
+
+For the linux, users can execute 
 
 ```bash
 ./quickResult.sh
@@ -329,7 +331,9 @@ mergeResult.cmd
 ```
 to merge the 8 files into one result file.
 
-* bestResult script: For the linux, users are also able to execute 
+* bestResult script: 
+
+For the linux, users are also able to execute 
 
 ```bash
 ./bestResult.sh 
