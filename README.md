@@ -309,8 +309,42 @@ data/networks/real3.csv
 data/networks/real4.csv
 ```
 
-* quickResult script: For the linux, users can execute the quickResult.sh under bin/ folder to get a quick result and wait until finish. The task will be completed in about 5 minutes in serveral million-scale networks on the 4-core machine. For the windows, users can execute the quickResult.cmd under x64/release/ folder and the cmd will pop up 8 separate consoles. Until these consoles all complete the algorithm, users are able to use the mergeResult.cmd to merge the 8 files into one result file.
-* bestResult script: For the linux, users are also able to execute the bestResult.sh under bin/ folder to get the best result but it will take nearly 8 hours to complete the whole algorithm for all datasets. For the windows, users can execute bestResult.cmd to get a best result, but which will take longer time than linux version because it is not implemented in parallel for 8 datasets.
+* quickResult script: For the linux, users can execute 
+
+```bash
+./quickResult.sh
+```
+
+under bin/ folder to get a quick result and wait until finish. The task will be completed in about 5 minutes in serveral million-scale networks on the 4-core machine.
+
+For the windows, users can execute
+
+```cmd
+quickResult.cmd
+```
+under x64/release/ folder and the cmd will pop up 8 separate consoles. Until these consoles all complete the algorithm, users are able to use 
+
+```cmd
+mergeResult.cmd 
+```
+to merge the 8 files into one result file.
+
+* bestResult script: For the linux, users are also able to execute 
+
+```bash
+./bestResult.sh 
+```
+
+under bin/ folder to get the best result but it will take nearly 8 hours to complete the whole algorithm for all datasets. 
+
+For the windows, users can execute 
+
+```cmd
+bestResult.cmd
+```
+
+ to get a best result, but which will take longer time than linux version because it is not implemented in parallel for 8 datasets.
+
 * Output results will be in a folder under data/networks/results/ for both windows and linux
 
 ### Monitor Quick/Best Result on the linux environment
