@@ -81,13 +81,13 @@ done
 #part6 concurrent method
 #######
 
-./bestResult.sh 2 1 0.01 2
+./bestResult.sh 2 1 0.001 2
 ./calGroovyBenchmark.sh $regressionResult
 
-./bestResult.sh 1 1 0.01 2
+./bestResult.sh 1 1 0.001 2
 ./calGroovyBenchmark.sh $regressionResult
 
-./bestResult.sh 0 1 0.01 2
+./bestResult.sh 0 1 0.001 2
 ./calGroovyBenchmark.sh $regressionResult
 
 #find that only real1/real3 will boost for batch 1
