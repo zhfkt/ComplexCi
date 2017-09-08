@@ -34,9 +34,9 @@ do
 	done
 done	
 
-for j in  0.001 0.0 0.0001 0.01 0.1 
-do
-	./bestResult.sh 0 1 $j
+for j in 0 1 2
+do	
+	./executeAll.sh $j 1 500 10 0.01
 	./calGroovyBenchmark.sh $regressionResult
 done
 
@@ -44,10 +44,6 @@ done
 fi
 
 
-for j in 0 1 2
-do	
-	./executeAll.sh $j 1 500 10 0.01
-	./calGroovyBenchmark.sh $regressionResult
-done
+
 
 date
