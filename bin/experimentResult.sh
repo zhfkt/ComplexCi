@@ -24,26 +24,28 @@ then
 		./calGroovyBenchmark.sh $regressionResult
 
 	done
-	
+
 for j in 0 1 2
-do	
+do
 	for i in 1 9
 	do
 		./executeAll.sh $j 1 500 $i 0.01
 		./calGroovyBenchmark.sh $regressionResult
 	done
-done	
+done
 
 for j in 0 1 2
-do	
+do
 	./executeAll.sh $j 1 500 10 0.01
 	./calGroovyBenchmark.sh $regressionResult
 done
 
-	
+
 fi
 
 
+./bestResult.sh
+./calGroovyBenchmark.sh $regressionResult
 
 
 date
