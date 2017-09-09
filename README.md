@@ -59,7 +59,7 @@ to generate binary bin/ComplexCi . Pls notice that the version of g++ needs to s
 
 * Windows
 
-There has already been a windows binary file x64/Release/ComplexCi.exe compiled on the Windows7 x64 in the repository. It can just be used if users do not need to recompile or change the code. If users want to compile themselves and have the Visual Studio 2013 or higher version, they can directly open the ComplexCi.sln and compile the code in the IDE. The binary file will be generated under x64/Release/ComplexCi.exe .  I believe users can also pick up any other IDE or Compiler supporting C++11 to compile the file ComplexCi/ComplexCi.cpp . Pls note that replace the x64/Release/ComplexCi.exe with your own generate file after compilation.
+There has already been a windows binary file x64/Release/ComplexCi.exe compiled on the Windows7 x64 in the repository. It can just be used if users do not need to recompile or change the code. If users want to compile themselves and have the Visual Studio 2013 or higher version, they can directly open the ComplexCi.sln and compile the code in the IDE. The binary file will be generated under x64/Release/ComplexCi.exe .  I believe users can also pick up any other IDE or Compiler supporting C++11 to compile the file ComplexCi/ComplexCi.cpp . Pls note that users need to replace the x64/Release/ComplexCi.exe with their own generate file after compilation.
 
 
 ###  Run
@@ -290,7 +290,7 @@ Here I write 2 scripts both on the windows and linux platform to help users to g
 
 The quickresult script is a quick way to generate the output. Compared with the best result, it doesn’t spend too much time and the result is still competitive and surprisingly in the scale of million. The quickresult script can achieve 1.0287 in the metric of Robustness. 
 
-The bestresult script will get the score of 0.9932 in the best performance in terms of Robustness. However, it will take much longer time to finish in serveral hours.
+The bestresult script will get the score of 0.9928 in the best performance in terms of Robustness. However, it will take much longer time to finish in serveral hours.
 
 If users want to experience the quick/best result of the raised algorithm for DataCastle Competition, they can follow the steps:
 
@@ -339,7 +339,7 @@ For the linux, users are also able to execute
 ./bestResult.sh 
 ```
 
-under bin/ folder to get the best result but it will take nearly 8 hours to complete the whole algorithm for all datasets. 
+under bin/ folder to get the best result but it will take nearly 3 hours to complete the whole algorithm for all datasets. 
 
 For the windows, users can execute 
 
@@ -374,8 +374,8 @@ I will describe detailed algorithm in the experiment paper soon.
 
 | bestResult  |  model1               |  model2               |  model3               |  model4               |  real1                |  real2                  |  real3               |  real4                 |  total              | 
 |-------------|-----------------------|-----------------------|-----------------------|-----------------------|-----------------------|-------------------------|----------------------|------------------------|---------------------| 
-| score       |  0.2060  |  0.1699  |  0.3439  |  0.1107  |  0.0306  |  0.0026  |  0.0935  |  0.0357  |  0.9932 | 
-| time        |  14583s               |  10010s               |  22442s               |  5966s                |  30485s               |  6983s                  |  28867s              |  10434s                |  30485s             | 
+| score       |  0.2060  |  0.1698  |  0.3438  |  0.1117  |  0.0306  |  0.0023  |  0.0939  |  0.0356  |  0.9928 | 
+| time        |  6057s               |  5114s               |  10145s               |  3278s                |  9621s               |  4013s                  |  4812s              |  5008s                |  10145s             | 
 
 The time doesn't cover IO read/write from/to disk and 8 datasets are all running in parallel on the 4-core cpu machine (Intel Xeon E5-2667v4 Broadwell 3.2 GHz) with linux.
 
