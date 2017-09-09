@@ -418,5 +418,5 @@ If you have any question on this project, welcome to file the issue on the githu
 
 ## DOI
 
-[![DOI](https://zenodo.org/badge/94962459.svg)](https://zenodo.org/badge/latestdoi/94962459)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.887989.svg)](https://doi.org/10.5281/zenodo.887989)
 
