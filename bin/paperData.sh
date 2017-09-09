@@ -10,14 +10,14 @@ echo $regressionResult
 for j in 0 1 2
 do
 	for i in 0 2
-	do	
+	do
 		./executeAll.sh $j 1 500 $i -1
 		./calGroovyBenchmark.sh $regressionResult
 	done
 done
 
 for j in 0 1 2
-do	
+do
 	for i in 1 9 10
 	do
 		./executeAll.sh $j 1 500 $i 0.01
@@ -45,7 +45,7 @@ done
 #part2 reinsert start
 #######
 
-for j in 0.0 0.0001 0.001 0.01 0.1 
+for j in 0.0 0.0001 0.001 0.01 0.1
 do
 	./bestResult.sh 2 1 $j 2
 	./calGroovyBenchmark.sh $regressionResult
@@ -53,7 +53,7 @@ done
 
 
 #######
-#part3 batch strategy 
+#part3 batch strategy
 #######
 
 for j in 100 200 300 400 500 1000
@@ -63,7 +63,7 @@ do
 done
 
 #######
-#part4 best strategy 
+#part4 best strategy
 #######
 
 ./bestResult.sh
@@ -71,10 +71,13 @@ done
 
 
 #######
-#part5 best strategy without ballRadius / degenerate to HDA
+#part5 best strategy without ballRadius (degenerate to HDA) and enhanced ballRadius
 #######
 
 ./bestResult.sh 2 200 0.001 0
+./calGroovyBenchmark.sh $regressionResult
+
+./bestResult.sh 2 200 0.001 3
 ./calGroovyBenchmark.sh $regressionResult
 
 #######
@@ -103,7 +106,7 @@ done
 
 
 #######
-#part7 quick strategy 
+#part7 quick strategy
 #######
 
 ./quickResult.sh
