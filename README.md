@@ -355,7 +355,9 @@ bestResult.cmd
 
 Due to the reason that Quick/Best Result script run in background on the linux environment, users can monitor the background job by the command in the bin folder:
 
+```bash
 tail -f "serID".log
+```
 
 "serID" will be shown on the script running screen
 
