@@ -363,7 +363,7 @@ tail -f "serID".log
 
 ### Detailed algorithm for the Quick/Best script
 
-I will describe detailed algorithm in the experiment paper soon.
+The details are described in the solution paper. https://github.com/zhfkt/ComplexCi/releases/download/v0.11/Fengkuangtian.Zhu.-.teamID.zhfkt.-.Reconstructing.collapsed.complex.network.to.find.most.influential.nodes.pdf
 
 ### Quick/Best Result Benchmark
 
