@@ -365,6 +365,9 @@ tail -f "serID".log
 
 The details are described in the solution paper. https://github.com/zhfkt/ComplexCi/releases/download/v0.11/Fengkuangtian.Zhu.-.teamID.zhfkt.-.Reconstructing.collapsed.complex.network.to.find.most.influential.nodes.pdf
 
+PPT in CCCN2017 (www.cccn2017.top:2017).
+https://github.com/zhfkt/ComplexCi/blob/master/Fengkuangtian%20Zhu%20-%20teamID%20zhfkt%20-%20presentation.pptx
+
 ### Quick/Best Result Benchmark
 
 
