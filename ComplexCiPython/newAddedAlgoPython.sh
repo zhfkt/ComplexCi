@@ -11,7 +11,7 @@ else
     exit;
 fi
 
-serID="nbcen_"$(date "+%y_%m_%d_%H_%M_%S")_"$methodCentrality"
+serID="nbcen_"$(date "+%y_%m_%d_%H_%M_%S")"_method_${methodCentrality}"
 
 
 
@@ -21,27 +21,24 @@ exec > ${SCRIPTPATH}/${serID}.log
 
 date
 
-#csvFiles=../data/networks/*.csv
-#pythonOut=../data/networks/pythonResults/
-
-mkdir -p $pythonOut
+resultFolder=$pythonOut/$serID/
+mkdir -p  $resultFolder
 
 for i in `ls ${csvFilesFolder}/*.csv`
 do
    echo $i
    date
-		#disable output buffer
-        python3 nbcen.py $methodCentrality $i $pythonOut
+        python3 nbcen.py $methodCentrality $i $resultFolder
    date
 done
 
 wait
 
-resultFolder=$pythonOut/$serID/
-
-mkdir -p  $resultFolder
-mv ${pythonOut}/*.csv_out  $resultFolder
 
 ${SCRIPTPATH}/../bin/mergeResult.sh ${resultFolder}
+
+cd ${SCRIPTPATH}/../Master_algorithm/
+
+groovy -cp "target/algorithm-1.0-SNAPSHOT.jar:`readlink -f ~`/.m2/repository/log4j/log4j/1.2.17/log4j-1.2.17.jar" src/main/java/org/dc/algorithm/NetMaster.groovy  ${resultFolder}/${serID}.csv  ../data/networks.zip
 
 date
