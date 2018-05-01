@@ -15,7 +15,7 @@ serID="nbcen_"$(date "+%y_%m_%d_%H_%M_%S")_"$methodCentrality"
 
 
 
-echo "serID: " $serID
+echo "serID: " ${SCRIPTPATH}/${serID}.log
 
 exec > ${SCRIPTPATH}/${serID}.log
 
