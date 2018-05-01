@@ -4,10 +4,10 @@ SCRIPTPATH=`dirname $SCRIPT`
 if (( $# >= 3 ))
 then
 	methodCentrality=$1
-	csvFiles=$2
+	csvFilesFolder=$2
 	pythonOut=$3
 else
-    echo './pythonControl.sh [0] [../data/networks/*.csv] [../data/networks/pythonResults/] '
+    echo './pythonControl.sh [0] [../data/networks/] [../data/networks/pythonResults/] '
     exit;
 fi
 
@@ -26,7 +26,7 @@ date
 
 mkdir -p $pythonOut
 
-for i in `ls $csvFiles`
+for i in `ls ${csvFilesFolder}/*.csv`
 do
    echo $i
    date
