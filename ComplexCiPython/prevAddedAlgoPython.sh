@@ -3,15 +3,15 @@ SCRIPTPATH=`dirname $SCRIPT`
 
 if (( $# >= 3 ))
 then
-	methodCentrality=$1
-	csvFilesFolder=$2
-	pythonOut=$3
+        methodCentrality=$1
+        csvFilesFolder=$2
+        pythonOut=$3
 else
-    echo './newAddedAlgoPython.sh [0] [../data/networks/] [../data/networks/pythonResults/] '
+    echo './prevAddedAlgoPython.sh [0] [../data/networks/] [../data/networks/pythonResults/] '
     exit;
 fi
 
-serID="nbcen_"$(date "+%y_%m_%d_%H_%M_%S")"_method_${methodCentrality}"
+serID="prevAdded_"$(date "+%y_%m_%d_%H_%M_%S")"_method_${methodCentrality}"
 
 
 
@@ -28,7 +28,7 @@ for i in `ls ${csvFilesFolder}/*.csv`
 do
    echo $i
    date
-        python3 ${SCRIPTPATH}/nbcen.py $methodCentrality $i $resultFolder
+		python3 -u ComplexCiPython.py $i $resultFolder -1 10000000 500 $methodCentrality
    date
 done
 
