@@ -28,7 +28,7 @@ for i in `ls ${csvFilesFolder}/*.csv`
 do
    echo $i
    date
-		python3 -u ComplexCiPython.py $i $resultFolder -1 10000000 500 $methodCentrality
+		python3 -u ${SCRIPTPATH}/ComplexCiPython.py $i $resultFolder -1 10000000 500 $methodCentrality
    date
 done
 
