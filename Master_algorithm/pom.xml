@@ -10,6 +10,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mainClass>org.dc.algorithm.NetMaster</mainClass>
+        <mainClass>org.dc.algorithm.NetMaster2</mainClass>
     </properties>
     <dependencies>
 
@@ -41,6 +42,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <mainClass>org.dc.algorithm.NetMaster</mainClass>
+                            <mainClass>org.dc.algorithm.NetMaster2</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

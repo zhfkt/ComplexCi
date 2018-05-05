@@ -15,6 +15,7 @@ else
 fi
 
 serID="Algopython_"$(date "+%y_%m_%d_%H_%M_%S")"_prevOrNew_"${prevOrNew}"_method_${methodCentrality}"
+mkdir -p  $pythonOut/$serID/
 resultFolder=`realpath $pythonOut/$serID/`
 networkZip=`realpath $networkZip`
 
@@ -25,7 +26,6 @@ exec > ${SCRIPTPATH}/${serID}.log
 
 date
 
-mkdir -p  $resultFolder
 
 for i in `ls ${csvFilesFolder}/*.csv`
 do

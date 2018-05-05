@@ -1,4 +1,4 @@
-package org.dc.algorithm
+
 
 import org.apache.log4j.Logger
 import org.dc.Judge
@@ -12,6 +12,17 @@ import java.util.zip.ZipFile
  * 大师赛计算
  */
 class NetMaster implements Judge{
+
+    private String getFileWithOutExtension(File file)
+    {
+        String fileName = file.getName();
+        int pos = fileName.lastIndexOf(".");
+        if (pos > 0 && pos < (fileName.length() - 1)) { // If '.' is not the first or last character.
+                fileName = fileName.substring(0, pos);
+        }
+        return fileName
+
+    }
 
     public static void main(String[] args) {
 
@@ -30,17 +41,12 @@ class NetMaster implements Judge{
     /**
      * 格式检查在另外一个方法里面进行，这里默认就是正确格式
      * @param produceFile
-     * @param judgeFile
+     * @param zipJudgeFile
      * @return
      */
     @Override
-    Result judge(String produceFile, String judgeFile) {
-        //先对network解压,可以缓存一次。。。。/tmp/tomcat-docbase.1483434272471594753.10000/competition_data/testSet/networks.zip
-        File tempFile = new File(judgeFile)
-        if (!new File(tempFile.getParent()+"/networks/model1.csv").isFile()){
-            unZipFiles(tempFile,tempFile.getParent()+"/")
-        }
-        judgeFile = tempFile.getParent()+"/networks/"
+    Result judge(String produceFile, String zipJudgeFile) {
+       
         Result result = new Result();
         result.put(0,0D);
         println("begin compute");
@@ -49,6 +55,21 @@ class NetMaster implements Judge{
             result.setMsg("结果文件不存在");
             return result;
         }
+
+        File tempFile = new File(zipJudgeFile)
+        String zipFileName=getFileWithOutExtension(tempFile);
+        println(zipFileName)
+        String judgeFile = tempFile.getParent()+"/"+zipFileName+"/"
+        println(judgeFile)
+
+        File judgeFileFolder = new File(judgeFile);
+        File[] listFiles = judgeFileFolder.listFiles();
+
+        if (listFiles==null || listFiles.length==0){
+            unZipFiles(tempFile,tempFile.getParent()+"/")
+        }
+
+        /*
         def map = ["model1":1039722,
                    "model2":1083568,
                    "model3":997663,
@@ -57,6 +78,16 @@ class NetMaster implements Judge{
                    "real2":1957027,
                    "real3":426485,
                    "real4":855802]
+        */
+        def map=[:]
+
+        for (File eachFile: listFiles)
+        {
+            String eachFileName=getFileWithOutExtension(eachFile);
+            map[eachFileName] = 0 
+        }
+
+        println(map)
 
         println("检查数据格式");
         def results =rule(produceFile,map)
@@ -133,10 +164,12 @@ class NetMaster implements Judge{
         def msg = new StringBuilder("")
         map.each {
             if (result.containsKey(it.key)){
-                if (it.value!=result.get(it.key).size()){
-                    println("error")
-                    msg.append("${it.key}提交的点数错误,要么提交所有点，要么都不提交\n")
-                }
+                it.value=result.get(it.key).size()
+                println("Node number:" + it.value)
+                //if (it.value!=result.get(it.key).size()){
+                //    println("error")
+                //    msg.append("${it.key}提交的点数错误,要么提交所有点，要么都不提交\n")
+                //}
             }
         }
         if (!msg.toString().equals("")){
