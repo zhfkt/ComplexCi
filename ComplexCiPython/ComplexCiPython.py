@@ -50,7 +50,7 @@ if __name__ == '__main__':
             row0int = int(row[0])
             row1int = int(row[1])
 
-            if row0int in int_vertex: 
+            if row0int in int_vertex:
                 v0 = int_vertex[row0int]
             else:
                 v0 = G.add_vertex()
@@ -75,41 +75,41 @@ if __name__ == '__main__':
 
     #while True:
 
-	algo_start_time = time.time()
-	
-	if methodCentrality == 0:
-		cenMap = graph_tool.centrality.pagerank(G)
-	elif methodCentrality == 1:
-		cenMap = graph_tool.centrality.katz(G)
-	elif methodCentrality == 2:
-		cenMap = graph_tool.centrality.closeness(G)
-	elif methodCentrality == 3:
-		cenMap, ep = graph_tool.centrality.betweenness(G)
-	else:
-		print("methodCentrality %s is not valid" % methodCentrality)
-		input()
-		sys.exit(0);
-	
-	print("--- algo uses %s seconds ---" % (time.time() - algo_start_time))
-	
-	resultPartial = []
-	for item in G.vertices():
-		resultPartial.append((item, cenMap[item]))
+    algo_start_time = time.time()
 
-	resultPartialTop = heapq.nlargest(batchNum, resultPartial, key=lambda x: x[1])
-	#print(resultPartial)
-	resultVertexArray = [nodeIndiceAndValue[0] for nodeIndiceAndValue in resultPartialTop]
+    if methodCentrality == 0:
+            cenMap = graph_tool.centrality.pagerank(G)
+    elif methodCentrality == 1:
+            cenMap = graph_tool.centrality.katz(G)
+    elif methodCentrality == 2:
+            cenMap = graph_tool.centrality.closeness(G)
+    elif methodCentrality == 3:
+            cenMap, ep = graph_tool.centrality.betweenness(G)
+    else:
+            print("methodCentrality %s is not valid" % methodCentrality)
+            input()
+            sys.exit(0);
 
-	print("modelID: %s, Left Edges %s, Left nodes: %s, Total nodes: %s, resultValue: %s, resultVertex: %s" % (modelID,len(list(G.edges())) , G.num_vertices(), totalNode, cenMap[resultVertexArray[0]], vertex_int[resultVertexArray[0]]) )
-	finalResult.extend([vertex_int[eachVertex] for eachVertex in resultVertexArray]);
+    print("--- algo uses %s seconds ---" % (time.time() - algo_start_time))
 
-	#for eachV in resultVertexArray:
-	#	G.clear_vertex(eachV)
+    resultPartial = []
+    for item in G.vertices():
+            resultPartial.append((item, cenMap[item]))
 
-	#G.remove_vertex(resultVertexArray);
+    resultPartialTop = heapq.nlargest(batchNum, resultPartial, key=lambda x: x[1])
+    #print(resultPartial)
+    resultVertexArray = [nodeIndiceAndValue[0] for nodeIndiceAndValue in resultPartialTop]
 
-	#if G.num_vertices()==0:
-	#	break
+    print("modelID: %s, Left Edges %s, Left nodes: %s, Total nodes: %s, resultValue: %s, resultVertex: %s" % (modelID,len(list(G.edges())) , G.num_vertices(), totalNode, cenMap[resultVertexArray[0]], vertex_int[resultVertexArray[0]]) )
+    finalResult.extend([vertex_int[eachVertex] for eachVertex in resultVertexArray]);
+
+    #for eachV in resultVertexArray:
+    #	G.clear_vertex(eachV)
+
+    #G.remove_vertex(resultVertexArray);
+
+    #if G.num_vertices()==0:
+    #	break
 
     with open(outputPath, "w", newline='') as csv_file:
         writer = csv.writer(csv_file, delimiter=',')
