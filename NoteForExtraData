@@ -6,7 +6,7 @@ In ~/ComplexCi/ComplexCiPython:
 
 
 #pagerank betweenness closeness
-for i in 1 2 3; do ./algoPython.sh 0 $i ../data/randomGraph/ ../data/randomGraphPythonResults/ ../data/randomGraph.zip ; done
+for i in 0 2 3; do ./algoPython.sh 0 $i ../data/randomGraph/ ../data/randomGraphPythonResults/ ../data/randomGraph.zip ; done
 
 
 In ~/ComplexCi/bin:
