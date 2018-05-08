@@ -87,7 +87,7 @@ class NetMaster implements Judge{
             map[eachFileName] = 0 
         }
 
-        println(map)
+        //println(map)
 
         println("检查数据格式");
         def results =rule(produceFile,map)

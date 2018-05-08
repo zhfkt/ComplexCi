@@ -9,10 +9,10 @@ if len(sys.argv) < 2:
 
 outputPath = sys.argv[1]
 
-genList=[(100000,3),(100000,5),(1000000,3),(1000000,5)]
+genList=[(100000,2),(100000,3),(1000000,2),(1000000,3)]
 
 
-for i,(node,mean_degree) in enumerate(genList): 
+for i,(node,mean_degree) in enumerate(genList):
 
 	print(i, (node,mean_degree))
 
