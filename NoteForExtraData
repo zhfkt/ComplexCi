@@ -1,0 +1,15 @@
+In ~/ComplexCi/ComplexCiPython: 
+
+
+./algoPython.sh 1 0 ../data/randomGraph/ ../data/randomGraphPythonResults/ ../data/randomGraph.zip ;  # nbcen
+./algoPython.sh 1 1 ../data/randomGraph/ ../data/randomGraphPythonResults/ ../data/randomGraph.zip ;  # eig
+
+
+#pagerank betweenness closeness
+for i in 0 2 3; do ./algoPython.sh 0 $i ../data/randomGraph/ ../data/randomGraphPythonResults/ ../data/randomGraph.zip ; done
+
+
+In ~/ComplexCi/bin:
+
+./regressionTestForExtraDataset.sh # CI related
+
