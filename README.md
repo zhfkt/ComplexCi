@@ -83,7 +83,7 @@ The complete Example is at data/test/karate.csv
 
 Using Script in the project is a quick start to utilize Collective Influence (CI) algorithm. There are 3 scripts users can execute in the project. The project contains both bash scripts for linux and cmd scripts for windows. Bash for linux can be found in the dailyUse\linux and cmd for windows are in the dailyUse\windows
 
-* traditionalCollectiveInfluence (CI_HEAP)
+* traditionalCollectiveInfluence
 
 Users can use this script to utilize traditional c style code of http://www-levich.engr.ccny.cuny.edu/~hernanlab/uploads/CI_HEAP.c . I merge it into this repository and set the compatible interface layer to call the c code in c++ .
 
@@ -105,7 +105,7 @@ e.g.
 ./traditionalCollectiveInfluence.sh /home/network/model1.csv 3 1
 ```
 
-It means users are using the traditionalCollectiveInfluence (CI_HEAP) strategy for the input file model1.csv with parameter ballRadius 3. The output file only contain the partial points, which will make the giant component ratio to 0.01 in the deleting nodes process
+It means users are using the traditionalCollectiveInfluence  strategy for the input file model1.csv with parameter ballRadius 3. The output file only contain the partial points, which will make the giant component ratio to 0.01 in the deleting nodes process
 
 
 * cppCollectiveInfluence
@@ -121,7 +121,7 @@ Script “cppCollectiveInfluence” accepts 4 parameters:
 # "networkPath" is the file path.  The file format is described in the section Network Input File Format
 # "ballRadius" is the Radius parameter defined in the Collective Influence Algorithm. When the ballRadius is zero, pls notice that Collective Influence Algorithm will degenerate into HDA (high degree adaptive) algorithm. a.k.a. CI value of each node will be equal with degree of the node.
 # "updateBatch" batch size of deleting nodes in Network per updating CI values when the Complex Network collapses
-# "isPrintMinPointCausingMinComponent" whether the output file contains limited point leading to 0 of giant component ratio or all points. If it is set to 0, the program will output all nodes. Otherwise the program will output partial points, which will make the giant component ratio to 0 in the deleting nodes process.  i.e. There is no edge but still left point in the network. Pls notice the different behavior compared with traditionalCollectiveInfluence (CI_HEAP)
+# "isPrintMinPointCausingMinComponent" whether the output file contains limited point leading to 0 of giant component ratio or all points. If it is set to 0, the program will output all nodes. Otherwise the program will output partial points, which will make the giant component ratio to 0 in the deleting nodes process.  i.e. There is no edge but still left point in the network. Pls notice the different behavior compared with traditionalCollectiveInfluence 
 
 ```
 
@@ -145,7 +145,7 @@ Script “newReinsertCollectiveInfluence” accepts 4 parameters:
 # "networkPath" is the file path.  The file format is described in the section Network Input File Format
 # "ballRadius" is the Radius parameter defined in the Collective Influence Algorithm. When the ballRadius is zero, pls notice that Collective Influence Algorithm will degenerate into HDA (high degree adaptive) algorithm. a.k.a. CI value of each node will be equal with degree of the node.
 # "updateBatch" batch size of deleting nodes in Network per updating CI values when the Complex Network collapses
-# "isPrintMinPointCausingMinComponent" whether the output file contains limited point leading to 0 of giant component ratio or all points. If it is set to 0, the program will output all nodes. Otherwise the program will output partial points, which will make the giant component ratio to 0 in the deleting nodes process.  i.e. There is no edge but still left point in the network. Pls notice the different behavior compared with traditionalCollectiveInfluence (CI_HEAP)
+# "isPrintMinPointCausingMinComponent" whether the output file contains limited point leading to 0 of giant component ratio or all points. If it is set to 0, the program will output all nodes. Otherwise the program will output partial points, which will make the giant component ratio to 0 in the deleting nodes process.  i.e. There is no edge but still left point in the network. Pls notice the different behavior compared with traditionalCollectiveInfluence 
 
 ```
 
@@ -173,7 +173,7 @@ From the above instance, the nodes of networks model1 will be removed following 
 
 ##  Benchmark
 
-In order to demonstrate the performance of 3 main algorithms mentioned in the scripts traditionalCollectiveInfluence (CI_HEAP), cppCollectiveInfluence and newReinsertCollectiveInfluence (CI_DR) , I provide 8 test datasets downloaded from DataCastle Competition at https://github.com/zhfkt/ComplexCi/releases/download/v0.1/networks.zip . Here the metric of Robustness is another measure to quantify the performance of ranking methods introduced by the paper
+In order to demonstrate the performance of 3 main algorithms mentioned in the scripts traditionalCollectiveInfluence , cppCollectiveInfluence and newReinsertCollectiveInfluence (CI_DR) , I provide 8 test datasets downloaded from DataCastle Competition at https://github.com/zhfkt/ComplexCi/releases/download/v0.1/networks.zip . Here the metric of Robustness is another measure to quantify the performance of ranking methods introduced by the paper
 	
 > Schneider C M, Moreira A A, Andrade J S, et al. Mitigation of malicious attacks on networks[J]. Proceedings of the National Academy of Sciences, 2011, 108(10): 3838-3841. 
 
@@ -181,7 +181,7 @@ The smaller value is, the better the algorithm is.
 
 
 
-| traditionalCollectiveInfluence (CI_HEAP)  |  model1               |  model2               |  model3               |  model4               |  real1                 |  real2                |  real3                |  real4                |  total              | 
+| traditionalCollectiveInfluence   |  model1               |  model2               |  model3               |  model4               |  real1                 |  real2                |  real3                |  real4                |  total              | 
 |---------------------------------|-----------------------|-----------------------|-----------------------|-----------------------|------------------------|-----------------------|-----------------------|-----------------------|---------------------| 
 |    ballRadius 0                 |                       |                       |                       |                       |                        |                       |                       |                       |                     | 
 | Robustness score                           |  0.2121    |  0.1770  |  0.3484    |  0.1285  |  0.0450  |  0.0902  |  0.1022  |  0.0755  |  1.1793 | 
@@ -224,7 +224,7 @@ The smaller value is, the better the algorithm is.
 
 The time doesn't cover IO read/write from/to disk and 8 datasets are all running in parallel on the 4-core cpu machine (Intel Xeon E5-2667v4 Broadwell 3.2 GHz) with linux.
 
-From the benchmark ,we can see that the result of traditional c implementation traditionalCollectiveInfluence (CI_HEAP) and new c++ cppCollectiveInfluence can both achieve nearly the same result in the metric of Robustness, even the new c++ implementation is more efficient and spends much less time on some datasets than the traditional c program. Data structure of disjoint-set is used in the reinsertion in the new c++ implementation ComplexCi and it can boost a lot. The traditionalCollectiveInfluence (CI_HEAP) didn’t use this data structure and I think that’s the reason why the traditional c program was slow.
+From the benchmark ,we can see that the result of traditional c implementation traditionalCollectiveInfluence  and new c++ cppCollectiveInfluence can both achieve nearly the same result in the metric of Robustness, even the new c++ implementation is more efficient and spends much less time on some datasets than the traditional c program. Data structure of disjoint-set is used in the reinsertion in the new c++ implementation ComplexCi and it can boost a lot. The traditionalCollectiveInfluence  didn’t use this data structure and I think that’s the reason why the traditional c program was slow.
 
 We can also see that newReinsertCollectiveInfluence (CI_DR) can achieve better Robustness Value result. It can be proved that the newReinsertCollectiveInfluence (CI_DR)  performs well even the ballRadius is set to 0 in the simple HDA (high degree adaptive) algorithm without using Collective Influence algorithm.
 
