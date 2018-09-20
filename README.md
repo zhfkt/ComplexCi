@@ -71,8 +71,9 @@ The data of network can be written in one txt/csv files and the network is consi
 ```
 0,1
 1,2
-1,0
-2,1
+2,3
+3,4
+3,5
 ...
 ```
 
@@ -82,7 +83,7 @@ The complete Example is at data/test/karate.csv
 
 Using Script in the project is a quick start to utilize Collective Influence (CI) algorithm. There are 3 scripts users can execute in the project. The project contains both bash scripts for linux and cmd scripts for windows. Bash for linux can be found in the dailyUse\linux and cmd for windows are in the dailyUse\windows
 
-* traditionalCollectiveInfluence
+* traditionalCollectiveInfluence (CI_HEAP)
 
 Users can use this script to utilize traditional c style code of http://www-levich.engr.ccny.cuny.edu/~hernanlab/uploads/CI_HEAP.c . I merge it into this repository and set the compatible interface layer to call the c code in c++ .
 
@@ -104,7 +105,7 @@ e.g.
 ./traditionalCollectiveInfluence.sh /home/network/model1.csv 3 1
 ```
 
-It means users are using the traditionalCollectiveInfluence strategy for the input file model1.csv with parameter ballRadius 3. The output file only contain the partial points, which will make the giant component ratio to 0.01 in the deleting nodes process
+It means users are using the traditionalCollectiveInfluence (CI_HEAP) strategy for the input file model1.csv with parameter ballRadius 3. The output file only contain the partial points, which will make the giant component ratio to 0.01 in the deleting nodes process
 
 
 * cppCollectiveInfluence
@@ -120,7 +121,7 @@ Script “cppCollectiveInfluence” accepts 4 parameters:
 # "networkPath" is the file path.  The file format is described in the section Network Input File Format
 # "ballRadius" is the Radius parameter defined in the Collective Influence Algorithm. When the ballRadius is zero, pls notice that Collective Influence Algorithm will degenerate into HDA (high degree adaptive) algorithm. a.k.a. CI value of each node will be equal with degree of the node.
 # "updateBatch" batch size of deleting nodes in Network per updating CI values when the Complex Network collapses
-# "isPrintMinPointCausingMinComponent" whether the output file contains limited point leading to 0 of giant component ratio or all points. If it is set to 0, the program will output all nodes. Otherwise the program will output partial points, which will make the giant component ratio to 0 in the deleting nodes process.  i.e. There is no edge but still left point in the network. Pls notice the different behavior compared with traditionalCollectiveInfluence
+# "isPrintMinPointCausingMinComponent" whether the output file contains limited point leading to 0 of giant component ratio or all points. If it is set to 0, the program will output all nodes. Otherwise the program will output partial points, which will make the giant component ratio to 0 in the deleting nodes process.  i.e. There is no edge but still left point in the network. Pls notice the different behavior compared with traditionalCollectiveInfluence (CI_HEAP)
 
 ```
 
@@ -132,9 +133,9 @@ e.g.
 
 It means users are using the cppCollectiveInfluence strategy for the input file model1.csv with parameter ballRadius 2. The output file contain all nodes and 500 nodes will be deleted in a batch per updating CI values when the Complex Network collapses.
 
-* newReinsertCollectiveInfluence
+* newReinsertCollectiveInfluence (CI_DR)
 
-This script involves the new re-insert algorithm of collective influence. After verified on the 8 datasets, this new algorithm can achieve better performance in the metric of Robustness than original re-insert algorithm in collective influence. See in the benchmark sections.
+This script involves the new re-insert algorithm of collective influence (CI_DR). After verified on the 8 datasets, this new algorithm can achieve better performance in the metric of Robustness than original re-insert algorithm in collective influence. See in the benchmark sections.
 
 Script “newReinsertCollectiveInfluence” accepts 4 parameters:
 
@@ -144,7 +145,7 @@ Script “newReinsertCollectiveInfluence” accepts 4 parameters:
 # "networkPath" is the file path.  The file format is described in the section Network Input File Format
 # "ballRadius" is the Radius parameter defined in the Collective Influence Algorithm. When the ballRadius is zero, pls notice that Collective Influence Algorithm will degenerate into HDA (high degree adaptive) algorithm. a.k.a. CI value of each node will be equal with degree of the node.
 # "updateBatch" batch size of deleting nodes in Network per updating CI values when the Complex Network collapses
-# "isPrintMinPointCausingMinComponent" whether the output file contains limited point leading to 0 of giant component ratio or all points. If it is set to 0, the program will output all nodes. Otherwise the program will output partial points, which will make the giant component ratio to 0 in the deleting nodes process.  i.e. There is no edge but still left point in the network. Pls notice the different behavior compared with traditionalCollectiveInfluence
+# "isPrintMinPointCausingMinComponent" whether the output file contains limited point leading to 0 of giant component ratio or all points. If it is set to 0, the program will output all nodes. Otherwise the program will output partial points, which will make the giant component ratio to 0 in the deleting nodes process.  i.e. There is no edge but still left point in the network. Pls notice the different behavior compared with traditionalCollectiveInfluence (CI_HEAP)
 
 ```
 
@@ -154,53 +155,8 @@ e.g.
 ./newReinsertCollectiveInfluence.sh /home/network/model1.csv 2 500 0
 ```
 
-It means users are using the newReinsertCollectiveInfluence strategy for the input file model1.csv with parameter ballRadius 2. The output file contain all nodes and 500 nodes will be deleted in a batch per updating CI values when the Complex Network collapses.
+It means users are using the newReinsertCollectiveInfluence (CI_DR) strategy for the input file model1.csv with parameter ballRadius 2. The output file contain all nodes and 500 nodes will be deleted in a batch per updating CI values when the Complex Network collapses.
 
-####  Directly use with Binary ComplexCi
-
-If users want to control the more flexible behaviour in the Collective Influence algorithm, binary program ComplexCi is able to achieve the goal. The binary program will be in the bin/ComplexCi on the linux platform and x64/Release/ComplexCi.exe on the windows platform through correct compilation.
-
-```bash
-./ComplexCi [path] [ballRadius] [updateBatch] [outputNumBatch] [method] [biggestComponentEndThreshold] [isPrintMinPointCausingMinComponent]
-```
-
-1. "path" is the file path. The file format is described in the section Network Input File Format
-2. "ballRadius" is the Radius parameter defined in the Collective Influence Algorithm. When the ballRadius is zero, pls notice that Collective Influence Algorithm will degenerate into HDA (high degree adaptive) algorithm. a.k.a. CI value of each node will be equal with degree of the node.
-3. "updateBatch" batch size of deleted points per updating Collective Influence value (traditional ci will be fixed to 1). Users can determine the batch size of deleting nodes in ComplexCi per updating CI values when the Complex Network collapses
-4. "outputNumBatch" output number of point each line in the final result file
-5. "method" method of several algorithms in collective influence. Here users can input the integer represented as method
-   1. 0 means the new c++ implementation of Collective Influence (CI) algorithm __without__ re-insert process at the end
-   2. 1 means the traditional c style implementation (http://www-levich.engr.ccny.cuny.edu/~hernanlab/uploads/CI_HEAP.c) of Collective Influence (CI) algorithm __with original__ re-insert process at the end. This method is also called by the script __traditionalCollectiveInfluence__ mentioned above
-   3. 2 means the traditional c style implementation (http://www-levich.engr.ccny.cuny.edu/~hernanlab/uploads/CI_HEAP.c) of Collective Influence (CI) algorithm __without__ re-insert process at the end
-   4. 3  is not used here.
-   5. (*Experimental*) 4 means c++ __concurrent__ implementation of Collective Influence (CI) algorithm __without__ re-insert process at the end (method 1). However , the algorithm is not mature and even sometimes it will be slower than single thread for the small dataset. Because forking thread is an expensive operation on the operation system level and there is no internal thread pool in c++.
-   6. 5 means the new c++ implementation of Collective Influence (CI) algorithm __with original__ re-insert process at the end using __more strict__ internal parameters. In detail , there are 2 internal parameters changed here.
-     * computeComponentInterval: It means the Interval to calculate Giant Component when Complex Network Collapses. The original is 1 Percent of the size of complete network. For the more strict parameter ,  the value is re-scaled to 200 if the original is larger than 200.
-     * reinsertEachStep: It means the batch size of nodes reinserted into the network per updating the graph. The original is 1 Per mille of the size of complete network. For the more strict parameter ,  the value is re-scaled to 20 if the original is larger than 20.
-   7. (*Experimental*) 6 means c++ __concurrent__ implementation of Collective Influence (CI) algorithm __with original__ re-insert process at the end in __more strict__ internal parameters (method 5). However , the algorithm is not mature and even sometimes it will be slower than single thread for the small dataset. Because forking thread is an expensive operation on the operation system level and there is no internal thread pool in c++.
-   8. 7 means the new c++ implementation of Collective Influence (CI) algorithm __with new__ re-insert process at the end using __more strict__ internal parameters. In detail , there are 2 internal parameters changed here.
-     * computeComponentInterval: It means the Interval to calculate Giant Component when Complex Network Collapses. The original is 1 Percent of the size of complete network. For the more strict parameter ,  the value is re-scaled to 200 if the original is larger than 200.
-     * reinsertEachStep: It means the batch size of nodes reinserted into the network per updating the graph. The original is 1 Per mille of the size of complete network. For the more strict parameter ,  the value is re-scaled to 20 if the original is larger than 20.
-   9. (*Experimental*) 8 means c++ __concurrent__ implementation of Collective Influence (CI) algorithm __with new__ re-insert process at the end in __more strict__ internal parameters (method 7). However , the algorithm is not mature and even sometimes it will be slower than single thread for the small dataset. Because forking thread is an expensive operation on the operation system level and there is no internal thread pool in c++.
-   10. 9 means the new c++ implementation of Collective Influence (CI) algorithm __with original__ re-insert process at the end using __the same__ internal parameters. This method is also called by the script __cppCollectiveInfluence__ mentioned above.  In detail , there are 2 same internal parameters here.
-     * computeComponentInterval: It means the Interval to calculate Giant Component when Complex Network Collapses. The original is 1 Percent of the size of complete network. 
-     * reinsertEachStep: It means the batch size of nodes reinserted into the network per updating the graph. The original is 1 Per mille of the size of complete network. 
-   11. 10 means the new c++ implementation of Collective Influence (CI) algorithm __with new__ re-insert process at the end using __the same__ internal parameters. This method is also called by the script __newReinsertCollectiveInfluence__ mentioned above.  In detail , there are 2 same internal parameters here.
-     * computeComponentInterval: It means the Interval to calculate Giant Component when Complex Network Collapses. The original is 1 Percent of the size of complete network. 
-     * reinsertEachStep: It means the batch size of nodes reinserted into the network per updating the graph. The original is 1 Per mille of the size of complete network. 
-   12. (*Experimental*) 11 is based on method 6 . Another enhanced re-insert algorithm is applied on it ,which will choose rank __behind__ in the sequence of node importance with high priority. Method 6 will just ignore the rank information. This method is also the __concurrent__ implementation of the method 15.
-   13. (*Experimental*) 12 is based on method 8 . Another enhanced re-insert algorithm is applied on it ,which will choose rank __behind__ in the sequence of node importance with high priority. Method 8 will just ignore the rank information. This method is also the __concurrent__ implementation of the method 16.
-   14. (*Experimental*) 13 is based on method 8. Reinsert algorithm will use the __multiply__ kernel when combining giant component information . This method is also the __concurrent__ implementation of the method 17.
-   15. (*Experimental*) 14 is based on method 13. Reinsert algorithm will choose rank __behind__ in the sequence of node importance with high priority combined with __multiply__ kernel. This method is also the __concurrent__ implementation of the method 18.
-   16. (*Experimental*) 15 is based on method 6 . Another enhanced re-insert algorithm is applied on it ,which will choose rank __behind__ in the sequence of node importance with high priority. Method 6 will just ignore the rank information. This method is also the __single__ thread implementation of the method 11.
-   17. (*Experimental*) 16 is based on method 8 . Another enhanced re-insert algorithm is applied on it ,which will choose rank __behind__ in the sequence of node importance with high priority. Method 8 will just ignore the rank information. This method is also the __single__ thread implementation of the method 12.
-   18. (*Experimental*) 17 is based on method 8. Reinsert algorithm will use the __multiply__ kernel when combining giant component information . This method is also the __single__ implementation of the method 13.
-   19. (*Experimental*) 18 is based on method 17. Reinsert algorithm will choose rank __behind__ in the sequence of node importance with high priority combined with __multiply__ kernel. This method is also the __single__ thread implementation of the method 14.
-   
-I believe users can just use the method without *Experimental* tag for their daily use because these methods with *Experimental* tag do not take effect obviously for most Complex Network datasets. There is no need for users to get the knowledge of these method in most cases. Pls ignore them. See in the DataCastle Comptition Section.
-
-6. “biggestComponentEndThreshold” complex network collapses to the certain giant component ratio where the reinsert algorithm starts in the new c++ CI algorithm. If the traditional CI of "method" 1  is used, "biggestComponentEndThreshold" will be fixed to 0.01. If the "method" 0, 2, 4 are used, "biggestComponentEndThreshold" will not be used and CI algorithm will be done without reinsertion. 
-7. “isPrintMinPointCausingMinComponent” whether output limited point leading to 0(new cpp ci)/0.01(traditional ci) of giant component ratio or all points. If it is set to 0, the program will output all nodes. Otherwise the program will output partial nodes. This input parameter contains the same meaning with the "isPrintMinPointCausingMinComponent" in the script traditionalCollectiveInfluence, cppCollectiveInfluence and newReinsertCollectiveInfluence.
 
 ####  Output file
 
@@ -217,7 +173,7 @@ From the above instance, the nodes of networks model1 will be removed following 
 
 ##  Benchmark
 
-In order to demonstrate the performance of 3 main algorithms mentioned in the scripts traditionalCollectiveInfluence, cppCollectiveInfluence and newReinsertCollectiveInfluence, I provide 8 test datasets downloaded from DataCastle Competition at https://github.com/zhfkt/ComplexCi/releases/download/v0.1/networks.zip . Here the metric of Robustness is another measure to quantify the performance of ranking methods introduced by the paper
+In order to demonstrate the performance of 3 main algorithms mentioned in the scripts traditionalCollectiveInfluence (CI_HEAP), cppCollectiveInfluence and newReinsertCollectiveInfluence (CI_DR) , I provide 8 test datasets downloaded from DataCastle Competition at https://github.com/zhfkt/ComplexCi/releases/download/v0.1/networks.zip . Here the metric of Robustness is another measure to quantify the performance of ranking methods introduced by the paper
 	
 > Schneider C M, Moreira A A, Andrade J S, et al. Mitigation of malicious attacks on networks[J]. Proceedings of the National Academy of Sciences, 2011, 108(10): 3838-3841. 
 
@@ -225,7 +181,7 @@ The smaller value is, the better the algorithm is.
 
 
 
-| traditionalCollectiveInfluence  |  model1               |  model2               |  model3               |  model4               |  real1                 |  real2                |  real3                |  real4                |  total              | 
+| traditionalCollectiveInfluence (CI_HEAP)  |  model1               |  model2               |  model3               |  model4               |  real1                 |  real2                |  real3                |  real4                |  total              | 
 |---------------------------------|-----------------------|-----------------------|-----------------------|-----------------------|------------------------|-----------------------|-----------------------|-----------------------|---------------------| 
 |    ballRadius 0                 |                       |                       |                       |                       |                        |                       |                       |                       |                     | 
 | Robustness score                           |  0.2121    |  0.1770  |  0.3484    |  0.1285  |  0.0450  |  0.0902  |  0.1022  |  0.0755  |  1.1793 | 
@@ -253,7 +209,7 @@ The smaller value is, the better the algorithm is.
 
 
 
-| newReinsertCollectiveInfluence   |  model1               |  model2               |  model3               |  model4               |  real1                 |  real2                |  real3                |  real4                |  total              | 
+| newReinsertCollectiveInfluence (CI_DR)   |  model1               |  model2               |  model3               |  model4               |  real1                 |  real2                |  real3                |  real4                |  total              | 
 |-------------------|-----------------------|-----------------------|-----------------------|-----------------------|------------------------|------------------------|-----------------------|------------------------|---------------------| 
 | ballRadius 0      |                       |                       |                       |                       |                        |                        |                       |                        |                     | 
 | Robustness score  |  0.2100  |  0.1744  |  0.3603  |  0.1174  |  0.0315  |  0.0069  |  0.0978  |  0.0417  |  1.0402  | 
@@ -268,9 +224,9 @@ The smaller value is, the better the algorithm is.
 
 The time doesn't cover IO read/write from/to disk and 8 datasets are all running in parallel on the 4-core cpu machine (Intel Xeon E5-2667v4 Broadwell 3.2 GHz) with linux.
 
-From the benchmark ,we can see that the result of traditional c implementation traditionalCollectiveInfluence and new c++ cppCollectiveInfluence can both achieve nearly the same result in the metric of Robustness, even the new c++ implementation is more efficient and spends much less time on some datasets than the traditional c program. Data structure of disjoint-set is used in the reinsertion in the new c++ implementation ComplexCi and it can boost a lot. The traditionalCollectiveInfluence didn’t use this data structure and I think that’s the reason why the traditional c program was slow.
+From the benchmark ,we can see that the result of traditional c implementation traditionalCollectiveInfluence (CI_HEAP) and new c++ cppCollectiveInfluence can both achieve nearly the same result in the metric of Robustness, even the new c++ implementation is more efficient and spends much less time on some datasets than the traditional c program. Data structure of disjoint-set is used in the reinsertion in the new c++ implementation ComplexCi and it can boost a lot. The traditionalCollectiveInfluence (CI_HEAP) didn’t use this data structure and I think that’s the reason why the traditional c program was slow.
 
-We can also see that newReinsertCollectiveInfluence can achieve better Robustness Value result. It can be proved that the newReinsertCollectiveInfluence performs well even the ballRadius is set to 0 in the simple HDA (high degree adaptive) algorithm without using Collective Influence algorithm.
+We can also see that newReinsertCollectiveInfluence (CI_DR) can achieve better Robustness Value result. It can be proved that the newReinsertCollectiveInfluence (CI_DR)  performs well even the ballRadius is set to 0 in the simple HDA (high degree adaptive) algorithm without using Collective Influence algorithm.
 
 ##  DataCastle Competition
 
@@ -361,12 +317,7 @@ tail -f "serID".log
 
 "serID" will be shown on the script running screen
 
-### Detailed algorithm for the Quick/Best script
 
-The details are described in the solution paper. https://github.com/zhfkt/ComplexCi/releases/download/v0.11/Fengkuangtian.Zhu.-.teamID.zhfkt.-.Reconstructing.collapsed.complex.network.to.find.most.influential.nodes.pdf
-
-PPT in CCCN2017 (www.cccn2017.top:2017).
-https://github.com/zhfkt/ComplexCi/blob/master/Fengkuangtian%20Zhu%20-%20teamID%20zhfkt%20-%20presentation.pptx
 
 ### Quick/Best Result Benchmark
 
@@ -383,6 +334,9 @@ https://github.com/zhfkt/ComplexCi/blob/master/Fengkuangtian%20Zhu%20-%20teamID%
 | time        |  6057s               |  5114s               |  10145s               |  3278s                |  9621s               |  4013s                  |  4812s              |  5008s                |  10145s             | 
 
 The time doesn't cover IO read/write from/to disk and 8 datasets are all running in parallel on the 4-core cpu machine (Intel Xeon E5-2667v4 Broadwell 3.2 GHz) with linux.
+
+PPT in CCCN2017 (www.cccn2017.top:2017).
+https://github.com/zhfkt/ComplexCi/blob/master/Fengkuangtian%20Zhu%20-%20teamID%20zhfkt%20-%20presentation.pptx
 
 
 
