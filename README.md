@@ -6,6 +6,11 @@ This project (ComplexCi) mainly focuses on the c++ implementation of Collective 
 
 > Morone F, Min B, Bo L, et al. Collective Influence Algorithm to find influencers via optimal percolation in massively large social media[J]. Scientific reports, 2016, 6.  
 
+This project also covers the new algorithm CI_DR proposed in https://www.nature.com/articles/s41598-018-32874-5 .
+
+> Fengkuantian Zhu. Improved collective influence of finding most influential nodes based on disjoint-set reinsertion[J]. Scientific reports, 2018, 9.  
+
+The users can use the script newReinsertCollectiveInfluence in this project to try the CI_DR.
   
 
 ## Algorithm  
@@ -136,6 +141,10 @@ It means users are using the cppCollectiveInfluence strategy for the input file 
 * newReinsertCollectiveInfluence (CI_DR)
 
 This script involves the new re-insert algorithm of collective influence (CI_DR). After verified on the 8 datasets, this new algorithm can achieve better performance in the metric of Robustness than original re-insert algorithm in collective influence. See in the benchmark sections.
+
+The CI_DR is proposed in https://www.nature.com/articles/s41598-018-32874-5 .
+
+> Fengkuantian Zhu. Improved collective influence of finding most influential nodes based on disjoint-set reinsertion[J]. Scientific reports, 2018, 9.  
 
 Script “newReinsertCollectiveInfluence” accepts 4 parameters:
 
