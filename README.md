@@ -384,7 +384,9 @@ bestResult.sh is the bash script to generate the best result of DataCastle Compe
 
 If you have any question on this project, welcome to file the issue on the github.
 
-## DOI
+## Cite
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.887989.svg)](https://doi.org/10.5281/zenodo.887989)
+To cite ComplexCi please use the following publication:
+
+> Fengkuantian Zhu. Improved collective influence of finding most influential nodes based on disjoint-set reinsertion[J]. Scientific reports, 2018, 9. 
 
