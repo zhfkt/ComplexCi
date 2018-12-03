@@ -8,7 +8,7 @@ This project (ComplexCi) mainly focuses on the c++ implementation of Collective 
 
 This project also covers the new algorithm CI_DR proposed in https://www.nature.com/articles/s41598-018-32874-5 .
 
-> Fengkuantian Zhu. Improved collective influence of finding most influential nodes based on disjoint-set reinsertion[J]. Scientific reports, 2018, 9.  
+> Fengkuangtian Zhu. Improved collective influence of finding most influential nodes based on disjoint-set reinsertion[J]. Scientific reports, 2018, 9.  
 
 The users can use the script newReinsertCollectiveInfluence in this project to try the CI_DR.
   
@@ -144,7 +144,7 @@ This script involves the new re-insert algorithm of collective influence (CI_DR)
 
 The CI_DR is proposed in https://www.nature.com/articles/s41598-018-32874-5 .
 
-> Fengkuantian Zhu. Improved collective influence of finding most influential nodes based on disjoint-set reinsertion[J]. Scientific reports, 2018, 9.  
+> Fengkuangtian Zhu. Improved collective influence of finding most influential nodes based on disjoint-set reinsertion[J]. Scientific reports, 2018, 9.  
 
 Script “newReinsertCollectiveInfluence” accepts 4 parameters:
 
@@ -388,5 +388,5 @@ If you have any question on this project, welcome to file the issue on the githu
 
 To cite ComplexCi please use the following publication:
 
-> Fengkuantian Zhu. Improved collective influence of finding most influential nodes based on disjoint-set reinsertion[J]. Scientific reports, 2018, 9. 
+> Fengkuangtian Zhu. Improved collective influence of finding most influential nodes based on disjoint-set reinsertion[J]. Scientific reports, 2018, 9. 
 
