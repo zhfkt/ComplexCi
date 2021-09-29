@@ -20,6 +20,7 @@
 #include <future>
 #include <algorithm>
 #include <exception>
+#include <cmath>
 
 #include "CI_HEAP.cpp"
 
